@@ -1,0 +1,49 @@
+#N canvas 655 303 923 618 10;
+#X obj 224 360 puropd~;
+#X obj 16 250 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 16 273 metro 900;
+#X msg 9 34 loadfile song /path/to/file.wav;
+#X obj 39 307 bng 25 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 224 408 dac~ 1 2;
+#X msg 19 61 loadfile song /home/oek/lafille.wav;
+#X obj 373 196 s params;
+#X obj 377 354 s params;
+#X obj 12 171 s params;
+#X obj 9 88 s params;
+#X text 373 56 >> Set the envelope shape with a list of the shape:
+(time) value time value time value etc.. >> Times are a decimal of
+the duration of the sample (1.0 == 100%) >> The first time is assumed
+to be 0 and thus omited >> Last time should be 1;
+#X text 377 232 >> Set the audio playhead traverse with a list of the
+shape: (time) value time value time value etc.. >> Times are in seconds
+(10 = 10s) >> The first time is assumed to be 0 and thus omited;
+#X obj 224 330 r params;
+#X text 9 10 >> Load material \, associate with tag "song";
+#X msg 12 143 myidea material song;
+#X text 9 120 >> Associate idea "myidea" with material "song";
+#X msg 373 115 myidea envelope 1 1 1;
+#X msg 383 142 myidea envelope 0 0.5 1 1 0;
+#X msg 393 169 myidea envelope 0 0.25 0.75 0.5 1 0.75 0.75 1 0;
+#X msg 387 327 myidea playhead 10 2.5 12.5 5 10;
+#X msg 377 300 myidea playhead 10 4 14;
+#X obj 16 374 s params;
+#X msg 16 346 myidea onset;
+#X text 14 213 >> Onset grain from "myidea" >> Will only work if everything
+else has been set first;
+#X connect 0 0 5 0;
+#X connect 0 0 5 1;
+#X connect 1 0 2 0;
+#X connect 2 0 23 0;
+#X connect 3 0 10 0;
+#X connect 4 0 23 0;
+#X connect 6 0 10 0;
+#X connect 13 0 0 0;
+#X connect 15 0 9 0;
+#X connect 17 0 7 0;
+#X connect 18 0 7 0;
+#X connect 19 0 7 0;
+#X connect 20 0 8 0;
+#X connect 21 0 8 0;
+#X connect 23 0 22 0;

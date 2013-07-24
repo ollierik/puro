@@ -1,10 +1,10 @@
-#include "m_pd.h"
 #include <string.h>
 #include <malloc.h>
 
-#include "/home/oek/cpp/Puro/Puro.h"
-#include "/home/oek/cpp/Puro/Interpreter.h"
-#include "/home/oek/cpp/Puro/Engine.h"
+#include "m_pd.h"
+#include "../purobase/Puro.h"
+#include "../purobase/Interpreter.h"
+#include "../purobase/Engine.h"
 
 ////////////////////////////
 //////// INIT CLASS ////////
@@ -98,8 +98,8 @@ void puropd_tilde_anything(t_puropd_tilde *x, t_symbol *s, int argc, t_atom *arg
 			x->interp->SetMaterial(CharsToTag(command), CharsToTag(material_tag));
 			return;
 		}
-		// SET AUDIO PASSAGE
-		if (!strcmp(param, "audio")) {
+		// SET PLAYHEAD PASSAGE
+		if (!strcmp(param, "playhead")) {
 			float list[256];
 			for (int i=1;i<argc;i++) {
 				list[i-1] = atom_getfloat(&argv[i]);

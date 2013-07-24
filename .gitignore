@@ -11,3 +11,6 @@
 *.lai
 *.la
 *.a
+
+puropd_tilde/Debug/*
+.project

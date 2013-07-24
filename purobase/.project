@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Puro</name>
+	<name>purobase</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -24,10 +24,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<variableList>
-		<variable>
-			<name>ICST</name>
-			<value>file:/home/oek/src/ICST</value>
-		</variable>
-	</variableList>
 </projectDescription>

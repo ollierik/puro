@@ -14,3 +14,5 @@
 
 puropd_tilde/Debug/*
 purobase/Debug/*
+.metadata/*
+!.metadata/.plugins/org.eclipse.core.resources

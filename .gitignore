@@ -13,6 +13,3 @@
 *.a
 
 puropd_tilde/Debug/*
-.project
-.cproject
-.settings

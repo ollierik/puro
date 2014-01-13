@@ -1,0 +1,61 @@
+/*
+ * MainFrame.cpp
+ *
+ *  Created on: Jul 16, 2013
+ *      Author: oek
+ */
+
+#include "MainFrame.h"
+
+MainFrame::MainFrame(uint16_t nIdeas, uint16_t nDrops) {
+
+	engine_ = new Engine();
+	audio_storage_ = new AudioStorage();
+	worker_ = new Worker(this);
+
+	ideas_.reserve(nIdeas);
+	for (uint16_t i = 0; i < nIdeas; ++i) {
+		ideas_.push_back(Idea());
+		ideas_free_.push(&ideas_[i]);
+	}
+
+	drops_.reserve(nIdeas);
+	for (uint16_t i = 0; i < nDrops; ++i) {
+		drops_.push_back(Drop(this, GetBufferMaxLength()));
+		drops_free_.push(&drops_[i]);
+	}
+
+}
+
+MainFrame::~MainFrame() {
+	// TODO
+}
+
+float* MainFrame::GetAudioData(Tag material) {
+	return audio_storage_->GetData(material);
+}
+
+float* MainFrame::GetAudioSize(Tag material) {
+	return audio_storage_->GetSize(material);
+}
+
+void MainFrame::LoadAudioMaterial(Tag material, char* path) {
+	audio_storage_->LoadFile(material, path);
+}
+
+// TODO WHAT THESE WITH
+void MainFrame::SetAudioPassage(Tag idea, Passage audio) {
+
+}
+	void MainFrame::SetEnvelopePassage(Tag idea, Passage audio);
+	void MainFrame::SetMaterial(Tag idea, Tag material);
+	void MainFrame::Onset(Tag idea); // now
+
+	Idea* GetOnset(uint16_t index); // get next oncoming onset
+	Drop* PopFreeDrop(); // pop next free drop
+	void ScheduleDrop(Drop* drop); // add drop to Engines run queue
+
+	uint32_t GetBufferMaxLength();
+
+
+

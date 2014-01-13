@@ -1,0 +1,69 @@
+/*
+ * Idea.cpp
+ *
+ *  Created on: Jul 15, 2013
+ *      Author: oek
+ */
+
+#include "Idea.h"
+
+Idea::Idea() {
+	std::cout << "Idea" << std::endl;
+	Initialize();
+	audio_ = new Passage(128);
+	envelope_ = new Passage(128);
+}
+
+Idea::~Idea() {
+  delete audio_;
+  delete envelope_;
+}
+
+void
+Idea::Initialize() {
+	idea_ = 0;
+	material_ = 0;
+}
+
+Tag
+Idea::GetIdea() {
+	return idea_;
+}
+Tag
+Idea::GetMaterial() {
+	return material_;
+}
+
+Passage*
+Idea::GetAudioPassage() {
+	return audio_;
+}
+Passage*
+Idea::GetEnvelopePassage() {
+	return envelope_;
+}
+
+
+void
+Idea::SetIdea(Tag idea) {
+	idea_ = idea;
+}
+void
+Idea::SetMaterial(Tag material) {
+	material_ = material;
+}
+/*
+void
+Idea::SetAudio(Passage* audio) {
+	audio_ = audio;
+}
+void
+Idea::SetEnvelope(Passage* envelope) {
+	envelope_ = envelope;
+}
+*/
+bool
+Idea::IsValid() {
+	std::cout<< "Is idea valid?" << std::endl;
+	return (idea_) && (material_) && (audio_) && (envelope_);
+}

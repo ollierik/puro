@@ -1,0 +1,41 @@
+/*
+ * Idea.h
+ *
+ *  Created on: Jul 15, 2013
+ *      Author: oek
+ */
+
+#ifndef IDEA_H_
+#define IDEA_H_
+
+#include "Puro.h";
+#include "Passage.h"
+
+/*
+ * Represents a prototype of a Drop.
+ */
+
+class Idea {
+	Tag idea_;
+	Tag material_;
+	Passage audio_;
+	Passage envelope_;
+public:
+	Idea();
+	~Idea();
+	void Initialize();
+
+	Tag GetIdea();
+	Tag GetMaterial();
+	Passage GetAudio();
+	Passage GetEnvelope();
+
+	void SetIdea(Tag idea);
+	void SetMaterial(Tag material);
+	void SetAudio(Passage audio);
+	void SetEnvelope(Passage envelope);
+
+	bool IsValid();
+};
+
+#endif /* IDEA_H_ */

@@ -1,0 +1,53 @@
+#include "m_pd.h"
+#include "/home/oek/cpp/Puro/Puro.h"
+
+////////////////////////////
+//////// INIT CLASS ////////
+////////////////////////////
+
+static t_class *puropd_class;
+
+typedef struct _puropd {
+	t_object  x_obj;
+
+   // init variables
+   t_sample f;
+
+} t_libcomp;
+
+////////////////////////
+//////// CREATE ////////
+////////////////////////
+
+void *puropd_new(t_floatarg f)
+{
+	t_libcomp *x = (t_libcomp *)pd_new(puropd_class);
+
+	outlet_new(&x->x_obj, &s_float);
+
+  return (void *)x;
+}
+
+void puropd_float(t_libcomp *x, t_floatarg f)
+{
+	Puro* puro = new Puro();
+	puro->HelloWorld();
+	//Complex *c = new Complex(f, 2);
+	//as->AddFile(10, (char*)"/home/oek/file.wav");
+	post("moi");
+}
+
+///////////////////////
+//////// SETUP ////////
+///////////////////////
+
+extern "C" void puropd_setup(void) {
+  puropd_class = class_new(gensym("puropd"),	// NAME
+        (t_newmethod)puropd_new,				// CONSTRUCTOR
+        0, sizeof(t_libcomp),					// DCONSTR, SIZE
+        CLASS_DEFAULT,								// OUTLOOK
+        (t_atomtype)0);											// ARGUMENTS
+
+	class_addfloat(puropd_class, puropd_float);
+}
+

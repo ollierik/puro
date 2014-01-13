@@ -1,0 +1,26 @@
+#include <cstdint>
+#include <map>
+#include <list>
+
+// 8 characters used as identifier, passed as one 64bit int
+typedef uint64_t Tag;
+typedef uint64_t Time; // placeholder for now
+
+Tag CharsToTag(char*);
+
+class MainFrame;
+
+class AudioStorage;
+class Buffer;
+class Drop;
+class Engine;
+class Idea;
+class Interpreter;
+
+class PassageList;
+typedef PassageList* Passage;
+class Puro;
+class Worker;
+
+
+

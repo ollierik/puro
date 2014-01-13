@@ -1,0 +1,39 @@
+/*
+ * Engine.cpp
+ *
+ *  Created on: Jul 15, 2013
+ *      Author: oek
+ */
+
+#include "Engine.h"
+#include <tuple>
+
+Engine::Engine(MainFrame* instance) {
+	instance_ = instance;
+}
+
+Engine::~Engine() {
+	delete drops_in_use_;
+}
+
+void
+Engine::AddDrop() {
+
+
+}
+
+// TODO ADD TIMING
+void
+Engine::GetAudioOutput(uint32_t n, float* buffer) {
+	// iterator running
+	auto running = drops_in_use_.begin();
+	while (running != drops_in_use_.end()) {
+		uint32_t n_summed = running->drop->GetAudio(running->index, n, buffer);
+		if (n_summed != n) {
+			instance_->ReturnDepletedDrop(running->drop);
+			running = drops_in_use_.erase(running);
+		}
+		else
+			running++;
+	}
+}

@@ -1,0 +1,52 @@
+/*
+ * AudioStorage.cpp
+ *
+ *  Created on: Jul 11, 2013
+ *      Author: oek
+ */
+
+#include "AudioStorage.h"
+#include <iostream>
+
+int
+AudioStorage::LoadFile(Tag association, char* path) {
+	icstdsp::AudioFile* add = new icstdsp::AudioFile();
+	add->Load(path);
+
+	std::cout << "Load file data to assoc: " << association << std::endl;
+	files_[association] = add;
+	float* pt = add->GetSafePt();
+	std::cout << "Pointer to data: " << files_[association]->GetSafePt() << std::endl;
+	return 0;
+}
+
+float*
+AudioStorage::GetData(Tag association) {
+
+	std::cout << "GetData w assoc: " << association << std::endl;
+	icstdsp::AudioFile *data = files_[association];
+	std::cout << "data: " << data << std::endl;
+	if (data == 0)
+		return 0;
+	return data->GetSafePt();
+}
+
+uint32_t
+AudioStorage::GetSize(Tag association) {
+
+	std::cout << "Pointer to data: " << files[association]->GetSafePt() << std::endl;
+	icstdsp::AudioFile *data = files[association];
+
+	if (data == 0)
+		return 0;
+	return (uint32_t)data->GetSize();
+}
+
+uint32_t
+AudioStorage::GetSampleRate(Tag association) {
+	icstdsp::AudioFile *data = files[association];
+	if (data == 0)
+		return 0;
+	return (uint32_t)data->GetRate();
+}
+

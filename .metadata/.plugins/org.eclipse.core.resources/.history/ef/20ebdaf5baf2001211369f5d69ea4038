@@ -1,0 +1,69 @@
+/*
+ * AudioStorage.cpp
+ *
+ *  Created on: Jul 11, 2013
+ *      Author: oek
+ */
+
+#include "AudioStorage.h"
+#include <iostream>
+
+
+icstdsp::AudioFile*
+AudioStorage::GetFile(Tag association) {
+
+	icstdsp::AudioFile* file = 0;
+
+	for (uint16_t i = 0; i<files_.size(); i++) {
+		AudioBundle* bundle = files_[i];
+		std::cout << "size: " << files_.size() << std::endl;
+		if (bundle->tag == association)
+			file = bundle->file;
+	}
+	return file;
+}
+
+int
+AudioStorage::LoadFile(Tag association, char* path) {
+
+	icstdsp::AudioFile* new_file = new icstdsp::AudioFile();
+
+	new_file->Load(path);
+	AudioBundle bundle = { association, new_file };
+
+	files_.push_back(bundle);
+
+	AudioBundle* bundle = new AudioBundle;
+	bundle->file = new_file;
+	bundle->tag = association;
+	files_.push_back(bundle);
+
+	return 0;
+}
+
+float*
+AudioStorage::GetData(Tag association) {
+
+	icstdsp::AudioFile* file = GetFile(association);
+	if (file == 0)
+		return 0;
+	return file->GetSafePt();
+}
+
+uint32_t
+AudioStorage::GetSize(Tag association) {
+
+	icstdsp::AudioFile* file = GetFile(association);
+	if (file == 0)
+		return 0;
+	return file->GetSize();
+}
+
+uint32_t
+AudioStorage::GetSampleRate(Tag association) {
+	icstdsp::AudioFile* file = GetFile(association);
+	if (file == 0)
+		return 0;
+	return file->GetRate();
+}
+

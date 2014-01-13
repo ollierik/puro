@@ -1,0 +1,64 @@
+/*
+ * MainFrame.h
+ *
+ *  Created on: Jul 16, 2013
+ *      Author: oek
+ */
+
+#ifndef MAINFRAME_H_
+#define MAINFRAME_H_
+
+
+#include <map>
+#include <tuple>
+#include <vector>
+#include <queue>
+
+#include "Puro.h"
+
+
+class MainFrame {
+
+	Engine* engine_;
+	AudioStorage* audio_storage_;
+	Worker* worker_;
+
+	// Ideas
+	std::vector<Idea> ideas_;
+	std::map<Tag, Idea*> ideas_in_use_;
+	std::queue<Idea*> ideas_free_;
+
+	// Drops
+	std::vector<Drop> drops_;
+	std::map<Tag, Drop*> drops_in_use_;
+	std::queue<Drop*> drops_free_;
+
+	std::list<Idea*> onsets_; // chronologically ordered from lowest
+
+	Idea* GetIdea(Tag association) {
+		Idea* idea = ideas_in_use_[association];
+		if (idea == 0) {
+			idea = ideas_free_.pop();
+			ideas_in_use_[association] = idea;
+		}
+	}
+
+public:
+	MainFrame(uint16_t nIdeas, uint16_t nDrops);
+	~MainFrame();
+	float* GetAudioData(Tag material);
+	float* GetAudioSize(Tag material);
+
+	void LoadAudioMaterial(Tag material, char* path);
+	void SetAudioPassage(Tag idea, Passage audio);
+	void SetEnvelopePassage(Tag idea, Passage audio);
+	void SetMaterial(Tag idea, Tag material);
+	void Onset(Tag idea); // now
+
+	Idea* GetOnset(uint16_t index); // get next oncoming onset
+	Drop* PopFreeDrop(); // pop next free drop
+	void ScheduleDrop(Drop* drop); // add drop to Engines run queue
+
+	uint32_t GetBufferMaxLength();
+};
+#endif /* MAINFRAME_H_ */

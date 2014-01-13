@@ -1,0 +1,30 @@
+/*
+ * Interpreter.cpp
+ *
+ *  Created on: Jul 17, 2013
+ *      Author: oek
+ */
+
+#include "Interpreter.h"
+
+Interpreter::Interpreter(MainFrame* instance) {
+	instance_ = instance;
+}
+// TODO ACTUALLY INTERFACE THESE
+void Interpreter::SetMaterial(Tag idea, Tag material) {
+	Idea* idea_to_use = instance_->GetIdea(idea);
+	idea_to_use->SetMaterial(material);
+}
+void Interpreter::SetAudioPassage(Tag idea, Passage audio) {
+	Idea* idea_to_use = instance_->GetIdea(idea);
+	idea_to_use->SetAudio(audio);
+}
+void Interpreter::SetEnvelopePassage(Tag idea, Passage envelope) {
+	Idea* idea_to_use = instance_->GetIdea(idea);
+	idea_to_use->SetEnvelope(envelope);
+}
+void Interpreter::OnsetDropFromIdea(Tag idea) {
+	Idea* idea_to_use = instance_->GetIdea(idea);
+	instance_->OnsetDrop(Idea* idea_to_use);
+}
+

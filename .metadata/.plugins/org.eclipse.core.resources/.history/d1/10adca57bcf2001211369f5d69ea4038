@@ -1,0 +1,57 @@
+/*
+ * main.cpp
+ *
+ *  Created on: Jul 11, 2013
+ *      Author: oek
+ */
+
+#include "Puro.h"
+#include "Interpreter.h"
+#include "Engine.h"
+#include "Passage.h"
+
+int main() {
+
+/*
+	Passage* passage = new Passage();
+	passage->SetEntry(0, 1, 1);
+	passage->SetEntry(1, 2, 2);
+*/
+
+	Puro* puro = new Puro();
+	Interpreter* interp = puro->GetInterpreter();
+	Engine* engine = puro->GetEngine();
+
+	Tag idea = CharsToTag("u1");
+	Tag material = CharsToTag("lafille");
+
+	interp->LoadAudioMaterial(material, "/home/oek/lafille.wav");
+	interp->SetMaterial(idea, material);
+
+	// AUDIO
+	std::cout << "AUDIO" << std:endl;
+	uint16_t n_audio = 3;
+	float audio_list[3] = { 14000, 2250, 16250 }; // linear
+	interp->SetAudioPassage(idea, n_audio, audio_list);
+
+	// ENVELOPE
+	uint16_t n_envelope = 5;
+	float envelope_list[5] = { 0, 0.5, 1.0, 1.0, 0 }; 	// trapezoid
+	interp->SetEnvelopePassage(idea, n_envelope, envelope_list);
+
+	interp->OnsetDropFromIdea(idea);
+
+	uint32_t n = 256/4;
+	float buffer[n];
+
+	for (int i = 0; i<1; i++) {
+		for (int k=0; k<n; k++) {
+			buffer[k] = 0;
+		}
+		engine->GetAudioOutput(n, buffer);
+		for (int k=0; k<n; k++) {
+			std::cout << i <<"."<< k << ": " << buffer[k] << std::endl;
+		}
+	}
+	std::cout << "Done!" << std::endl;
+}

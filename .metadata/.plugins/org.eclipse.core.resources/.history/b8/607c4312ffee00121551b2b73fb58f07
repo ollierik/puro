@@ -1,0 +1,21 @@
+/*
+ * Interpreter.cpp
+ *
+ *  Created on: Jul 17, 2013
+ *      Author: oek
+ */
+
+#include "Interpreter.h"
+
+Interpreter::Interpreter(MainFrame* instance) {
+	instance_ = instance;
+}
+
+void Interpreter::SetMaterial(Tag Idea, Tag Material) {
+	instance_->GetIdea(idea);
+
+}
+void SetAudioPassage(Tag Idea, Passage audio);
+void SetEnvelopePassage(Tag Idea, Passage envelope);
+
+

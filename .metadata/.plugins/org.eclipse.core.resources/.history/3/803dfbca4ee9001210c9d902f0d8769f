@@ -1,0 +1,53 @@
+#include "m_pd.h"
+//#include "AudioStorage.h"
+//#include "complex.h"
+
+////////////////////////////
+//////// INIT CLASS ////////
+////////////////////////////
+
+static t_class *libcomp_class;
+
+typedef struct _libcomp {
+	t_object  x_obj;
+
+   // init variables
+   t_sample f;
+
+} t_libcomp;
+
+////////////////////////
+//////// CREATE ////////
+////////////////////////
+
+void *libcomp_new(t_floatarg f)
+{
+	t_libcomp *x = (t_libcomp *)pd_new(libcomp_class);
+
+	outlet_new(&x->x_obj, &s_float);
+
+  return (void *)x;
+}
+
+void libcomp_float(t_libcomp *x, t_floatarg f)
+{
+//	AudioStorage *as = new AudioStorage();
+	//Complex *c = new Complex(f, 2);
+	//as->AddFile(10, (char*)"/home/oek/file.wav");
+	//post("%f\n", c->Abs());
+	post("moi\n")
+}
+
+///////////////////////
+//////// SETUP ////////
+///////////////////////
+
+extern "C" void libcomp_setup(void) {
+  libcomp_class = class_new(gensym("libcomp"),	// NAME
+        (t_newmethod)libcomp_new,				// CONSTRUCTOR
+        0, sizeof(t_libcomp),					// DCONSTR, SIZE
+        CLASS_DEFAULT,								// OUTLOOK
+        (t_atomtype)0);											// ARGUMENTS
+
+	class_addfloat(libcomp_class, libcomp_float);
+}

@@ -12,7 +12,10 @@
 *.la
 *.a
 
-puropd_tilde/Debug/*
-purobase/Debug/*
+*.DS_Store
 .metadata/*
-!.metadata/.plugins/org.eclipse.core.resources
+lib/*
+Build
+puropd_tilde/Build
+puropd_tilde/bin/*
+purobase/Debug/*

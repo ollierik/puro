@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		77793AD918852AA8008AD09B /* m_pd.h in Headers */ = {isa = PBXBuildFile; fileRef = 77793AD718852AA8008AD09B /* m_pd.h */; };
 		77793ADA18852AA8008AD09B /* puropd~.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77793AD818852AA8008AD09B /* puropd~.cpp */; };
-		77793AE0188539AF008AD09B /* libpuro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7729156C1884C993006ABE88 /* libpuro.a */; };
+		77793AEB18855EFF008AD09B /* libpuro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7729156C1884C993006ABE88 /* libpuro.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,7 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77793AE0188539AF008AD09B /* libpuro.a in Frameworks */,
+				77793AEB18855EFF008AD09B /* libpuro.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,8 +62,8 @@
 		778E0C3D1884B81D009B3D68 = {
 			isa = PBXGroup;
 			children = (
-				77291570188529F0006ABE88 /* src */,
 				772915671884C993006ABE88 /* puro.xcodeproj */,
+				77291570188529F0006ABE88 /* src */,
 				77793ADF1885398B008AD09B /* puropd~.pd_darwin */,
 			);
 			sourceTree = "<group>";

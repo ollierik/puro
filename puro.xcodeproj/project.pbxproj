@@ -48,7 +48,7 @@
 		772915481884C6B0006ABE88 /* Puro.h in Headers */ = {isa = PBXBuildFile; fileRef = 7729151E1884C6B0006ABE88 /* Puro.h */; };
 		772915491884C6B0006ABE88 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151F1884C6B0006ABE88 /* Worker.cpp */; };
 		7729154A1884C6B0006ABE88 /* Worker.h in Headers */ = {isa = PBXBuildFile; fileRef = 772915201884C6B0006ABE88 /* Worker.h */; };
-		776C4F50188D1B3700D6B664 /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 776C4F4E188D1B3700D6B664 /* resource.h */; };
+		776C4F50188D1B3700D6B664 /* respool.h in Headers */ = {isa = PBXBuildFile; fileRef = 776C4F4E188D1B3700D6B664 /* respool.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,7 +94,7 @@
 		7729151E1884C6B0006ABE88 /* Puro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Puro.h; sourceTree = "<group>"; };
 		7729151F1884C6B0006ABE88 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Worker.cpp; sourceTree = "<group>"; };
 		772915201884C6B0006ABE88 /* Worker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Worker.h; sourceTree = "<group>"; };
-		776C4F4E188D1B3700D6B664 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
+		776C4F4E188D1B3700D6B664 /* respool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = respool.h; sourceTree = "<group>"; };
 		77793AE118853A23008AD09B /* libpuro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpuro.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -136,7 +136,7 @@
 				772915191884C6B0006ABE88 /* PuroBase.cpp */,
 				7729151A1884C6B0006ABE88 /* PuroBase.h */,
 				7729151B1884C6B0006ABE88 /* Passage.cpp */,
-				776C4F4E188D1B3700D6B664 /* resource.h */,
+				776C4F4E188D1B3700D6B664 /* respool.h */,
 				7729151C1884C6B0006ABE88 /* Passage.h */,
 				7729151D1884C6B0006ABE88 /* Puro.cpp */,
 				7729151E1884C6B0006ABE88 /* Puro.h */,
@@ -190,7 +190,7 @@
 				772915261884C6B0006ABE88 /* Drop.h in Headers */,
 				7729152A1884C6B0006ABE88 /* AudioAnalysis.h in Headers */,
 				772915461884C6B0006ABE88 /* Passage.h in Headers */,
-				776C4F50188D1B3700D6B664 /* resource.h in Headers */,
+				776C4F50188D1B3700D6B664 /* respool.h in Headers */,
 				7729154A1884C6B0006ABE88 /* Worker.h in Headers */,
 				7729152C1884C6B0006ABE88 /* AudioFile.h in Headers */,
 				772915381884C6B0006ABE88 /* MathDefs.h in Headers */,

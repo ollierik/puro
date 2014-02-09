@@ -15,6 +15,7 @@
 #include <list>
 
 #include "Puro.h"
+#include "resource.h"
 
 struct Onset {
 public:
@@ -42,8 +43,10 @@ class PuroBase {
 	std::queue<Drop *> drops_free_;
     
     // Passages
-    std::vector<Passage> audio_passages_;
-    std::vector<Passage> envelope_passages_;
+    //std::vector<Passage> audio_passages_;
+    //std::vector<Passage> envelope_passages_;
+    respool<Passage> audio_passages_;
+    respool<Passage> envelope_passages_;
     
     
 public:

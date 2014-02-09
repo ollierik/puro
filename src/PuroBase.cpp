@@ -23,6 +23,8 @@ PuroBase::PuroBase(uint16_t n_ideas,  uint16_t n_drops, uint16_t n_audio_passage
 	interpreter_ = new Interpreter(this);
 	worker_ = new Worker(this);
     
+    audio_passages_ = new resource<Passage>(n_audio_passages, Passage(
+    
 	ideas_.reserve(n_ideas);
 	for (uint16_t i = 0; i < n_ideas; ++i) {
 		Idea* new_idea = new Idea();

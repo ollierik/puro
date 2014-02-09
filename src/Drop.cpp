@@ -10,9 +10,9 @@
 #include "Buffer.h"
 #include "Drop.h"
 #include "Passage.h"
-#include "MainFrame.h"
+#include "PuroBase.h"
 
-Drop::Drop(MainFrame *instance, uint32_t buffer_size) {
+Drop::Drop(PuroBase *instance, uint32_t buffer_size) {
 	// TODO Auto-generated constructor stub
 
 	//std::cout << "Drop" << std::endl;
@@ -21,6 +21,8 @@ Drop::Drop(MainFrame *instance, uint32_t buffer_size) {
 	material_ = 0;
 	envelope_ = new Buffer(buffer_size);
 	audio_ = new Buffer(buffer_size);
+    Passage audio_passage_ = new Passage(;
+    Passage envelope_passage_;
 }
 
 Drop::~Drop() {
@@ -167,4 +169,8 @@ Drop::GetAudio(uint32_t index, uint32_t n, float* buffer) {
 	}
 	//std::cout << "n summed: " << n << std::endl;
 	return n;
+}
+
+Time Drop::GetOnsetTime() {
+    return onset_time_;
 }

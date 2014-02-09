@@ -16,9 +16,10 @@
 
 // 8 characters used as identifier, passed as one 64bit int
 typedef uint64_t Tag;
-typedef uint64_t Time; // placeholder for now
+typedef uint64_t Time;
 
-class MainFrame;
+
+class PuroBase;
 class AudioStorage;
 class Buffer;
 class Drop;
@@ -30,7 +31,7 @@ class Worker;
 
 
 class Puro {
-	MainFrame* mainframe_;
+	PuroBase* mainframe_;
 public:
 	Puro();
 	~Puro();

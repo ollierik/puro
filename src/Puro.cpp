@@ -8,7 +8,7 @@
 
 #include "Puro.h"
 #include <iostream>
-#include "MainFrame.h"
+#include "PuroBase.h"
 #include "Passage.h"
 
 Tag CharsToTag(char* name) {
@@ -43,7 +43,7 @@ FloatListToPassage(Passage* passage_to_use, uint16_t n_data, float* data) {
 
 
 Puro::Puro() {
-	mainframe_ = new MainFrame(4, 16);
+	mainframe_ = new PuroBase(4, 16);
 }
 
 Puro::~Puro() {

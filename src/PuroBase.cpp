@@ -6,7 +6,7 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#include "MainFrame.h"
+#include "PuroBase.h"
 #include "Engine.h"
 #include "AudioStorage.h"
 #include "Worker.h"
@@ -14,32 +14,31 @@
 #include "Idea.h"
 #include "Drop.h"
 
-MainFrame::MainFrame(uint16_t n_ideas, uint16_t n_drops) {
-
-	//std::cout << "MainFrame" << std::endl;
-
+PuroBase::PuroBase(uint16_t n_ideas,  uint16_t n_drops, uint16_t n_audio_passages, uint16_t n_envelope_passages) {
+    
+	//std::cout << "PuroBase" << std::endl;
+    
 	audio_storage_ = new AudioStorage();
 	engine_ = new Engine(this);
 	interpreter_ = new Interpreter(this);
 	worker_ = new Worker(this);
-
+    
 	ideas_.reserve(n_ideas);
 	for (uint16_t i = 0; i < n_ideas; ++i) {
 		Idea* new_idea = new Idea();
 		ideas_.push_back(*new_idea);
 		ideas_free_.push(&ideas_[i]);
 	}
-
-	drops_.reserve(n_drops);
+    
+	//drops_.reserve(n_drops);
 	for (uint16_t i = 0; i < n_drops; ++i) {
 		Drop* new_drop = new Drop(this, GetBufferMaxLength());
-		drops_.push_back(*new_drop);
-		drops_free_.push(&drops_[i]);
+		//drops_.push_back(*new_drop);
+		drops_free_.push(new_drop);
 	}
-
 }
 
-MainFrame::~MainFrame() {
+PuroBase::~PuroBase() {
 	delete interpreter_;
 	delete engine_;
 	delete audio_storage_;
@@ -47,7 +46,7 @@ MainFrame::~MainFrame() {
 }
 
 Idea*
-MainFrame::GetIdea(Tag association) {
+PuroBase::GetIdea(Tag association) {
 	//std::cout << "Get idea " << association << std::endl;
 	Idea* idea = ideas_in_use_[association];
 	if (idea == 0) {
@@ -60,42 +59,58 @@ MainFrame::GetIdea(Tag association) {
 	return idea;
 }
 
-float* MainFrame::GetAudioData(Tag material) {
+float* PuroBase::GetAudioData(Tag material) {
 	return audio_storage_->GetData(material);
 }
 
-uint32_t MainFrame::GetAudioSize(Tag material) {
+uint32_t PuroBase::GetAudioSize(Tag material) {
 	return audio_storage_->GetSize(material);
 }
 
-void MainFrame::LoadAudioMaterial(Tag material, char* path) {
+void PuroBase::LoadAudioMaterial(Tag material, char* path) {
 	audio_storage_->LoadFile(material, path);
 }
 
-void MainFrame::OnsetDrop(Idea* idea) {
-
-	//std::cout << "Onset drop, n of onsets now: " << onsets_.size() << std::endl;
-	// TODO TIME
-	// LOGIC TO INSERTING TO RIGHT SPOT WHEN TIME IS ADDED
+void PuroBase::OnsetDrop(Tag association, Time relative) {
+    
+    Idea* idea = GetIdea(association);
+    
 	if (idea->IsValid()) {
-		onsets_.push(idea);
+        Drop* drop = PopFreeDrop();
+        if (drop == 0) return;
+        
+        //drop->Initialize
+        
+        Time absolute = relative + idea->GetTimeOffset();
+        
+        // ARRANGE CHRONOLOGICALLY
+        auto it = onsets_.begin();
+        while (it != onsets_.end()) {
+            if (absolute < (*it)->GetOnsetTime()) {
+                break;
+            }
+            it++;
+        }
+        onsets_.insert(it, drop);
 		//std::cout << "n of onsets afterwards: " << onsets_.size() << std::endl;
 	}
 }
 
-Idea*
-MainFrame::GetNextOnset() {
+Drop*
+PuroBase::GetNextOnset() {
 	if (onsets_.empty())
 		return 0;
-	Idea* next = onsets_.front();
-	onsets_.pop();
+	Drop* next = onsets_.front();
+	onsets_.pop_front();
 	return next;
 }
 
 // TODO CHECKS
 Drop*
-MainFrame::PopFreeDrop() {
+PuroBase::PopFreeDrop() {
 	//std::cout << "Pop free drop, n: " << drops_free_.size() << std::endl;
+    if (drops_free_.empty())
+        return 0;
 	Drop* drop = drops_free_.front();
 	drops_free_.pop();
 	return drop;
@@ -103,44 +118,51 @@ MainFrame::PopFreeDrop() {
 
 // TODO TIME
 void
-MainFrame::ScheduleDrop(Drop* drop) {
+PuroBase::ScheduleDrop(Drop* drop) {
 	engine_->AddDrop(drop);
 }
 
 void
-MainFrame::ReturnDepletedDrop(Drop* drop) {
+PuroBase::ReturnDepletedDrop(Drop* drop) {
 	//std::cout << "Drop depleted" << std::endl;
 	drops_free_.push(drop);
 }
 
-
 uint32_t
-MainFrame::GetBufferMaxLength() {
+PuroBase::GetBufferMaxLength() {
 	return 262144;
 }
 
 uint16_t
-MainFrame::GetPassageMaxLength() {
+PuroBase::GetPassageMaxLength() {
 	return 128;
 }
 
-uint32_t
-MainFrame::GetMaterialSampleRate(Tag material) {
+inline uint32_t
+PuroBase::GetMaterialSampleRate(Tag material) {
 	return (uint32_t)audio_storage_->GetSampleRate(material);
 }
 
-Engine*
-MainFrame::GetEngine() {
+inline Engine*
+PuroBase::GetEngine() {
 	return engine_;
 }
 
-Interpreter*
-MainFrame::GetInterpreter() {
+inline Interpreter*
+PuroBase::GetInterpreter() {
 	return interpreter_;
 }
 
+
+inline void
+PuroBase::SyncIdea(Tag association) {
+    Idea* idea_to_use = this->GetIdea(association);
+    Time current_time = this->GetTime();
+    idea_to_use->SetTimeOffset(current_time);
+}
+
 void
-MainFrame::Tick() {
+PuroBase::Tick() {
 	//std::cout << "MAINFRAME TICK" << std::endl;
 	worker_->Tick();
 }

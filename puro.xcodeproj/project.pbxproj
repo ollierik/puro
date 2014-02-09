@@ -40,19 +40,18 @@
 		7729153F1884C6B0006ABE88 /* Idea.h in Headers */ = {isa = PBXBuildFile; fileRef = 772915151884C6B0006ABE88 /* Idea.h */; };
 		772915401884C6B0006ABE88 /* Interpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915161884C6B0006ABE88 /* Interpreter.cpp */; };
 		772915411884C6B0006ABE88 /* Interpreter.h in Headers */ = {isa = PBXBuildFile; fileRef = 772915171884C6B0006ABE88 /* Interpreter.h */; };
-		772915431884C6B0006ABE88 /* MainFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915191884C6B0006ABE88 /* MainFrame.cpp */; };
-		772915441884C6B0006ABE88 /* MainFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 7729151A1884C6B0006ABE88 /* MainFrame.h */; };
+		772915431884C6B0006ABE88 /* PuroBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915191884C6B0006ABE88 /* PuroBase.cpp */; };
+		772915441884C6B0006ABE88 /* PuroBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 7729151A1884C6B0006ABE88 /* PuroBase.h */; };
 		772915451884C6B0006ABE88 /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151B1884C6B0006ABE88 /* Passage.cpp */; };
 		772915461884C6B0006ABE88 /* Passage.h in Headers */ = {isa = PBXBuildFile; fileRef = 7729151C1884C6B0006ABE88 /* Passage.h */; };
 		772915471884C6B0006ABE88 /* Puro.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151D1884C6B0006ABE88 /* Puro.cpp */; };
 		772915481884C6B0006ABE88 /* Puro.h in Headers */ = {isa = PBXBuildFile; fileRef = 7729151E1884C6B0006ABE88 /* Puro.h */; };
 		772915491884C6B0006ABE88 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151F1884C6B0006ABE88 /* Worker.cpp */; };
 		7729154A1884C6B0006ABE88 /* Worker.h in Headers */ = {isa = PBXBuildFile; fileRef = 772915201884C6B0006ABE88 /* Worker.h */; };
+		776C4F50188D1B3700D6B664 /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 776C4F4E188D1B3700D6B664 /* resource.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		772914F31884C6B0006ABE88 /* .cproject */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = .cproject; sourceTree = "<group>"; };
-		772914F41884C6B0006ABE88 /* .project */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = .project; sourceTree = "<group>"; };
 		772914F51884C6B0006ABE88 /* AudioStorage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioStorage.cpp; sourceTree = "<group>"; };
 		772914F61884C6B0006ABE88 /* AudioStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStorage.h; sourceTree = "<group>"; };
 		772914F71884C6B0006ABE88 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
@@ -87,14 +86,15 @@
 		772915151884C6B0006ABE88 /* Idea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Idea.h; sourceTree = "<group>"; };
 		772915161884C6B0006ABE88 /* Interpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Interpreter.cpp; sourceTree = "<group>"; };
 		772915171884C6B0006ABE88 /* Interpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interpreter.h; sourceTree = "<group>"; };
-		772915191884C6B0006ABE88 /* MainFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainFrame.cpp; sourceTree = "<group>"; };
-		7729151A1884C6B0006ABE88 /* MainFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainFrame.h; sourceTree = "<group>"; };
+		772915191884C6B0006ABE88 /* PuroBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PuroBase.cpp; sourceTree = "<group>"; };
+		7729151A1884C6B0006ABE88 /* PuroBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PuroBase.h; sourceTree = "<group>"; };
 		7729151B1884C6B0006ABE88 /* Passage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Passage.cpp; sourceTree = "<group>"; };
 		7729151C1884C6B0006ABE88 /* Passage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Passage.h; sourceTree = "<group>"; };
 		7729151D1884C6B0006ABE88 /* Puro.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Puro.cpp; sourceTree = "<group>"; };
 		7729151E1884C6B0006ABE88 /* Puro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Puro.h; sourceTree = "<group>"; };
 		7729151F1884C6B0006ABE88 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Worker.cpp; sourceTree = "<group>"; };
 		772915201884C6B0006ABE88 /* Worker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Worker.h; sourceTree = "<group>"; };
+		776C4F4E188D1B3700D6B664 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
 		77793AE118853A23008AD09B /* libpuro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpuro.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -121,8 +121,6 @@
 			isa = PBXGroup;
 			children = (
 				772914FD1884C6B0006ABE88 /* ICST */,
-				772914F31884C6B0006ABE88 /* .cproject */,
-				772914F41884C6B0006ABE88 /* .project */,
 				772914F51884C6B0006ABE88 /* AudioStorage.cpp */,
 				772914F61884C6B0006ABE88 /* AudioStorage.h */,
 				772914F71884C6B0006ABE88 /* Buffer.cpp */,
@@ -135,9 +133,10 @@
 				772915151884C6B0006ABE88 /* Idea.h */,
 				772915161884C6B0006ABE88 /* Interpreter.cpp */,
 				772915171884C6B0006ABE88 /* Interpreter.h */,
-				772915191884C6B0006ABE88 /* MainFrame.cpp */,
-				7729151A1884C6B0006ABE88 /* MainFrame.h */,
+				772915191884C6B0006ABE88 /* PuroBase.cpp */,
+				7729151A1884C6B0006ABE88 /* PuroBase.h */,
 				7729151B1884C6B0006ABE88 /* Passage.cpp */,
+				776C4F4E188D1B3700D6B664 /* resource.h */,
 				7729151C1884C6B0006ABE88 /* Passage.h */,
 				7729151D1884C6B0006ABE88 /* Puro.cpp */,
 				7729151E1884C6B0006ABE88 /* Puro.h */,
@@ -191,6 +190,7 @@
 				772915261884C6B0006ABE88 /* Drop.h in Headers */,
 				7729152A1884C6B0006ABE88 /* AudioAnalysis.h in Headers */,
 				772915461884C6B0006ABE88 /* Passage.h in Headers */,
+				776C4F50188D1B3700D6B664 /* resource.h in Headers */,
 				7729154A1884C6B0006ABE88 /* Worker.h in Headers */,
 				7729152C1884C6B0006ABE88 /* AudioFile.h in Headers */,
 				772915381884C6B0006ABE88 /* MathDefs.h in Headers */,
@@ -202,7 +202,7 @@
 				772915411884C6B0006ABE88 /* Interpreter.h in Headers */,
 				7729152E1884C6B0006ABE88 /* AudioSynth.h in Headers */,
 				772915301884C6B0006ABE88 /* BlkDsp.h in Headers */,
-				772915441884C6B0006ABE88 /* MainFrame.h in Headers */,
+				772915441884C6B0006ABE88 /* PuroBase.h in Headers */,
 				772915221884C6B0006ABE88 /* AudioStorage.h in Headers */,
 				772915341884C6B0006ABE88 /* CritSect.h in Headers */,
 			);
@@ -264,7 +264,7 @@
 				772915451884C6B0006ABE88 /* Passage.cpp in Sources */,
 				772915371884C6B0006ABE88 /* fftoouraf.cpp in Sources */,
 				772915271884C6B0006ABE88 /* Engine.cpp in Sources */,
-				772915431884C6B0006ABE88 /* MainFrame.cpp in Sources */,
+				772915431884C6B0006ABE88 /* PuroBase.cpp in Sources */,
 				7729152F1884C6B0006ABE88 /* BlkDsp.cpp in Sources */,
 				772915361884C6B0006ABE88 /* fftoourad.cpp in Sources */,
 				772915291884C6B0006ABE88 /* AudioAnalysis.cpp in Sources */,

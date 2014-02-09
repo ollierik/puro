@@ -11,10 +11,10 @@
 #define WORKER_H_
 
 class Worker {
-	MainFrame *instance_;
+	PuroBase *instance_;
 	// TODO processing buffer for FFT
 public:
-	Worker(MainFrame* instance);
+	Worker(PuroBase* instance);
 	virtual ~Worker();
 	void PrepareDrop(Idea* onset, Drop* drop);
 	void Tick();

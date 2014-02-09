@@ -21,6 +21,8 @@ class Idea {
 	Tag material_;
 	Passage* audio_;
 	Passage* envelope_;
+    Time time_offset_;
+    
 public:
 	Idea();
 	~Idea();
@@ -35,6 +37,9 @@ public:
 	void SetMaterial(Tag material);
 	//void SetAudio(Passage* audio);
 	//void SetEnvelope(Passage* envelope);
+    
+    Time GetTimeOffset();
+    void SetTimeOffset(Time current);
 
 	bool IsValid(); // has it been initialized with parameters?
 };

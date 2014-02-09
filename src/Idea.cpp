@@ -52,6 +52,16 @@ void
 Idea::SetMaterial(Tag material) {
 	material_ = material;
 }
+
+Time
+Idea::GetTimeOffset() {
+    return time_offset_;
+}
+void
+Idea::SetTimeOffset(Time current) {
+    time_offset_ = current;
+}
+
 /*
 void
 Idea::SetAudio(Passage* audio) {

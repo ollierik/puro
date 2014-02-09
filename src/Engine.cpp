@@ -8,9 +8,9 @@
 
 #include "Engine.h"
 #include "Drop.h"
-#include "MainFrame.h"
+#include "PuroBase.h"
 
-Engine::Engine(MainFrame* instance) {
+Engine::Engine(PuroBase* instance) {
 	//std::cout << "Engine" << std::endl;
 	instance_ = instance;
 }
@@ -43,7 +43,8 @@ Engine::GetAudioOutput(uint32_t n, float* buffer) {
 			instance_->ReturnDepletedDrop(running->drop);
 			running = drops_in_use_.erase(running);
 		}
-		else
+		else {
 			running++;
+        }
 	}
 }

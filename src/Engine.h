@@ -17,10 +17,10 @@ struct DropBundle {
 };
 
 class Engine {
-	MainFrame* instance_;
+	PuroBase* instance_;
 	std::list<struct DropBundle> drops_in_use_;
 public:
-	Engine(MainFrame* instance_);
+	Engine(PuroBase* instance_);
 	~Engine();
 	void AddDrop(Drop* drop);
 	void GetAudioOutput(uint32_t n, float* buffer);

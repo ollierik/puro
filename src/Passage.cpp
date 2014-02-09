@@ -43,3 +43,17 @@ Passage::SetEntry(uint16_t index, float time, float value) {
 	list_[index].value = value;
 	list_[index].time = time;
 }
+
+//////////////////////////////////////////////////////////////
+
+PassageContainer::PassageContainer(uint16_t n_passages, uint16_t passage_capacity) {
+    passages_.reserve(n_passages);
+	for (uint16_t i = 0; i < n_passages; ++i) {
+		Passage* new_passage = new Passage(passage_capacity);
+		passages_.push_back(*new_passage);
+	}
+}
+
+
+
+

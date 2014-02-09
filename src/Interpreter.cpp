@@ -8,12 +8,13 @@
 
 #include "Interpreter.h"
 #include "Idea.h"
-#include "MainFrame.h"
+#include "PuroBase.h"
 
-Interpreter::Interpreter(MainFrame* instance) {
+Interpreter::Interpreter(PuroBase* instance) {
 	//std::cout << "Interpreter" << std::endl;
 	instance_ = instance;
 }
+
 // TODO ACTUALLY INTERFACE THESE
 void
 Interpreter::SetMaterial(Tag idea, Tag material) {
@@ -22,10 +23,15 @@ Interpreter::SetMaterial(Tag idea, Tag material) {
 }
 
 void
+Interpreter::SetSync(Tag idea) {
+    instance_->SyncIdea(idea);
+}
+
+void
 Interpreter::SetAudioPassage(Tag idea, uint16_t n_data, float* data) {
 
 	Idea* idea_to_use = instance_->GetIdea(idea);
-	Passage* passage_to_use = idea_to_use->GetAudioPassage();
+	Passage* passage_to_use = idea_to_use->DetachAudioPassage();
 	FloatListToPassage(passage_to_use, n_data, data);
 }
 
@@ -38,10 +44,9 @@ Interpreter::SetEnvelopePassage(Tag idea, uint16_t n_data, float* data) {
 }
 
 void
-Interpreter::OnsetDropFromIdea(Tag idea) {
+Interpreter::OnsetDropFromIdea(Tag idea, Time time) {
 	//std::cout << "Onset drop from idea" << std::endl;
-	Idea* idea_to_use = instance_->GetIdea(idea);
-	instance_->OnsetDrop(idea_to_use);
+	instance_->OnsetDrop(idea, time);
 }
 void
 Interpreter::LoadAudioMaterial(Tag association, char* path_to_file) {

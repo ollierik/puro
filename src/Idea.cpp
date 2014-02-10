@@ -62,16 +62,15 @@ Idea::SetTimeOffset(Time current) {
     time_offset_ = current;
 }
 
-/*
 void
-Idea::SetAudio(Passage* audio) {
+Idea::SetAudioPassage(Passage* audio) {
 	audio_ = audio;
 }
 void
-Idea::SetEnvelope(Passage* envelope) {
+Idea::SetEnvelopePassage(Passage* envelope) {
 	envelope_ = envelope;
 }
-*/
+
 bool
 Idea::IsValid() {
 	bool is_valid = (association_) && (material_)

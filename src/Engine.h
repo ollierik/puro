@@ -6,8 +6,7 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef ENGINE_H_
-#define ENGINE_H_
+#pragma once
 
 #include "Puro.h"
 
@@ -25,5 +24,3 @@ public:
 	void AddDrop(Drop* drop);
 	void GetAudioOutput(uint32_t n, float* buffer);
 };
-
-#endif /* ENGINE_H_ */

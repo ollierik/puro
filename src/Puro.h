@@ -6,8 +6,7 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef PURO_H_
-#define PURO_H_
+#pragma once
 
 #include <iostream>
 #include <stdint.h>
@@ -44,4 +43,3 @@ public:
 Tag CharsToTag(char*);
 void FloatListToPassage(Passage* passage_to_use, uint16_t n_data, float* data);
 
-#endif /* PURO_H_ */

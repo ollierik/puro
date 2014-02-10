@@ -23,7 +23,12 @@ PuroBase::PuroBase(uint16_t n_ideas,  uint16_t n_drops, uint16_t n_audio_passage
 	interpreter_ = new Interpreter(this);
 	worker_ = new Worker(this);
     
-    audio_passages_ = new resource<Passage>(n_audio_passages, Passage(
+    audio_passages_.assign(20, Passage(128));
+    envelope_passages_.assign(20, Passage(128));
+    
+    //Passage passage_prototype(128);
+    //= new respool<Passage>(n_audio_passages, &passage_prototype);
+    //envelope_passages_ = new respool<Passage>(n_envelope_passages, &passage_prototype);
     
 	ideas_.reserve(n_ideas);
 	for (uint16_t i = 0; i < n_ideas; ++i) {
@@ -61,19 +66,45 @@ PuroBase::GetIdea(Tag association) {
 	return idea;
 }
 
-float* PuroBase::GetAudioData(Tag material) {
+Passage *
+PuroBase::GetFreeAudioPassage() {
+    return audio_passages_.getinactive();
+}
+
+Passage *
+PuroBase::GetFreeEnvelopePassage() {
+    return envelope_passages_.getinactive();
+}
+
+void
+PuroBase::AssociateAudioPassage(Tag idea, Passage* filled) {
+    Idea* idea_to_use = GetIdea(idea);
+    idea_to_use->SetAudioPassage(filled);
+}
+
+void
+PuroBase::AssociateEnvelopePassage(Tag idea, Passage* filled) {
+    Idea* idea_to_use = GetIdea(idea);
+    idea_to_use->SetEnvelopePassage(filled);
+}
+
+float *
+PuroBase::GetAudioData(Tag material) {
 	return audio_storage_->GetData(material);
 }
 
-uint32_t PuroBase::GetAudioSize(Tag material) {
+uint32_t
+PuroBase::GetAudioSize(Tag material) {
 	return audio_storage_->GetSize(material);
 }
 
-void PuroBase::LoadAudioMaterial(Tag material, char* path) {
+void
+PuroBase::LoadAudioMaterial(Tag material, char* path) {
 	audio_storage_->LoadFile(material, path);
 }
 
-void PuroBase::OnsetDrop(Tag association, Time relative) {
+void
+PuroBase::OnsetDrop(Tag association, Time relative) {
     
     Idea* idea = GetIdea(association);
     
@@ -81,8 +112,7 @@ void PuroBase::OnsetDrop(Tag association, Time relative) {
         Drop* drop = PopFreeDrop();
         if (drop == 0) return;
         
-        //drop->Initialize
-        
+        drop->Initialize(Idea* idea);
         Time absolute = relative + idea->GetTimeOffset();
         
         // ARRANGE CHRONOLOGICALLY

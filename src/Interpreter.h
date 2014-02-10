@@ -6,13 +6,12 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef INTERPRETER_H_
-#define INTERPRETER_H_
+#pragma once
 
 #include "Puro.h"
 
 class Interpreter {
-	PuroBase* instance_;
+	PuroBase* base_;
 public:
 	Interpreter(PuroBase* instance);
 	void SetMaterial(Tag idea, Tag material);
@@ -23,5 +22,3 @@ public:
 	void LoadAudioMaterial(Tag association, char* path_to_file);
 
 };
-
-#endif /* INTERPRETER_H_ */

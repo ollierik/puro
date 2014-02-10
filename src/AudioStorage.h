@@ -6,8 +6,7 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef AUDIOSTORAGE_H_
-#define AUDIOSTORAGE_H_
+#pragma once
 
 #include "Puro.h"
 #include "ICST/common.h"
@@ -28,5 +27,3 @@ public:
 	uint32_t GetSize(Tag association);
 	uint32_t GetSampleRate(Tag association);
 };
-
-#endif /* AUDIOSTORAGE_H_ */

@@ -6,17 +6,18 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef DROP_H_
-#define DROP_H_
+#pragma once
 
 #include "Puro.h"
 
 class Drop {
-	PuroBase* instance_;
+	PuroBase* base_;
 	Tag idea_;
 	Tag material_;
     Time onset_time_;
 	//Drop* next_;
+    Passage* audio_passage_;
+    Passage* envelope_passage_;
 	Buffer* audio_;
 	Buffer* envelope_;
 
@@ -29,10 +30,8 @@ public:
 	uint32_t GetAudio(uint32_t index, uint32_t n, float* buffer);
     Time GetOnsetTime();
     
-	//void Initialize(Tag idea, Tag material);
-	void Initialize(Tag idea, Tag material);
-	int32_t ProcessAudio(Passage* audio);
-	int32_t ProcessEnvelope(Passage* envelope);
+	//void Initialize(Tag idea, Tag material, Passage* audio, Passage* envelope);
+    void Initialize(Idea* idea);
+	int32_t ProcessAudio();
+	int32_t ProcessEnvelope();
 };
-
-#endif /* DROP_H_ */

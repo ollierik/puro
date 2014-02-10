@@ -6,11 +6,11 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef PASSAGE_H_
-#define PASSAGE_H_
+
+#pragma once
 
 #include "Puro.h"
-#include <list>
+#include <vector>
 
 //#define PASSAGE_MAX_SIZE 128
 
@@ -20,28 +20,20 @@ struct PassageEntry {
 };
 
 class Passage {
-	uint16_t capacity_;
 	uint16_t size_;
-	PassageEntry* list_;
+    std::vector<PassageEntry> list_;
     uint16_t n_refrencees_;
 public:
 	Passage(uint16_t capacity);
-	uint16_t GetSize();
+    ~Passage();
+	uint16_t GetSize() { return size_; };
 	float GetTime(uint16_t index);
 	float GetValue(uint16_t index);
 	void SetSize(uint16_t size);
 	void SetEntry(uint16_t index, float time, float value);
+    uint16_t GetNumberOfRefrencees() { return n_refrencees_; };
+    void IncrementRefrencees() { n_refrencees_++; };
+    void DecrementRefrencees() { n_refrencees_--; };
     
     static uint32_t GetPassageMaxSize() { return 128; };
 };
-
-class PassageContainer {
-    std::list<Passage> passages_;
-public:
-    PassageContainer(uint16_t n_passages, uint16_t passage_capacity);
-    Passage* GetFreePassage();
-    void ReturnPassage();
-};
-
-#endif /* PASSAGE_H_ */
-

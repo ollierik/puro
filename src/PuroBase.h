@@ -6,8 +6,7 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef MAINFRAME_H_
-#define MAINFRAME_H_
+#pragma once
 
 #include <map>
 #include <vector>
@@ -15,7 +14,7 @@
 #include <list>
 
 #include "Puro.h"
-#include "resource.h"
+#include "respool.h"
 
 struct Onset {
 public:
@@ -54,9 +53,14 @@ public:
 	~PuroBase();
 	float* GetAudioData(Tag material);
 	uint32_t GetAudioSize(Tag material);
-    
 	void LoadAudioMaterial(Tag material, char* path);
 	Idea* GetIdea(Tag association);
+    
+    Passage* GetFreeAudioPassage();
+    Passage* GetFreeEnvelopePassage();
+    
+    void AssociateAudioPassage(Tag idea, Passage* filled);
+    void AssociateEnvelopePassage(Tag idea, Passage* filled);
     
 	//void OnsetDrop(Idea* idea); // onset idea into drop NOW
 	void OnsetDrop(Tag association, Time relative); // onset idea into drop
@@ -78,4 +82,3 @@ public:
     
 	void Tick(); // for now just to run worker
 };
-#endif /* MAINFRAME_H_ */

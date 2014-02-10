@@ -10,7 +10,6 @@
 #include "Puro.h"
 #include "Drop.h"
 #include "Worker.h"
-#include "Idea.h"
 
 Worker::Worker(PuroBase* instance) {
 	//std::cout << "Worker" << std::endl;
@@ -22,10 +21,10 @@ Worker::~Worker() {
 }
 
 void
-Worker::PrepareDrop(Drop* onset, Drop* drop) {
-	drop->Initialize(onset->GetAssociation(), onset->GetMaterial());
-	drop->ProcessAudio(onset->GetAudioPassage());
-	drop->ProcessEnvelope(onset->GetEnvelopePassage());
+Worker::PrepareDrop(Drop* drop) {
+	//drop->Initialize(onset->GetAssociation(), onset->GetMaterial());
+	drop->ProcessAudio();
+	drop->ProcessEnvelope();
 }
 
 void

@@ -9,14 +9,8 @@
 #include "Passage.h"
 
 Passage::Passage(uint16_t capacity) {
-	capacity_ = capacity;
 	size_ = 0;
-	list_ = new PassageEntry[capacity_];
-}
-
-uint16_t
-Passage::GetSize() {
-	return size_;
+	list_.reserve(capacity);
 }
 
 float

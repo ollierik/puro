@@ -11,19 +11,14 @@
 Idea::Idea() {
 	//std::cout << "Idea" << std::endl;
 	Initialize();
-	audio_ = new Passage(128);
-	envelope_ = new Passage(128);
-}
-
-Idea::~Idea() {
-  delete audio_;
-  delete envelope_;
 }
 
 void
 Idea::Initialize() {
 	association_ = 0;
 	material_ = 0;
+    audio_passage_ = 0;
+    envelope_passage_ = 0;
 }
 
 Tag
@@ -37,11 +32,11 @@ Idea::GetMaterial() {
 
 Passage*
 Idea::GetAudioPassage() {
-	return audio_;
+	return audio_passage_;
 }
 Passage*
 Idea::GetEnvelopePassage() {
-	return envelope_;
+	return envelope_passage_;
 }
 
 void
@@ -64,17 +59,18 @@ Idea::SetTimeOffset(Time current) {
 
 void
 Idea::SetAudioPassage(Passage* audio) {
-	audio_ = audio;
+	audio_passage_ = audio;
 }
 void
 Idea::SetEnvelopePassage(Passage* envelope) {
-	envelope_ = envelope;
+	envelope_passage_ = envelope;
 }
 
 bool
 Idea::IsValid() {
+    if (!(audio_passage_ && envelope_passage_))
+        return false;
 	bool is_valid = (association_) && (material_)
-			&& (audio_->GetSize()>1) && (envelope_->GetSize()>1);
-	//std::cout<< "Is idea valid: " << is_valid << std::endl;
+			&& (audio_passage_->GetSize()>1) && (envelope_passage_->GetSize()>1);
 	return is_valid;
 }

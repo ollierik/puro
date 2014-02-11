@@ -38,8 +38,8 @@ Drop::Initialize(Idea* idea) {
     
     audio_passage_ = idea->GetAudioPassage();
     envelope_passage_ = idea->GetEnvelopePassage();
-    audio_passage_->IncrementRefrencees();
-    envelope_passage_->IncrementRefrencees();
+    audio_passage_->RegisterRefrence();
+    envelope_passage_->RegisterRefrence();
     
 	audio_->Clear();
 	envelope_->Clear();
@@ -111,6 +111,7 @@ Drop::ProcessAudio() {
 		std::cout << "a: " << a << " f: " << f << std::endl;
 	}
 */
+    audio_passage_->RemoveRefrence();
 	return 1;
 }
 
@@ -142,6 +143,7 @@ Drop::ProcessEnvelope() {
 			x++;
 		}
 	}
+    envelope_passage_->RemoveRefrence();
 	return 0;
 }
 

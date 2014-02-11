@@ -23,8 +23,8 @@ PuroBase::PuroBase(uint16_t n_ideas,  uint16_t n_drops, uint16_t n_audio_passage
 	interpreter_ = new Interpreter(this);
 	worker_ = new Worker(this);
     
-    audio_passages_.assign(20, Passage(128));
-    envelope_passages_.assign(20, Passage(128));
+    audio_passages_.assign(20, Passage(&audio_passages_, 128));
+    envelope_passages_.assign(20, Passage(&envelope_passages_, 128));
     
     //Passage passage_prototype(128);
     //= new respool<Passage>(n_audio_passages, &passage_prototype);
@@ -112,7 +112,7 @@ PuroBase::OnsetDrop(Tag association, Time relative) {
         Drop* drop = PopFreeDrop();
         if (drop == 0) return;
         
-        drop->Initialize(Idea* idea);
+        drop->Initialize(idea);
         Time absolute = relative + idea->GetTimeOffset();
         
         // ARRANGE CHRONOLOGICALLY

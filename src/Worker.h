@@ -10,7 +10,7 @@
 #pragma once
 
 class Worker {
-	PuroBase *instance_;
+	PuroBase *base_;
 	// TODO processing buffer for FFT
 public:
 	Worker(PuroBase* instance);

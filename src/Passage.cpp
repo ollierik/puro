@@ -8,9 +8,11 @@
 
 #include "Passage.h"
 
-Passage::Passage(uint16_t capacity) {
+Passage::Passage(respool<Passage>* pool, uint16_t capacity) {
+    pool_ = pool;
 	size_ = 0;
 	list_.reserve(capacity);
+    
 }
 
 float
@@ -36,4 +38,15 @@ Passage::SetEntry(uint16_t index, float time, float value) {
 			//<< " time:" << time << " value:" << value << std::endl;
 	list_[index].value = value;
 	list_[index].time = time;
+}
+
+void Passage::RegisterRefrence() {
+    n_refrencees_++;
+}
+
+void Passage::RemoveRefrence() {
+    n_refrencees_--;
+    if (n_refrencees_ == 0) {
+        pool_->setinactive(this);
+    }
 }

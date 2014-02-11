@@ -18,13 +18,12 @@
 class Idea {
 	Tag association_;
 	Tag material_;
-	Passage* audio_;
-	Passage* envelope_;
+	Passage* audio_passage_;
+	Passage* envelope_passage_;
     Time time_offset_;
     
 public:
 	Idea();
-	~Idea();
 	void Initialize();
 
 	Tag GetAssociation();

@@ -7,9 +7,11 @@
 // See the file LICENSE.txt for information.
 
 #include "Puro.h"
-#include <iostream>
 #include "PuroBase.h"
 #include "Passage.h"
+#include <iostream>
+
+#define DEBUG_ENABLED
 
 Tag CharsToTag(char* name) {
 	Tag tag=0;
@@ -63,4 +65,11 @@ Puro::GetInterpreter() {
 const char*
 Puro::HelloWorld() {
 	return "Hello World";
+}
+
+void
+DebugMessage(const char* c) {
+#ifdef DEBUG_ENABLED
+    std::cout << c << std::endl;
+#endif
 }

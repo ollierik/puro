@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include <iostream>
 #include <stdint.h>
 #include <map>
 #include <list>
+#include <iostream>
 
 // 8 characters used as identifier, passed as one 64bit int
 typedef uint64_t Tag;
@@ -43,3 +43,4 @@ public:
 Tag CharsToTag(char*);
 void FloatListToPassage(Passage* passage_to_use, uint16_t n_data, float* data);
 
+void DebugMessage(const char* c);

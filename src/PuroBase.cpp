@@ -33,6 +33,8 @@ PuroBase::PuroBase(uint16_t n_ideas,  uint16_t n_drops, uint16_t n_audio_passage
     //= new respool<Passage>(n_audio_passages, &passage_prototype);
     //envelope_passages_ = new respool<Passage>(n_envelope_passages, &passage_prototype);
     
+    //debug_msg("HELLO DEBUG!");
+    
 	ideas_.reserve(n_ideas);
 	for (uint16_t i = 0; i < n_ideas; ++i) {
 		Idea* new_idea = new Idea();

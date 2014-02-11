@@ -14,12 +14,15 @@
 // for creating output file
 #include "ICST/common.h"
 #include "ICST/AudioFile.h"
-
+#include <iostream>
 
 #define ARRLEN(arr) (sizeof(arr)/sizeof(arr[0]))
 
 
 int main() {
+    
+    DebugMessage("debug");
+    
 
 	///////////////////////////////////////////////
 	// PREPARE ENVIRONMENT

@@ -48,8 +48,44 @@
 		772915481884C6B0006ABE88 /* Puro.h in Headers */ = {isa = PBXBuildFile; fileRef = 7729151E1884C6B0006ABE88 /* Puro.h */; };
 		772915491884C6B0006ABE88 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151F1884C6B0006ABE88 /* Worker.cpp */; };
 		7729154A1884C6B0006ABE88 /* Worker.h in Headers */ = {isa = PBXBuildFile; fileRef = 772915201884C6B0006ABE88 /* Worker.h */; };
+		775697D418AA4E1F007E9423 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 775697D318AA4E1F007E9423 /* main.cpp */; };
+		775697EB18AA50AC007E9423 /* AudioFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915001884C6B0006ABE88 /* AudioFile.cpp */; };
+		775697EC18AA50C3007E9423 /* libpuro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77793AE118853A23008AD09B /* libpuro.a */; };
+		775697ED18AA5140007E9423 /* AudioStorage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772914F51884C6B0006ABE88 /* AudioStorage.cpp */; };
+		775697EE18AA5140007E9423 /* AudioStorage.h in Sources */ = {isa = PBXBuildFile; fileRef = 772914F61884C6B0006ABE88 /* AudioStorage.h */; };
+		775697EF18AA5140007E9423 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772914F71884C6B0006ABE88 /* Buffer.cpp */; };
+		775697F018AA5140007E9423 /* Buffer.h in Sources */ = {isa = PBXBuildFile; fileRef = 772914F81884C6B0006ABE88 /* Buffer.h */; };
+		775697F118AA5140007E9423 /* Drop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772914F91884C6B0006ABE88 /* Drop.cpp */; };
+		775697F218AA5140007E9423 /* Drop.h in Sources */ = {isa = PBXBuildFile; fileRef = 772914FA1884C6B0006ABE88 /* Drop.h */; };
+		775697F318AA5140007E9423 /* Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772914FB1884C6B0006ABE88 /* Engine.cpp */; };
+		775697F418AA5140007E9423 /* Engine.h in Sources */ = {isa = PBXBuildFile; fileRef = 772914FC1884C6B0006ABE88 /* Engine.h */; };
+		775697F518AA5140007E9423 /* Idea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915141884C6B0006ABE88 /* Idea.cpp */; };
+		775697F618AA5140007E9423 /* Idea.h in Sources */ = {isa = PBXBuildFile; fileRef = 772915151884C6B0006ABE88 /* Idea.h */; };
+		775697F718AA5140007E9423 /* Interpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915161884C6B0006ABE88 /* Interpreter.cpp */; };
+		775697F818AA5140007E9423 /* Interpreter.h in Sources */ = {isa = PBXBuildFile; fileRef = 772915171884C6B0006ABE88 /* Interpreter.h */; };
+		775697F918AA5140007E9423 /* PuroBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915191884C6B0006ABE88 /* PuroBase.cpp */; };
+		775697FA18AA5140007E9423 /* PuroBase.h in Sources */ = {isa = PBXBuildFile; fileRef = 7729151A1884C6B0006ABE88 /* PuroBase.h */; };
+		775697FB18AA5140007E9423 /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151B1884C6B0006ABE88 /* Passage.cpp */; };
+		775697FC18AA5140007E9423 /* Passage.h in Sources */ = {isa = PBXBuildFile; fileRef = 7729151C1884C6B0006ABE88 /* Passage.h */; };
+		775697FD18AA5140007E9423 /* Puro.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151D1884C6B0006ABE88 /* Puro.cpp */; };
+		775697FE18AA5140007E9423 /* Puro.h in Sources */ = {isa = PBXBuildFile; fileRef = 7729151E1884C6B0006ABE88 /* Puro.h */; };
+		775697FF18AA5140007E9423 /* respool.h in Sources */ = {isa = PBXBuildFile; fileRef = 776C4F4E188D1B3700D6B664 /* respool.h */; };
+		7756980018AA5140007E9423 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151F1884C6B0006ABE88 /* Worker.cpp */; };
+		7756980118AA5140007E9423 /* Worker.h in Sources */ = {isa = PBXBuildFile; fileRef = 772915201884C6B0006ABE88 /* Worker.h */; };
 		776C4F50188D1B3700D6B664 /* respool.h in Headers */ = {isa = PBXBuildFile; fileRef = 776C4F4E188D1B3700D6B664 /* respool.h */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		775697C618AA4DBE007E9423 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		772914F51884C6B0006ABE88 /* AudioStorage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioStorage.cpp; sourceTree = "<group>"; };
@@ -94,6 +130,9 @@
 		7729151E1884C6B0006ABE88 /* Puro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Puro.h; sourceTree = "<group>"; };
 		7729151F1884C6B0006ABE88 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Worker.cpp; sourceTree = "<group>"; };
 		772915201884C6B0006ABE88 /* Worker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Worker.h; sourceTree = "<group>"; };
+		772AB5F218AA4BF8004D4F75 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		775697C818AA4DBE007E9423 /* puro_tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = puro_tests; sourceTree = BUILT_PRODUCTS_DIR; };
+		775697D318AA4E1F007E9423 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = tests/main.cpp; sourceTree = SOURCE_ROOT; };
 		776C4F4E188D1B3700D6B664 /* respool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = respool.h; sourceTree = "<group>"; };
 		77793AE118853A23008AD09B /* libpuro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpuro.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -106,14 +145,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		775697C518AA4DBE007E9423 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				775697EC18AA50C3007E9423 /* libpuro.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		772914E21884C661006ABE88 = {
 			isa = PBXGroup;
 			children = (
-				772914F21884C6B0006ABE88 /* src */,
 				77793AE118853A23008AD09B /* libpuro.a */,
+				772914F21884C6B0006ABE88 /* src */,
+				775697C918AA4DBE007E9423 /* puro_tests */,
+				772AB5F118AA4BF8004D4F75 /* Frameworks */,
+				775697C818AA4DBE007E9423 /* puro_tests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -175,6 +225,22 @@
 			path = ICST;
 			sourceTree = "<group>";
 		};
+		772AB5F118AA4BF8004D4F75 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				772AB5F218AA4BF8004D4F75 /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		775697C918AA4DBE007E9423 /* puro_tests */ = {
+			isa = PBXGroup;
+			children = (
+				775697D318AA4E1F007E9423 /* main.cpp */,
+			);
+			path = puro_tests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -228,6 +294,23 @@
 			productReference = 77793AE118853A23008AD09B /* libpuro.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		775697C718AA4DBE007E9423 /* puro_tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 775697D018AA4DBE007E9423 /* Build configuration list for PBXNativeTarget "puro_tests" */;
+			buildPhases = (
+				775697C418AA4DBE007E9423 /* Sources */,
+				775697C518AA4DBE007E9423 /* Frameworks */,
+				775697C618AA4DBE007E9423 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = puro_tests;
+			productName = puro_tests;
+			productReference = 775697C818AA4DBE007E9423 /* puro_tests */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -250,6 +333,7 @@
 			projectRoot = "";
 			targets = (
 				772914EA1884C661006ABE88 /* puro */,
+				775697C718AA4DBE007E9423 /* puro_tests */,
 			);
 		};
 /* End PBXProject section */
@@ -281,6 +365,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		775697C418AA4DBE007E9423 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				775697ED18AA5140007E9423 /* AudioStorage.cpp in Sources */,
+				775697EE18AA5140007E9423 /* AudioStorage.h in Sources */,
+				775697EF18AA5140007E9423 /* Buffer.cpp in Sources */,
+				775697F018AA5140007E9423 /* Buffer.h in Sources */,
+				775697F118AA5140007E9423 /* Drop.cpp in Sources */,
+				775697F218AA5140007E9423 /* Drop.h in Sources */,
+				775697F318AA5140007E9423 /* Engine.cpp in Sources */,
+				775697F418AA5140007E9423 /* Engine.h in Sources */,
+				775697F518AA5140007E9423 /* Idea.cpp in Sources */,
+				775697F618AA5140007E9423 /* Idea.h in Sources */,
+				775697F718AA5140007E9423 /* Interpreter.cpp in Sources */,
+				775697F818AA5140007E9423 /* Interpreter.h in Sources */,
+				775697F918AA5140007E9423 /* PuroBase.cpp in Sources */,
+				775697FA18AA5140007E9423 /* PuroBase.h in Sources */,
+				775697FB18AA5140007E9423 /* Passage.cpp in Sources */,
+				775697FC18AA5140007E9423 /* Passage.h in Sources */,
+				775697FD18AA5140007E9423 /* Puro.cpp in Sources */,
+				775697FE18AA5140007E9423 /* Puro.h in Sources */,
+				775697FF18AA5140007E9423 /* respool.h in Sources */,
+				7756980018AA5140007E9423 /* Worker.cpp in Sources */,
+				7756980118AA5140007E9423 /* Worker.h in Sources */,
+				775697EB18AA50AC007E9423 /* AudioFile.cpp in Sources */,
+				775697D418AA4E1F007E9423 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -288,6 +402,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -317,7 +432,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				SDKROOT = macosx10.8;
 			};
 			name = Debug;
 		};
@@ -325,6 +440,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -348,14 +464,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				SDKROOT = macosx;
+				SDKROOT = macosx10.8;
 			};
 			name = Release;
 		};
 		772914F01884C661006ABE88 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/lib/";
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -365,9 +481,37 @@
 		772914F11884C661006ABE88 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/lib/";
 				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		775697CE18AA4DBE007E9423 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					src,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		775697CF18AA4DBE007E9423 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					src,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -392,6 +536,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		775697D018AA4DBE007E9423 /* Build configuration list for PBXNativeTarget "puro_tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				775697CE18AA4DBE007E9423 /* Debug */,
+				775697CF18AA4DBE007E9423 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

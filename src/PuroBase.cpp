@@ -23,8 +23,11 @@ PuroBase::PuroBase(uint16_t n_ideas,  uint16_t n_drops, uint16_t n_audio_passage
 	interpreter_ = new Interpreter(this);
 	worker_ = new Worker(this);
     
-    audio_passages_.assign(20, Passage(&audio_passages_, 128));
-    envelope_passages_.assign(20, Passage(&envelope_passages_, 128));
+    Passage audio_passage_prototype(&audio_passages_, 128);
+    Passage envelope_passage_prototype(&envelope_passages_, 128);
+    
+    audio_passages_.assign(20, &audio_passage_prototype);
+    envelope_passages_.assign(20, &envelope_passage_prototype);
     
     //Passage passage_prototype(128);
     //= new respool<Passage>(n_audio_passages, &passage_prototype);
@@ -170,27 +173,32 @@ PuroBase::GetPassageMaxLength() {
 	return 128;
 }
 
-inline uint32_t
+uint32_t
 PuroBase::GetMaterialSampleRate(Tag material) {
 	return (uint32_t)audio_storage_->GetSampleRate(material);
 }
 
-inline Engine*
+Engine*
 PuroBase::GetEngine() {
 	return engine_;
 }
 
-inline Interpreter*
+Interpreter*
 PuroBase::GetInterpreter() {
 	return interpreter_;
 }
 
 
-inline void
+void
 PuroBase::SyncIdea(Tag association) {
     Idea* idea_to_use = this->GetIdea(association);
     Time current_time = this->GetTime();
     idea_to_use->SetTimeOffset(current_time);
+}
+
+Time
+PuroBase::GetTime() {
+    return 0;
 }
 
 void

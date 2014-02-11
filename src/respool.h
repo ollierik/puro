@@ -16,8 +16,8 @@ class respool {
     unsigned int first_inactive_;
     
 public:
-    respool();
-    void assign(unsigned int size, T prototype);
+    //respool();
+    void assign(unsigned int size, T* prototype);
     T* getinactive();
     void setinactive(T* free);
 };
@@ -30,14 +30,14 @@ public:
 
 template <class T>
 void
-respool<T>::assign(unsigned int size, T prototype) {
+respool<T>::assign(unsigned int size, T* prototype) {
     
-    data_.assign(size, prototype);
+    data_.assign(size, *prototype);
     refs_.reserve(size);
     for (unsigned int i = 0; i < size; i++) {
         refs_[i] = &data_[i];
     }
-    first_inactive_ = refs_.size();
+    first_inactive_ = size;
 }
 
 template <class T>

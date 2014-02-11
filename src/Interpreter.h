@@ -20,5 +20,4 @@ public:
 	void SetEnvelopePassage(Tag idea, uint16_t n_data, float* data);
 	void OnsetDropFromIdea(Tag idea, Time relative=0);
 	void LoadAudioMaterial(Tag association, char* path_to_file);
-
 };

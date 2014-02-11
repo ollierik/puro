@@ -29,7 +29,6 @@ class Passage {
     respool<Passage> * pool_;
 public:
 	Passage(respool<Passage>* pool, uint16_t capacity);
-    ~Passage();
 	uint16_t GetSize() { return size_; };
 	float GetTime(uint16_t index);
 	float GetValue(uint16_t index);

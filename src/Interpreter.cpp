@@ -9,6 +9,7 @@
 #include "Interpreter.h"
 #include "Idea.h"
 #include "PuroBase.h"
+#include "Passage.h"
 
 Interpreter::Interpreter(PuroBase* instance) {
 	//std::cout << "Interpreter" << std::endl;
@@ -30,7 +31,7 @@ Interpreter::SetSync(Tag idea) {
 void
 Interpreter::SetAudioPassage(Tag idea, uint16_t n_data, float* data) {
 
-	Idea* idea_to_use = base_->GetIdea(idea);
+	//Idea* idea_to_use = base_->GetIdea(idea);
 	Passage* passage_to_use = base_->GetFreeAudioPassage();
     //if (passage_to_use == 0)
 	FloatListToPassage(passage_to_use, n_data, data);
@@ -39,8 +40,9 @@ Interpreter::SetAudioPassage(Tag idea, uint16_t n_data, float* data) {
 void
 Interpreter::SetEnvelopePassage(Tag idea, uint16_t n_data, float* data) {
 
-	Idea* idea_to_use = base_->GetIdea(idea);
-	Passage* passage_to_use = idea_to_use->GetEnvelopePassage();
+	//Idea* idea_to_use = base_->GetIdea(idea);
+	//Passage* passage_to_use = idea_to_use->GetEnvelopePassage();
+	Passage* passage_to_use = base_->GetFreeEnvelopePassage();
 	FloatListToPassage(passage_to_use, n_data, data);
 }
 

@@ -30,20 +30,24 @@ Interpreter::SetSync(Tag idea) {
 
 void
 Interpreter::SetAudioPassage(Tag idea, uint16_t n_data, float* data) {
-
-	//Idea* idea_to_use = base_->GetIdea(idea);
+    
 	Passage* passage_to_use = base_->GetFreeAudioPassage();
-    //if (passage_to_use == 0)
 	FloatListToPassage(passage_to_use, n_data, data);
+    dout << "Set Audio Passage" << dndl;
+    
+	Idea* idea_to_use = base_->GetIdea(idea);
+    idea_to_use->SetAudioPassage(passage_to_use);
 }
 
 void
 Interpreter::SetEnvelopePassage(Tag idea, uint16_t n_data, float* data) {
 
-	//Idea* idea_to_use = base_->GetIdea(idea);
 	//Passage* passage_to_use = idea_to_use->GetEnvelopePassage();
 	Passage* passage_to_use = base_->GetFreeEnvelopePassage();
 	FloatListToPassage(passage_to_use, n_data, data);
+    
+	Idea* idea_to_use = base_->GetIdea(idea);
+    idea_to_use->SetEnvelopePassage(passage_to_use);
 }
 
 void

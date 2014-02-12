@@ -73,7 +73,8 @@ PuroBase::GetIdea(Tag association) {
 
 Passage *
 PuroBase::GetFreeAudioPassage() {
-    return audio_passages_.getinactive();
+    auto inactive = audio_passages_.getinactive();
+    return inactive;
 }
 
 Passage *

@@ -11,6 +11,7 @@
 Passage::Passage(respool<Passage>* pool, uint16_t capacity) {
     pool_ = pool;
 	size_ = 0;
+    n_refrencees_ = 0;
 	list_.reserve(capacity);
     
     PassageEntry prototype;
@@ -39,7 +40,6 @@ void
 Passage::SetEntry(uint16_t index, float time, float value) {
 	//std::cout << "Set PassageEntry at index:" << index
 			//<< " time:" << time << " value:" << value << std::endl;
-    int c = list_.capacity();
 	list_[index].value = value;
 	list_[index].time = time;
 }

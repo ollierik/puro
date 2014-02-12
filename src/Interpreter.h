@@ -18,6 +18,6 @@ public:
 	void SetSync(Tag idea);
 	void SetAudioPassage(Tag idea, uint16_t n_data, float* data);
 	void SetEnvelopePassage(Tag idea, uint16_t n_data, float* data);
-	void OnsetDropFromIdea(Tag idea, Time relative=0);
+	void OnsetDropFromIdea(Tag idea, Time time=0);
 	void LoadAudioMaterial(Tag association, char* path_to_file);
 };

@@ -13,10 +13,17 @@
 #include <list>
 #include <iostream>
 
+
+#ifdef DEBUG
+#define dout std::cout
+#else
+#define dout 0 && std::cout
+#endif
+#define dndl std::endl
+
 // 8 characters used as identifier, passed as one 64bit int
 typedef uint64_t Tag;
 typedef uint64_t Time;
-
 
 class PuroBase;
 class AudioStorage;
@@ -42,5 +49,3 @@ public:
 
 Tag CharsToTag(char*);
 void FloatListToPassage(Passage* passage_to_use, uint16_t n_data, float* data);
-
-void DebugMessage(const char* c);

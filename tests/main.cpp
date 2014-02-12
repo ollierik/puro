@@ -18,12 +18,10 @@
 
 #define ARRLEN(arr) (sizeof(arr)/sizeof(arr[0]))
 
-
 int main() {
     
-    DebugMessage("debug");
+    dout << "START TEST" << dndl;
     
-
 	///////////////////////////////////////////////
 	// PREPARE ENVIRONMENT
 	///////////////////////////////////////////////
@@ -34,8 +32,7 @@ int main() {
 
 	Tag material = CharsToTag((char*)"lafille");
 
-	interp->LoadAudioMaterial(material, (char*)"/home/oek/lafille.wav");
-
+	interp->LoadAudioMaterial(material, (char*)"/Users/ollierik/lafille.wav");
 
 	///////////////////////////////////////////////
 	// PREPARE UNIT 1
@@ -46,12 +43,10 @@ int main() {
 		interp->SetMaterial(idea, material);
 
 		// AUDIO
-		std::cout << "AUDIO" << std::endl;
 		float audio_list[] = { 5.0, 4.0, 9.0 }; // linear
 		interp->SetAudioPassage(idea, ARRLEN(audio_list), audio_list);
 
 		// ENVELOPE
-		std::cout << "ENVELOPE" << std::endl;
 		float envelope_list[5] = { 0, 0.5, 1.0, 1.0, 0 }; 	// trapezoid
 		//float envelope_list[] = { 1.0, 1.0, 1.0 }; 	// const
 
@@ -79,7 +74,7 @@ int main() {
 
 		interp->SetEnvelopePassage(idea, ARRLEN(envelope_list), envelope_list);
 
-		//interp->OnsetDropFromIdea(idea);
+		interp->OnsetDropFromIdea(idea);
 	}
 
 	///////////////////////////////////////////////
@@ -99,10 +94,10 @@ int main() {
 		engine->GetAudioOutput(n, &buffer[b*n]);
 	}
 
-	out_file->SaveWave((char*)"/home/oek/outfile.wav");
+	out_file->SaveWave((char*)"/Users/ollierik/outfile.wav");
 
 	//for (unsigned k=0; k<n*blocks; k++)
 	//	std::cout << buffer[k] << std::endl;
 
-	std::cout << "Done!" << std::endl;
+    dout << "Done!" << dndl;
 }

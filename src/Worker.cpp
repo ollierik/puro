@@ -25,6 +25,7 @@ Worker::PrepareDrop(Drop* drop) {
 	//drop->Initialize(onset->GetAssociation(), onset->GetMaterial());
 	drop->ProcessAudio();
 	drop->ProcessEnvelope();
+    dout << "Drop Prepared" << dndl;
 }
 
 void

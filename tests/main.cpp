@@ -18,6 +18,71 @@
 
 #define ARRLEN(arr) (sizeof(arr)/sizeof(arr[0]))
 
+void timing_test() {
+    
+    dout << "START TIMING TEST" << dndl;
+    
+	///////////////////////////////////////////////
+	// PREPARE ENVIRONMENT
+	///////////////////////////////////////////////
+
+	Puro* puro = new Puro();
+	Interpreter* interp = puro->GetInterpreter();
+	Engine* engine = puro->GetEngine();
+
+	Tag material = CharsToTag((char*)"lafille");
+
+	interp->LoadAudioMaterial(material, (char*)"/Users/ollierik/lafille.wav");
+
+	///////////////////////////////////////////////
+	// PREPARE UNIT 1
+	///////////////////////////////////////////////
+	{
+		Tag idea = CharsToTag((char*)"u1");
+
+		interp->SetMaterial(idea, material);
+
+		// AUDIO
+		float audio_list[] = { 7.0, 0.5, 7.5 }; // linear
+		interp->SetAudioPassage(idea, ARRLEN(audio_list), audio_list);
+
+		// ENVELOPE
+		float envelope_list[5] = { 1.0, 0.5, 0.25, 1.0, 0 }; 	// sharp attack
+		//float envelope_list[5] = { 0, 0.5, 1.0, 1.0, 0 }; 	// trapezoid
+		//float envelope_list[] = { 1.0, 1.0, 1.0 }; 	// const
+
+		interp->SetEnvelopePassage(idea, ARRLEN(envelope_list), envelope_list);
+
+		interp->OnsetDropFromIdea(idea, 0);
+		interp->OnsetDropFromIdea(idea, 44100);
+		interp->OnsetDropFromIdea(idea, 88200);
+	}
+
+	///////////////////////////////////////////////
+	// PREPARE OUTPUT FILE
+	///////////////////////////////////////////////
+
+	uint32_t n = 1024;
+	uint32_t blocks = 200;
+	icstdsp::AudioFile* out_file = new icstdsp::AudioFile();
+	out_file->Create(n*blocks);
+	float* buffer = out_file->GetSafePt();
+
+	for (unsigned k=0; k<n*blocks; k++)
+		buffer[k] = 0;
+
+	for (unsigned b=0; b<blocks; b++) {
+		engine->GetAudioOutput(n, &buffer[b*n]);
+	}
+
+	out_file->SaveWave((char*)"/Users/ollierik/outfile.wav");
+
+	//for (unsigned k=0; k<n*blocks; k++)
+	//	std::cout << buffer[k] << std::endl;
+
+    dout << "Done!" << dndl;
+}
+
 void output_test() {
     
     dout << "START TEST" << dndl;
@@ -103,5 +168,5 @@ void output_test() {
 }
 
 int main() {
-    output_test();
+    timing_test();
 }

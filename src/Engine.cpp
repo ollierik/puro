@@ -11,44 +11,60 @@
 #include "PuroBase.h"
 #include "Onset.h"
 
-Engine::Engine(PuroBase* instance) {
+Engine::Engine(PuroBase* base) {
 	//std::cout << "Engine" << std::endl;
-	instance_ = instance;
+	base_ = base;
+    time_ = 0;
 }
 
 void
 Engine::AddOnset(Onset* onset) {
     /*
-	DropBundle bundle;
-	bundle.drop = drop;
-	bundle.index = 0;
-	drops_in_use_.push_back(bundle);
+     DropBundle bundle;
+     bundle.drop = drop;
+     bundle.index = 0;
+     drops_in_use_.push_back(bundle);
      */
-    onsets_in_use_.push_back(onset);
+    onsets_.push_back(onset);
 }
 
 // TODO ADD TIMING
 void
 Engine::GetAudioOutput(uint32_t n, float* buffer) {
-	instance_->Tick();
-	// iterator running
-	//std::list<struct DropBundle>::iterator running = drops_in_use_.begin();
-	std::list<Onset*>::iterator running = onsets_in_use_.begin();
-
+    
+    dout << "### TICK ###" << dndl;
+	base_->Tick();
+    time_ += n;
+    
+	std::list<Onset*>::iterator iter = onsets_.begin();
+    
 	for (uint32_t k=0; k<n; k++)
 		buffer[k] = 0;
-
-	while (running != onsets_in_use_.end()) {
-        Onset* onset = *running;
-		uint32_t n_summed = onset->drop_->GetAudio(onset->index_, n, buffer);
-		onset->index_ += n_summed; // this is done outside of drop
-		if (n_summed != n) {
-			instance_->ReturnDepletedDrop(onset->drop_);
-            delete onset;
-			running = onsets_in_use_.erase(running);
-		}
-		else {
-			running++;
-        }
-	}
+    
+	while (iter != onsets_.end()) {
+        Onset* onset = *iter;
+        
+        // TIMING CHECK
+        if (onset->time_ > time_) {
+            
+            // THIS SHOULD BE PASSED
+            dout << "Time: " << onset->time_ << "<" << time_ << dndl;
+            dout << "pass drop" << dndl;
+            iter++;
+            
+        } else {
+            // THIS SHOULD BE RUN
+            uint32_t n_summed = onset->drop_->GetAudio(onset->index_, n, buffer);
+            onset->index_ += n_summed; // this is done outside of drop
+            // if these aren't equal, the drop has depleted
+            if (n_summed != n) {
+                base_->ReturnDepletedDrop(onset->drop_);
+                delete onset;
+                iter = onsets_.erase(iter);
+            }
+            else {
+                iter++;
+            }
+        } // was run
+    } // end of while
 }

@@ -18,9 +18,10 @@ struct DropBundle {
 */
 
 class Engine {
-	PuroBase* instance_;
+	PuroBase* base_;
 	//std::list<struct DropBundle> drops_in_use_;
-	std::list<Onset*> onsets_in_use_;
+	std::list<Onset*> onsets_;
+    Time time_;
 public:
 	Engine(PuroBase* instance_);
 	void AddOnset(Onset* onset);

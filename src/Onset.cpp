@@ -6,15 +6,10 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
+#include "Onset.h"
 
-#pragma once
-
-class Worker {
-	PuroBase* base_;
-	// TODO processing buffer for FFT
-public:
-	Worker(PuroBase* instance);
-	virtual ~Worker();
-	void PrepareDrop(Drop* drop);
-	void Tick();
-};
+Onset::Onset(Time time, Drop* drop) {
+    time_ = time;
+    drop_ = drop;
+    index_ = 0;
+}

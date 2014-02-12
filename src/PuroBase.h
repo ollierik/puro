@@ -15,12 +15,7 @@
 
 #include "Puro.h"
 #include "respool.h"
-
-struct Onset {
-public:
-    Idea* idea_;
-    Time absolute_;
-};
+#include "Onset.h"
 
 class PuroBase {
     
@@ -37,7 +32,7 @@ class PuroBase {
 	std::queue<Idea *> ideas_free_;
     
 	// Drops
-	std::list<Drop *> onsets_; // unprepared, chronologically ordered from lowest
+	std::list<Onset *> onsets_; // unprepared, chronologically ordered from lowest
 	//std::vector<Drop> drops_;
 	std::queue<Drop *> drops_free_;
     
@@ -65,9 +60,9 @@ public:
 	//void OnsetDrop(Idea* idea); // onset idea into drop NOW
 	void OnsetDrop(Tag association, Time relative); // onset idea into drop
     
-	Drop* GetNextOnset(); // get next oncoming onset
+	Onset* GetNextOnset(); // get next oncoming onset
 	Drop* PopFreeDrop(); // pop next free Drop
-	void ScheduleDrop(Drop* drop); // add drop to Engines run queue
+	void ScheduleOnset(Onset* onset); // add drop to Engines run queue
 	void ReturnDepletedDrop(Drop* drop); // return depleted Drop from Engine
     
 	uint32_t GetBufferMaxLength();

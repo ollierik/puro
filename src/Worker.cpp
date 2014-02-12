@@ -31,7 +31,7 @@ Worker::PrepareDrop(Drop* drop) {
 void
 Worker::Tick() {
 
-	Drop* onset = base_->GetNextOnset();
+	Onset* onset = base_->GetNextOnset();
 	if (onset==0) {
 		//std::cout << "no onset" << std::endl;
 		return;
@@ -39,6 +39,6 @@ Worker::Tick() {
 
 	//std::cout << "Worker Tick" << std::endl;
 
-	PrepareDrop(onset);
-	base_->ScheduleDrop(onset);
+	PrepareDrop(onset->drop_);
+	base_->ScheduleOnset(onset);
 }

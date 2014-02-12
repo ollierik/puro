@@ -32,6 +32,7 @@ class Drop;
 class Engine;
 class Idea;
 class Interpreter;
+class Onset;
 class Passage;
 class Worker;
 

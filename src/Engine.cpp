@@ -9,21 +9,22 @@
 #include "Engine.h"
 #include "Drop.h"
 #include "PuroBase.h"
+#include "Onset.h"
 
 Engine::Engine(PuroBase* instance) {
 	//std::cout << "Engine" << std::endl;
 	instance_ = instance;
 }
 
-Engine::~Engine() {
-}
-
 void
-Engine::AddDrop(Drop* drop) {
+Engine::AddOnset(Onset* onset) {
+    /*
 	DropBundle bundle;
 	bundle.drop = drop;
 	bundle.index = 0;
 	drops_in_use_.push_back(bundle);
+     */
+    onsets_in_use_.push_back(onset);
 }
 
 // TODO ADD TIMING
@@ -31,17 +32,20 @@ void
 Engine::GetAudioOutput(uint32_t n, float* buffer) {
 	instance_->Tick();
 	// iterator running
-	std::list<struct DropBundle>::iterator running = drops_in_use_.begin();
+	//std::list<struct DropBundle>::iterator running = drops_in_use_.begin();
+	std::list<Onset*>::iterator running = onsets_in_use_.begin();
 
 	for (uint32_t k=0; k<n; k++)
 		buffer[k] = 0;
 
-	while (running != drops_in_use_.end()) {
-		uint32_t n_summed = running->drop->GetAudio(running->index, n, buffer);
-		running->index += n_summed; // this is done outside of drop
+	while (running != onsets_in_use_.end()) {
+        Onset* onset = *running;
+		uint32_t n_summed = onset->drop_->GetAudio(onset->index_, n, buffer);
+		onset->index_ += n_summed; // this is done outside of drop
 		if (n_summed != n) {
-			instance_->ReturnDepletedDrop(running->drop);
-			running = drops_in_use_.erase(running);
+			instance_->ReturnDepletedDrop(onset->drop_);
+            delete onset;
+			running = onsets_in_use_.erase(running);
 		}
 		else {
 			running++;

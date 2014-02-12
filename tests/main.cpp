@@ -18,7 +18,7 @@
 
 #define ARRLEN(arr) (sizeof(arr)/sizeof(arr[0]))
 
-int main() {
+void output_test() {
     
     dout << "START TEST" << dndl;
     
@@ -100,4 +100,8 @@ int main() {
 	//	std::cout << buffer[k] << std::endl;
 
     dout << "Done!" << dndl;
+}
+
+int main() {
+    output_test();
 }

@@ -121,24 +121,27 @@ PuroBase::OnsetDrop(Tag association, Time relative) {
         drop->Initialize(idea);
         Time absolute = relative + idea->GetTimeOffset();
         
+        Onset* onset = new Onset(absolute, drop);
+        
         // ARRANGE CHRONOLOGICALLY
         auto it = onsets_.begin();
         while (it != onsets_.end()) {
-            if (absolute < (*it)->GetOnsetTime()) {
+            //if (absolute < (*it)->GetOnsetTime()) {
+            if (absolute < (*it)->time_) {
                 break;
             }
             it++;
         }
-        onsets_.insert(it, drop);
+        onsets_.insert(it, onset);
 		//std::cout << "n of onsets afterwards: " << onsets_.size() << std::endl;
 	}
 }
 
-Drop*
+Onset*
 PuroBase::GetNextOnset() {
 	if (onsets_.empty())
 		return 0;
-	Drop* next = onsets_.front();
+	Onset* next = onsets_.front();
 	onsets_.pop_front();
 	return next;
 }
@@ -156,8 +159,8 @@ PuroBase::PopFreeDrop() {
 
 // TODO TIME
 void
-PuroBase::ScheduleDrop(Drop* drop) {
-	engine_->AddDrop(drop);
+PuroBase::ScheduleOnset(Onset* onset) {
+	engine_->AddOnset(onset);
 }
 
 void

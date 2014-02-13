@@ -163,7 +163,8 @@ Drop::GetDurationInSamples() {
  * Caller should take care that correct index is given.
  */
 uint32_t
-Drop::GetAudio(uint32_t index, uint32_t n, float* buffer) {
+Drop::GetAudio(float* buffer, uint32_t index, uint32_t n, uint32_t offset) {
+//Drop::GetAudio(float* buffer, uint32_t index, uint32_t n) {
 	uint32_t last = index + n - 1;
 	uint32_t duration = GetDurationInSamples();
 	if (last > duration)
@@ -171,10 +172,12 @@ Drop::GetAudio(uint32_t index, uint32_t n, float* buffer) {
 
 	//std::cout<< "Get Audio, index: " << index << " n: " << n << " duration: " << duration << std::endl;
 
+	//for (uint32_t i=offset; i<n; i++) {
 	for (uint32_t i=0; i<n; i++) {
-		float f = audio_->GetValue(index + i) * envelope_->GetValue(index + i);
+		//float f = audio_->GetValue(index + i) * envelope_->GetValue(index + i);
+		float f = envelope_->GetValue(index + i);
 		//std::cout << "i: " << i << " f: " << f << std::endl;
-		buffer[i] += f;
+		buffer[i + offset] += f;
 	}
 	//std::cout << "n summed: " << n << std::endl;
 	return n;

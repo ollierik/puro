@@ -14,7 +14,6 @@ class Worker {
 	// TODO processing buffer for FFT
 public:
 	Worker(PuroBase* instance);
-	virtual ~Worker();
 	void PrepareDrop(Drop* drop);
 	void Tick();
 };

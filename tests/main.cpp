@@ -43,19 +43,28 @@ void timing_test() {
 		interp->SetMaterial(idea, material);
 
 		// AUDIO
-		float audio_list[] = { 7.0, 0.5, 7.5 }; // linear
+		float audio_list[] = { 7.9, 0.1, 8.0 }; // linear
 		interp->SetAudioPassage(idea, ARRLEN(audio_list), audio_list);
 
 		// ENVELOPE
-		float envelope_list[5] = { 1.0, 0.5, 0.25, 1.0, 0 }; 	// sharp attack
-		//float envelope_list[5] = { 0, 0.5, 1.0, 1.0, 0 }; 	// trapezoid
+		//float envelope_list[5] = { 1.0, 0.5, 0.25, 1.0, 0 }; 	// sharp attack
+		float envelope_list[5] = { 0, 0.5, 1.0, 1.0, 0 }; 	// trapezoid
 		//float envelope_list[] = { 1.0, 1.0, 1.0 }; 	// const
 
 		interp->SetEnvelopePassage(idea, ARRLEN(envelope_list), envelope_list);
 
 		interp->OnsetDropFromIdea(idea, 0);
-		interp->OnsetDropFromIdea(idea, 44100);
-		interp->OnsetDropFromIdea(idea, 88200);
+		interp->OnsetDropFromIdea(idea, 4410);
+		interp->OnsetDropFromIdea(idea, 8820);
+		interp->OnsetDropFromIdea(idea, 13230);
+		interp->OnsetDropFromIdea(idea, 17640);
+        
+		float envelope_list2[5] = { 0.0, 0.5, 0.25, 1.0, 1.0 }; 	// sharp decline
+		interp->SetEnvelopePassage(idea, ARRLEN(envelope_list2), envelope_list2);
+        
+		interp->OnsetDropFromIdea(idea, 66150);
+        
+        
 	}
 
 	///////////////////////////////////////////////
@@ -63,7 +72,7 @@ void timing_test() {
 	///////////////////////////////////////////////
 
 	uint32_t n = 1024;
-	uint32_t blocks = 200;
+	uint32_t blocks = 20;
 	icstdsp::AudioFile* out_file = new icstdsp::AudioFile();
 	out_file->Create(n*blocks);
 	float* buffer = out_file->GetSafePt();
@@ -81,6 +90,7 @@ void timing_test() {
 	//	std::cout << buffer[k] << std::endl;
 
     dout << "Done!" << dndl;
+    delete puro;
 }
 
 void output_test() {
@@ -147,7 +157,7 @@ void output_test() {
 	///////////////////////////////////////////////
 
 	uint32_t n = 1024;
-	uint32_t blocks = 200;
+	uint32_t blocks = 800;
 	icstdsp::AudioFile* out_file = new icstdsp::AudioFile();
 	out_file->Create(n*blocks);
 	float* buffer = out_file->GetSafePt();

@@ -27,7 +27,8 @@ public:
 	Drop(PuroBase* instance, uint32_t buffer_size);
 	~Drop();
     
-	uint32_t GetAudio(uint32_t index, uint32_t n, float* buffer);
+	//uint32_t GetAudio(uint32_t index, uint32_t n, float* buffer);
+	uint32_t GetAudio(float* buffer, uint32_t index, uint32_t n, uint32_t offset=0);
     Time GetOnsetTime();
     
 	//void Initialize(Tag idea, Tag material, Passage* audio, Passage* envelope);

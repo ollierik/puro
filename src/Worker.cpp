@@ -16,10 +16,6 @@ Worker::Worker(PuroBase* instance) {
 	base_ = instance;
 }
 
-Worker::~Worker() {
-	// TODO Auto-generated destructor stub
-}
-
 void
 Worker::PrepareDrop(Drop* drop) {
 	//drop->Initialize(onset->GetAssociation(), onset->GetMaterial());
@@ -30,15 +26,11 @@ Worker::PrepareDrop(Drop* drop) {
 
 void
 Worker::Tick() {
-
+    
 	Onset* onset = base_->GetNextOnset();
-	if (onset==0) {
-		//std::cout << "no onset" << std::endl;
-		return;
-	}
-
-	//std::cout << "Worker Tick" << std::endl;
-
-	PrepareDrop(onset->drop_);
-	base_->ScheduleOnset(onset);
+    while (onset != 0) {
+        PrepareDrop(onset->drop_);
+        base_->ScheduleOnset(onset);
+        onset = base_->GetNextOnset();
+    }
 }

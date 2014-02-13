@@ -21,7 +21,7 @@ class Engine {
 	PuroBase* base_;
 	//std::list<struct DropBundle> drops_in_use_;
 	std::list<Onset*> onsets_;
-    Time time_;
+    Time running_time_;
 public:
 	Engine(PuroBase* instance_);
 	void AddOnset(Onset* onset);

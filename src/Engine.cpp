@@ -14,7 +14,7 @@
 Engine::Engine(PuroBase* base) {
 	//std::cout << "Engine" << std::endl;
 	base_ = base;
-    time_ = 0;
+    running_time_ = 0;
 }
 
 void
@@ -34,7 +34,7 @@ Engine::GetAudioOutput(uint32_t n, float* buffer) {
     
     dout << "### TICK ###" << dndl;
 	base_->Tick();
-    time_ += n;
+    running_time_ += n;
     
 	std::list<Onset*>::iterator iter = onsets_.begin();
     
@@ -44,20 +44,34 @@ Engine::GetAudioOutput(uint32_t n, float* buffer) {
 	while (iter != onsets_.end()) {
         Onset* onset = *iter;
         
-        // TIMING CHECK
-        if (onset->time_ > time_) {
+        // TIMING CHECK, if running time has not passed onset time
+        if (onset->time_ > running_time_) {
             
             // THIS SHOULD BE PASSED
-            dout << "Time: " << onset->time_ << "<" << time_ << dndl;
+            dout << "Time: " << onset->time_ << "<" << running_time_ << dndl;
             dout << "pass drop" << dndl;
             iter++;
             
         } else {
             // THIS SHOULD BE RUN
-            uint32_t n_summed = onset->drop_->GetAudio(onset->index_, n, buffer);
+            
+            // TODO
+            // OFFSET
+            
+            uint32_t n_summed;
+            //uint64_t a = running_time_ - n;
+            uint32_t offset = 0;
+            if (running_time_ - n < onset->time_) {
+                offset = n - uint32_t(running_time_ - onset->time_);
+                n_summed = onset->drop_->GetAudio(buffer, onset->index_, n-offset, offset);
+                //dout << "##################################################\nOffset: " << offset << dndl;
+            } else {
+                n_summed = onset->drop_->GetAudio(buffer, onset->index_, n);
+            }
+            
             onset->index_ += n_summed; // this is done outside of drop
             // if these aren't equal, the drop has depleted
-            if (n_summed != n) {
+            if (n_summed != n-offset) {
                 base_->ReturnDepletedDrop(onset->drop_);
                 delete onset;
                 iter = onsets_.erase(iter);

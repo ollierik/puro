@@ -53,7 +53,6 @@
 		7749623118ABA4DC0027A863 /* Onset.h in Headers */ = {isa = PBXBuildFile; fileRef = 7749622E18ABA4DC0027A863 /* Onset.h */; };
 		775697D418AA4E1F007E9423 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 775697D318AA4E1F007E9423 /* main.cpp */; };
 		775697EB18AA50AC007E9423 /* AudioFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772915001884C6B0006ABE88 /* AudioFile.cpp */; };
-		775697EC18AA50C3007E9423 /* libpuro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77793AE118853A23008AD09B /* libpuro.a */; };
 		775697ED18AA5140007E9423 /* AudioStorage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772914F51884C6B0006ABE88 /* AudioStorage.cpp */; };
 		775697EE18AA5140007E9423 /* AudioStorage.h in Sources */ = {isa = PBXBuildFile; fileRef = 772914F61884C6B0006ABE88 /* AudioStorage.h */; };
 		775697EF18AA5140007E9423 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 772914F71884C6B0006ABE88 /* Buffer.cpp */; };
@@ -154,7 +153,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				775697EC18AA50C3007E9423 /* libpuro.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

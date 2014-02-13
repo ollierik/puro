@@ -38,7 +38,7 @@ class Worker;
 
 
 class Puro {
-	PuroBase* mainframe_;
+	PuroBase* base_;
 public:
 	Puro();
 	~Puro();

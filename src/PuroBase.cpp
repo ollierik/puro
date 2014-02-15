@@ -115,13 +115,13 @@ PuroBase::OnsetDrop(Tag association, Time relative) {
     Idea* idea = GetIdea(association);
     
 	if (idea->IsValid()) {
-        Drop* drop = PopFreeDrop();
-        if (drop == 0) return;
+        //Drop* drop = PopFreeDrop();
+        //if (drop == 0) return;
         
-        drop->Initialize(idea);
+        //drop->Initialize(idea);
         Time absolute = relative + idea->GetTimeOffset();
         
-        Onset* onset = new Onset(absolute, drop);
+        Onset* onset = new Onset(absolute);
         
         // ARRANGE CHRONOLOGICALLY
         auto it = onsets_.begin();
@@ -137,10 +137,17 @@ PuroBase::OnsetDrop(Tag association, Time relative) {
 	}
 }
 
+bool
+PuroBase::HasFreeDrops() {
+    bool empty = onsets_.empty();
+    return !empty;
+}
+
 Onset*
 PuroBase::GetNextOnset() {
-	if (onsets_.empty())
+	if (onsets_.empty()) {
 		return 0;
+    }
 	Onset* next = onsets_.front();
 	onsets_.pop_front();
 	return next;
@@ -150,8 +157,10 @@ PuroBase::GetNextOnset() {
 Drop*
 PuroBase::PopFreeDrop() {
 	//std::cout << "Pop free drop, n: " << drops_free_.size() << std::endl;
-    if (drops_free_.empty())
+    if (drops_free_.empty()) {
+        dout << "NO FREE DROPS" << dndl;
         return 0;
+    }
 	Drop* drop = drops_free_.front();
 	drops_free_.pop();
 	return drop;
@@ -166,6 +175,7 @@ PuroBase::ScheduleOnset(Onset* onset) {
 void
 PuroBase::ReturnDepletedDrop(Drop* drop) {
 	//std::cout << "Drop depleted" << std::endl;
+    dout << "*******************************\nReturn Depleted" << dndl;
 	drops_free_.push(drop);
 }
 

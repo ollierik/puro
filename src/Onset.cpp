@@ -8,8 +8,10 @@
 
 #include "Onset.h"
 
-Onset::Onset(Time time, Drop* drop) {
+Onset::Onset(Time time) {
     time_ = time;
-    drop_ = drop;
+    drop_ = 0;
     index_ = 0;
+    audio_passage_ = 0;
+    envelope_passage_ = 0;
 }

@@ -75,6 +75,8 @@
 		7756980018AA5140007E9423 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7729151F1884C6B0006ABE88 /* Worker.cpp */; };
 		7756980118AA5140007E9423 /* Worker.h in Sources */ = {isa = PBXBuildFile; fileRef = 772915201884C6B0006ABE88 /* Worker.h */; };
 		776C4F50188D1B3700D6B664 /* respool.h in Headers */ = {isa = PBXBuildFile; fileRef = 776C4F4E188D1B3700D6B664 /* respool.h */; };
+		779D394118AD1C6600D594E2 /* puropd~.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 779D394018AD1C6600D594E2 /* puropd~.cpp */; };
+		779D394618AE82FD00D594E2 /* libpuro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77793AE118853A23008AD09B /* libpuro.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -139,6 +141,9 @@
 		775697D318AA4E1F007E9423 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = tests/main.cpp; sourceTree = SOURCE_ROOT; };
 		776C4F4E188D1B3700D6B664 /* respool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = respool.h; sourceTree = "<group>"; };
 		77793AE118853A23008AD09B /* libpuro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpuro.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		779D393D18AD1C1900D594E2 /* m_pd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = m_pd.h; sourceTree = "<group>"; };
+		779D394018AD1C6600D594E2 /* puropd~.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "puropd~.cpp"; sourceTree = "<group>"; };
+		779D394418AE6EB600D594E2 /* puropd~.pd_darwin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "puropd~.pd_darwin"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +161,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		779D392F18AD1B6C00D594E2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				779D394618AE82FD00D594E2 /* libpuro.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -165,8 +178,10 @@
 				77793AE118853A23008AD09B /* libpuro.a */,
 				772914F21884C6B0006ABE88 /* src */,
 				775697C918AA4DBE007E9423 /* puro_tests */,
+				779D393C18AD1C1900D594E2 /* puropd_tilde */,
 				772AB5F118AA4BF8004D4F75 /* Frameworks */,
 				775697C818AA4DBE007E9423 /* puro_tests */,
+				779D394418AE6EB600D594E2 /* puropd~.pd_darwin */,
 			);
 			sourceTree = "<group>";
 		};
@@ -246,6 +261,16 @@
 			path = puro_tests;
 			sourceTree = "<group>";
 		};
+		779D393C18AD1C1900D594E2 /* puropd_tilde */ = {
+			isa = PBXGroup;
+			children = (
+				779D394018AD1C6600D594E2 /* puropd~.cpp */,
+				779D393D18AD1C1900D594E2 /* m_pd.h */,
+			);
+			name = puropd_tilde;
+			path = puropd_tilde/src;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -277,6 +302,13 @@
 				772915441884C6B0006ABE88 /* PuroBase.h in Headers */,
 				772915221884C6B0006ABE88 /* AudioStorage.h in Headers */,
 				772915341884C6B0006ABE88 /* CritSect.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		779D393018AD1B6C00D594E2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +349,23 @@
 			productReference = 775697C818AA4DBE007E9423 /* puro_tests */;
 			productType = "com.apple.product-type.tool";
 		};
+		779D393118AD1B6C00D594E2 /* puropd_tilde */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 779D393518AD1B6C00D594E2 /* Build configuration list for PBXNativeTarget "puropd_tilde" */;
+			buildPhases = (
+				779D392E18AD1B6C00D594E2 /* Sources */,
+				779D392F18AD1B6C00D594E2 /* Frameworks */,
+				779D393018AD1B6C00D594E2 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = puropd_tilde;
+			productName = puropd_tilde;
+			productReference = 779D394418AE6EB600D594E2 /* puropd~.pd_darwin */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -340,6 +389,7 @@
 			targets = (
 				772914EA1884C661006ABE88 /* puro */,
 				775697C718AA4DBE007E9423 /* puro_tests */,
+				779D393118AD1B6C00D594E2 /* puropd_tilde */,
 			);
 		};
 /* End PBXProject section */
@@ -400,6 +450,14 @@
 				7756980118AA5140007E9423 /* Worker.h in Sources */,
 				775697EB18AA50AC007E9423 /* AudioFile.cpp in Sources */,
 				775697D418AA4E1F007E9423 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		779D392E18AD1B6C00D594E2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				779D394118AD1C6600D594E2 /* puropd~.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -528,6 +586,64 @@
 			};
 			name = Release;
 		};
+		779D393318AD1B6C00D594E2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/puropd_tilde/bin";
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_EXTENSION = pd_darwin;
+				EXECUTABLE_PREFIX = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					puropd_tilde/src,
+				);
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/puropd~.pd_darwin";
+				LIBRARY_SEARCH_PATHS = lib;
+				MACH_O_TYPE = mh_bundle;
+				OTHER_LDFLAGS = (
+					"-undefined",
+					suppress,
+					"-flat_namespace",
+				);
+				PRODUCT_NAME = "puropd~";
+				SDKROOT = macosx;
+				SYMROOT = build;
+			};
+			name = Debug;
+		};
+		779D393418AD1B6C00D594E2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/puropd_tilde/bin";
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_EXTENSION = pd_darwin;
+				EXECUTABLE_PREFIX = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					puropd_tilde/src,
+				);
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/puropd~.pd_darwin";
+				LIBRARY_SEARCH_PATHS = lib;
+				MACH_O_TYPE = mh_bundle;
+				OTHER_LDFLAGS = (
+					"-undefined",
+					suppress,
+					"-flat_namespace",
+				);
+				PRODUCT_NAME = "puropd~";
+				SDKROOT = macosx;
+				SYMROOT = build;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -554,6 +670,15 @@
 			buildConfigurations = (
 				775697CE18AA4DBE007E9423 /* Debug */,
 				775697CF18AA4DBE007E9423 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		779D393518AD1B6C00D594E2 /* Build configuration list for PBXNativeTarget "puropd_tilde" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				779D393318AD1B6C00D594E2 /* Debug */,
+				779D393418AD1B6C00D594E2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

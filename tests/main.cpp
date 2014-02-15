@@ -53,16 +53,15 @@ void timing_test() {
 
 		interp->SetEnvelopePassage(idea, ARRLEN(envelope_list), envelope_list);
 
-		interp->OnsetDropFromIdea(idea, 0);
-		interp->OnsetDropFromIdea(idea, 4410);
-		interp->OnsetDropFromIdea(idea, 8820);
-		interp->OnsetDropFromIdea(idea, 13230);
-		interp->OnsetDropFromIdea(idea, 17640);
+        unsigned interval = 6000;
+        for (int i=0; i<20; i++) {
+            interp->OnsetDropFromIdea(idea, i*interval);
+        }
         
-		float envelope_list2[5] = { 0.0, 0.5, 0.25, 1.0, 1.0 }; 	// sharp decline
-		interp->SetEnvelopePassage(idea, ARRLEN(envelope_list2), envelope_list2);
+		//float envelope_list2[5] = { 0.0, 0.5, 0.25, 1.0, 1.0 }; 	// sharp decline
+		//interp->SetEnvelopePassage(idea, ARRLEN(envelope_list2), envelope_list2);
         
-		interp->OnsetDropFromIdea(idea, 66150);
+		//interp->OnsetDropFromIdea(idea, 66150);
         
         
 	}
@@ -72,7 +71,7 @@ void timing_test() {
 	///////////////////////////////////////////////
 
 	uint32_t n = 1024;
-	uint32_t blocks = 20;
+	uint32_t blocks = 200;
 	icstdsp::AudioFile* out_file = new icstdsp::AudioFile();
 	out_file->Create(n*blocks);
 	float* buffer = out_file->GetSafePt();

@@ -35,8 +35,8 @@ public:
 	void SetSize(uint16_t size);
 	void SetEntry(uint16_t index, float time, float value);
     //uint16_t GetNumberOfRefrencees() { return n_refrencees_; };
-    void RegisterRefrence();
-    void RemoveRefrence();
+    void RegisterReference();
+    void RemoveReference();
     
     static uint32_t GetPassageMaxSize() { return 128; };
 };

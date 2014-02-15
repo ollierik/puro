@@ -44,11 +44,11 @@ Passage::SetEntry(uint16_t index, float time, float value) {
 	list_[index].time = time;
 }
 
-void Passage::RegisterRefrence() {
+void Passage::RegisterReference() {
     n_refrencees_++;
 }
 
-void Passage::RemoveRefrence() {
+void Passage::RemoveReference() {
     n_refrencees_--;
     if (n_refrencees_ == 0) {
         pool_->setinactive(this);

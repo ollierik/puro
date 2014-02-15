@@ -60,6 +60,7 @@ public:
 	//void OnsetDrop(Idea* idea); // onset idea into drop NOW
 	void OnsetDrop(Tag association, Time relative); // onset idea into drop
     
+    bool HasFreeDrops();
 	Onset* GetNextOnset(); // get next oncoming onset
 	Drop* PopFreeDrop(); // pop next free Drop
 	void ScheduleOnset(Onset* onset); // add drop to Engines run queue

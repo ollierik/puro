@@ -15,5 +15,9 @@ public:
     Time time_;
     Drop* drop_;
     uint32_t index_;
-    Onset(Time time, Drop* drop);
+    Tag material_;
+    Passage* audio_passage_;
+    Passage* envelope_passage_;
+    
+    Onset(Time time);
 };

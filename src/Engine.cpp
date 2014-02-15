@@ -32,7 +32,7 @@ Engine::AddOnset(Onset* onset) {
 void
 Engine::GetAudioOutput(uint32_t n, float* buffer) {
     
-    dout << "### TICK ###" << dndl;
+    //dout << "### TICK ###" << dndl;
 	base_->Tick();
     running_time_ += n;
     
@@ -48,15 +48,12 @@ Engine::GetAudioOutput(uint32_t n, float* buffer) {
         if (onset->time_ > running_time_) {
             
             // THIS SHOULD BE PASSED
-            dout << "Time: " << onset->time_ << "<" << running_time_ << dndl;
-            dout << "pass drop" << dndl;
+            //dout << "Time: " << onset->time_ << "<" << running_time_ << dndl;
+            //dout << "pass drop" << dndl;
             iter++;
             
         } else {
             // THIS SHOULD BE RUN
-            
-            // TODO
-            // OFFSET
             
             uint32_t n_summed;
             //uint64_t a = running_time_ - n;

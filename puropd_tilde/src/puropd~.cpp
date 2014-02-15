@@ -37,7 +37,7 @@ void *puropd_tilde_new(t_floatarg f)
 
 	x->puro = new Puro();
 	x->engine = x->puro->GetEngine();
-	//x->interp = x->puro->GetInterpreter();
+	x->interp = x->puro->GetInterpreter();
 
   return (void *)x;
 }

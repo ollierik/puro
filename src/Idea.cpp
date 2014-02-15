@@ -60,13 +60,13 @@ Idea::SetTimeOffset(Time current) {
 void
 Idea::SetAudioPassage(Passage* audio) {
     if (audio_passage_ != 0)
-        audio_passage_->RemoveRefrence();
+        audio_passage_->RemoveReference();
 	audio_passage_ = audio;
 }
 void
 Idea::SetEnvelopePassage(Passage* envelope) {
     if (envelope_passage_ != 0)
-        envelope_passage_->RemoveRefrence();
+        envelope_passage_->RemoveReference();
 	envelope_passage_ = envelope;
 }
 

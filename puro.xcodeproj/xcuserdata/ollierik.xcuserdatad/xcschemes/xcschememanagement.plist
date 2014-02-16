@@ -9,10 +9,35 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>puro_tests.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>puropd_tilde.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>772914EA1884C661006ABE88</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>772AB5EF18AA4BF8004D4F75</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>775697C718AA4DBE007E9423</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>779D393118AD1B6C00D594E2</key>
 		<dict>
 			<key>primary</key>
 			<true/>

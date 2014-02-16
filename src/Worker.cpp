@@ -6,47 +6,46 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#include "MainFrame.h"
+#include "PuroBase.h"
 #include "Puro.h"
 #include "Drop.h"
 #include "Worker.h"
-#include "Idea.h"
+#include "Passage.h"
 
-Worker::Worker(MainFrame* instance) {
+Worker::Worker(PuroBase* instance) {
 	//std::cout << "Worker" << std::endl;
-	instance_ = instance;
-}
-
-Worker::~Worker() {
-	// TODO Auto-generated destructor stub
+	base_ = instance;
 }
 
 void
-Worker::PrepareDrop(Idea* onset, Drop* drop) {
-	drop->Initialize(onset->GetAssociation(), onset->GetMaterial());
-	drop->ProcessAudio(onset->GetAudioPassage());
-	drop->ProcessEnvelope(onset->GetEnvelopePassage());
+Worker::PrepareDrop(Onset* onset) {
+	//drop->Initialize(onset->GetAssociation(), onset->GetMaterial());
+    
+    
+    onset->drop_->ProcessAudio(onset->material_, onset->audio_passage_);
+    onset->drop_->ProcessEnvelope(onset->envelope_passage_);
+    
+    onset->audio_passage_->RemoveReference();
+    onset->audio_passage_ = 0;
+    onset->envelope_passage_->RemoveReference();
+    onset->envelope_passage_ = 0;
+	//drop->ProcessAudio();
+	//drop->ProcessEnvelope();
+    dout << "Drop Prepared" << dndl;
 }
 
+/*
+ Get free drod, get next onset, prepare it, schedule it"
+*/
 void
 Worker::Tick() {
-
-	Idea* onset = instance_->GetNextOnset();
-	if (onset==0) {
-		//std::cout << "no onset" << std::endl;
-		return;
-	}
-
-	//std::cout << "Onset: " << onset << std::endl;
-
-	Drop* free_drop = instance_->PopFreeDrop();
-	if (!free_drop) {
-		//std::cout << "no free drop" << std::endl;
-		return;
-	}
-
-	//std::cout << "Worker Tick" << std::endl;
-
-	PrepareDrop(onset, free_drop);
-	instance_->ScheduleDrop(free_drop);
+    
+    while (base_->HasFreeDrops()) {
+        Onset* onset = base_->GetNextOnset();
+        if (onset == 0)
+            break;
+        onset->drop_ = base_->PopFreeDrop();
+        PrepareDrop(onset);
+        base_->ScheduleOnset(onset);
+    }
 }

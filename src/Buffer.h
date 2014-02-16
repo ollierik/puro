@@ -6,8 +6,7 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef BUFFER_H_
-#define BUFFER_H_
+#pragma once
 
 class Buffer {
 	uint32_t capacity_;
@@ -23,5 +22,3 @@ public:
 	float GetValue(uint32_t index);
 	void SetValue(uint32_t index, float value);
 };
-
-#endif /* BUFFER_H_ */

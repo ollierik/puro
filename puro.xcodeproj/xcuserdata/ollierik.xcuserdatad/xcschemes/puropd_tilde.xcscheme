@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "772914EA1884C661006ABE88"
-               BuildableName = "libpuro.a"
-               BlueprintName = "puro"
+               BlueprintIdentifier = "779D393118AD1B6C00D594E2"
+               BuildableName = "puropd~.pd_darwin"
+               BlueprintName = "puropd_tilde"
                ReferencedContainer = "container:puro.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,16 +28,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "772AB5EF18AA4BF8004D4F75"
-               BuildableName = "puro Tests.xctest"
-               BlueprintName = "puro Tests"
-               ReferencedContainer = "container:puro.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -45,7 +35,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">

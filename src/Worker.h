@@ -7,17 +7,13 @@
 // See the file LICENSE.txt for information.
 
 
-#ifndef WORKER_H_
-#define WORKER_H_
+#pragma once
 
 class Worker {
-	MainFrame *instance_;
+	PuroBase* base_;
 	// TODO processing buffer for FFT
 public:
-	Worker(MainFrame* instance);
-	virtual ~Worker();
-	void PrepareDrop(Idea* onset, Drop* drop);
+	Worker(PuroBase* instance);
+	void PrepareDrop(Onset* onset);
 	void Tick();
 };
-
-#endif /* WORKER_H_ */

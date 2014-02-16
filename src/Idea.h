@@ -6,8 +6,7 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef IDEA_H_
-#define IDEA_H_
+#pragma once
 
 #include "Puro.h"
 #include "Passage.h"
@@ -19,11 +18,12 @@
 class Idea {
 	Tag association_;
 	Tag material_;
-	Passage* audio_;
-	Passage* envelope_;
+	Passage* audio_passage_;
+	Passage* envelope_passage_;
+    Time time_offset_;
+    
 public:
 	Idea();
-	~Idea();
 	void Initialize();
 
 	Tag GetAssociation();
@@ -33,10 +33,11 @@ public:
 
 	void SetAssociation(Tag association);
 	void SetMaterial(Tag material);
-	//void SetAudio(Passage* audio);
-	//void SetEnvelope(Passage* envelope);
+	void SetAudioPassage(Passage* audio);
+	void SetEnvelopePassage(Passage* envelope);
+    
+    Time GetTimeOffset();
+    void SetTimeOffset(Time current);
 
 	bool IsValid(); // has it been initialized with parameters?
 };
-
-#endif /* IDEA_H_ */

@@ -7,9 +7,9 @@
 // See the file LICENSE.txt for information.
 
 #include "Puro.h"
-#include <iostream>
-#include "MainFrame.h"
+#include "PuroBase.h"
 #include "Passage.h"
+#include <iostream>
 
 Tag CharsToTag(char* name) {
 	Tag tag=0;
@@ -43,21 +43,21 @@ FloatListToPassage(Passage* passage_to_use, uint16_t n_data, float* data) {
 
 
 Puro::Puro() {
-	mainframe_ = new MainFrame(4, 16);
+	base_ = new PuroBase(8, 16, 16, 16);
 }
 
 Puro::~Puro() {
-	delete mainframe_;
+	delete base_;
 }
 
 Engine*
 Puro::GetEngine() {
-	return mainframe_->GetEngine();
+	return base_->GetEngine();
 }
 
 Interpreter*
 Puro::GetInterpreter() {
-	return mainframe_->GetInterpreter();
+	return base_->GetInterpreter();
 }
 
 const char*

@@ -6,24 +6,24 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef ENGINE_H_
-#define ENGINE_H_
+#pragma once
 
 #include "Puro.h"
 
+/*
 struct DropBundle {
 	Drop* drop;
 	uint32_t index; // index is stored outside of drop
 };
+*/
 
 class Engine {
-	MainFrame* instance_;
-	std::list<struct DropBundle> drops_in_use_;
+	PuroBase* base_;
+	//std::list<struct DropBundle> drops_in_use_;
+	std::list<Onset*> onsets_;
+    Time running_time_;
 public:
-	Engine(MainFrame* instance_);
-	~Engine();
-	void AddDrop(Drop* drop);
+	Engine(PuroBase* instance_);
+	void AddOnset(Onset* onset);
 	void GetAudioOutput(uint32_t n, float* buffer);
 };
-
-#endif /* ENGINE_H_ */

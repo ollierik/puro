@@ -10,17 +10,20 @@
 #include "Buffer.h"
 #include "Drop.h"
 #include "Passage.h"
-#include "MainFrame.h"
+#include "PuroBase.h"
+#include "Idea.h"
 
-Drop::Drop(MainFrame *instance, uint32_t buffer_size) {
+Drop::Drop(PuroBase *instance, uint32_t buffer_size) {
 	// TODO Auto-generated constructor stub
 
 	//std::cout << "Drop" << std::endl;
-	instance_ = instance;
-	idea_ = 0;
-	material_ = 0;
+	base_ = instance;
+	//idea_ = 0;
+	//material_ = 0;
 	envelope_ = new Buffer(buffer_size);
 	audio_ = new Buffer(buffer_size);
+    //Passage audio_passage = new Passage(;
+    //Passage envelope_passage;
 }
 
 Drop::~Drop() {
@@ -29,37 +32,45 @@ Drop::~Drop() {
 }
 
 void
-Drop::Initialize(Tag idea, Tag material) {
-	idea_ = idea;
-	material_ = material;
+Drop::Initialize(Idea* idea) {
+	//idea_ = idea->GetAssociation();
+	//material_ = idea->GetMaterial();
+    
+    /*
+    audio_passage = idea->GetAudioPassage();
+    envelope_passage = idea->GetEnvelopePassage();
+    audio_passage->RegisterRefrence();
+    envelope_passage->RegisterRefrence();
+    */
+    
 	audio_->Clear();
 	envelope_->Clear();
 }
 
 
 int32_t
-Drop::ProcessAudio(Passage* audio) {
+Drop::ProcessAudio(Tag material, Passage* audio_passage) {
 	//std::cout << "Prepare drop" << std::endl;
 	// [0] 14000 2250 16250 linear
 	// [0] 14000 2250 15125 half-time
 	// [0] 14000 2250 11750 inverse
 
-	//std::cout << "mat size: " << instance_->GetAudioSize(material_) << std::endl;
+	//std::cout << "mat size: " << base_->GetAudioSize(material_) << std::endl;
 
-	if (audio->GetSize() < 2)
+	if (audio_passage->GetSize() < 2)
 		return 0; // kill-signal
 
 	// GET MATERIAL
-	float* material_data = instance_->GetAudioData(material_);
+	float* material_data = base_->GetAudioData(material);
 	//std::cout << "Got material data:" << material_data << std::endl;
 	if (material_data == 0)
 		return 0; // kill-signal
-	uint32_t material_size = instance_->GetAudioSize(material_);
-	uint32_t sample_rate = GetMaterialSampleRate();
+	uint32_t material_size = base_->GetAudioSize(material);
+	uint32_t sample_rate = base_->GetMaterialSampleRate(material);
 
 	// RESIZE BUFFER
-	float t0 = audio->GetTime(0);
-	float t1 = audio->GetTime(audio->GetSize()-1);
+	float t0 = audio_passage->GetTime(0);
+	float t1 = audio_passage->GetTime(audio_passage->GetSize()-1);
 	uint32_t duration = (uint32_t)(sample_rate*(t1-t0)); // this is absolute
 	audio_->SetSize(duration);
 
@@ -68,12 +79,12 @@ Drop::ProcessAudio(Passage* audio) {
 	/////////////////////////////////////////////////
 
 	// FILL BUFFER SEGMENT AT A TIME
-	for (uint16_t i=1; i < audio->GetSize(); i++) {
+	for (uint16_t i=1; i < audio_passage->GetSize(); i++) {
 
-		uint32_t t0 = audio->GetTime(i-1) * sample_rate;
-		uint32_t t1 = audio->GetTime(i) * sample_rate;
-		float s0 = audio->GetValue(i-1) * sample_rate;
-		float s1 = audio->GetValue(i) * sample_rate;
+		uint32_t t0 = audio_passage->GetTime(i-1) * sample_rate;
+		uint32_t t1 = audio_passage->GetTime(i) * sample_rate;
+		float s0 = audio_passage->GetValue(i-1) * sample_rate;
+		float s1 = audio_passage->GetValue(i) * sample_rate;
 		//std::cout << "i: " << i << "/" << audio->GetSize()-1 << " from s0: " << s0 << " to s1: " << s1 << std::endl;
 		uint32_t t = t0;
 
@@ -102,23 +113,24 @@ Drop::ProcessAudio(Passage* audio) {
 		std::cout << "a: " << a << " f: " << f << std::endl;
 	}
 */
+    audio_passage->RemoveReference();
 	return 1;
 }
 
 int32_t
-Drop::ProcessEnvelope(Passage* envelope) {
+Drop::ProcessEnvelope(Passage* envelope_passage) {
 	// [0] 0.25 0.75 0.5 1.0 0.75 0.75 1.0 0.0
 
-	if (envelope->GetSize() < 2)
+	if (envelope_passage->GetSize() < 2)
 		return 0; // kill-signal
 
 	// FILL BUFFER SEGMENT AT A TIME
-	for (uint16_t i=1; i < envelope->GetSize(); i++) {
+	for (uint16_t i=1; i < envelope_passage->GetSize(); i++) {
 
-		uint32_t fx = envelope->GetTime(i-1) * GetDurationInSamples();
-		uint32_t tx = envelope->GetTime(i) * GetDurationInSamples();
-		float fy = envelope->GetValue(i-1);
-		float ty = envelope->GetValue(i);
+		uint32_t fx = envelope_passage->GetTime(i-1) * GetDurationInSamples();
+		uint32_t tx = envelope_passage->GetTime(i) * GetDurationInSamples();
+		float fy = envelope_passage->GetValue(i-1);
+		float ty = envelope_passage->GetValue(i);
 		uint32_t x = fx;
 
 		// GET ENVELOPE POINTS FOR THE SEGMENT
@@ -133,12 +145,8 @@ Drop::ProcessEnvelope(Passage* envelope) {
 			x++;
 		}
 	}
+    envelope_passage->RemoveReference();
 	return 0;
-}
-
-uint32_t
-Drop::GetMaterialSampleRate() {
-	return instance_->GetMaterialSampleRate(material_);
 }
 
 uint32_t
@@ -152,7 +160,8 @@ Drop::GetDurationInSamples() {
  * Caller should take care that correct index is given.
  */
 uint32_t
-Drop::GetAudio(uint32_t index, uint32_t n, float* buffer) {
+Drop::GetAudio(float* buffer, uint32_t index, uint32_t n, uint32_t offset) {
+//Drop::GetAudio(float* buffer, uint32_t index, uint32_t n) {
 	uint32_t last = index + n - 1;
 	uint32_t duration = GetDurationInSamples();
 	if (last > duration)
@@ -160,11 +169,17 @@ Drop::GetAudio(uint32_t index, uint32_t n, float* buffer) {
 
 	//std::cout<< "Get Audio, index: " << index << " n: " << n << " duration: " << duration << std::endl;
 
+	//for (uint32_t i=offset; i<n; i++) {
 	for (uint32_t i=0; i<n; i++) {
 		float f = audio_->GetValue(index + i) * envelope_->GetValue(index + i);
+		//float f = envelope_->GetValue(index + i);
 		//std::cout << "i: " << i << " f: " << f << std::endl;
-		buffer[i] += f;
+		buffer[i + offset] += f;
 	}
 	//std::cout << "n summed: " << n << std::endl;
 	return n;
+}
+
+Time Drop::GetOnsetTime() {
+    return onset_time_;
 }

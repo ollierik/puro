@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "772914EA1884C661006ABE88"
-               BuildableName = "libpuro.a"
-               BlueprintName = "puro"
+               BlueprintIdentifier = "775697C718AA4DBE007E9423"
+               BuildableName = "puro_tests"
+               BlueprintName = "puro_tests"
                ReferencedContainer = "container:puro.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,17 +28,16 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "772AB5EF18AA4BF8004D4F75"
-               BuildableName = "puro Tests.xctest"
-               BlueprintName = "puro Tests"
-               ReferencedContainer = "container:puro.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "775697C718AA4DBE007E9423"
+            BuildableName = "puro_tests"
+            BlueprintName = "puro_tests"
+            ReferencedContainer = "container:puro.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
@@ -49,6 +48,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "775697C718AA4DBE007E9423"
+            BuildableName = "puro_tests"
+            BlueprintName = "puro_tests"
+            ReferencedContainer = "container:puro.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -58,6 +66,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "775697C718AA4DBE007E9423"
+            BuildableName = "puro_tests"
+            BlueprintName = "puro_tests"
+            ReferencedContainer = "container:puro.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

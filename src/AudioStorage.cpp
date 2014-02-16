@@ -7,8 +7,6 @@
 // See the file LICENSE.txt for information.
 
 #include "AudioStorage.h"
-#include <iostream>
-
 
 icstdsp::AudioFile*
 AudioStorage::GetFile(Tag association) {

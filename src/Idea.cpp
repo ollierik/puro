@@ -11,19 +11,14 @@
 Idea::Idea() {
 	//std::cout << "Idea" << std::endl;
 	Initialize();
-	audio_ = new Passage(128);
-	envelope_ = new Passage(128);
-}
-
-Idea::~Idea() {
-  delete audio_;
-  delete envelope_;
 }
 
 void
 Idea::Initialize() {
 	association_ = 0;
 	material_ = 0;
+    audio_passage_ = 0;
+    envelope_passage_ = 0;
 }
 
 Tag
@@ -37,11 +32,11 @@ Idea::GetMaterial() {
 
 Passage*
 Idea::GetAudioPassage() {
-	return audio_;
+	return audio_passage_;
 }
 Passage*
 Idea::GetEnvelopePassage() {
-	return envelope_;
+	return envelope_passage_;
 }
 
 void
@@ -52,20 +47,34 @@ void
 Idea::SetMaterial(Tag material) {
 	material_ = material;
 }
-/*
-void
-Idea::SetAudio(Passage* audio) {
-	audio_ = audio;
+
+Time
+Idea::GetTimeOffset() {
+    return time_offset_;
 }
 void
-Idea::SetEnvelope(Passage* envelope) {
-	envelope_ = envelope;
+Idea::SetTimeOffset(Time current) {
+    time_offset_ = current;
 }
-*/
+
+void
+Idea::SetAudioPassage(Passage* audio) {
+    if (audio_passage_ != 0)
+        audio_passage_->RemoveReference();
+	audio_passage_ = audio;
+}
+void
+Idea::SetEnvelopePassage(Passage* envelope) {
+    if (envelope_passage_ != 0)
+        envelope_passage_->RemoveReference();
+	envelope_passage_ = envelope;
+}
+
 bool
 Idea::IsValid() {
+    if (!(audio_passage_ && envelope_passage_))
+        return false;
 	bool is_valid = (association_) && (material_)
-			&& (audio_->GetSize()>1) && (envelope_->GetSize()>1);
-	//std::cout<< "Is idea valid: " << is_valid << std::endl;
+			&& (audio_passage_->GetSize()>1) && (envelope_passage_->GetSize()>1);
 	return is_valid;
 }

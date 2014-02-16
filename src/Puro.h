@@ -6,31 +6,39 @@
 // This code is released under The BSD 2-Clause License.
 // See the file LICENSE.txt for information.
 
-#ifndef PURO_H_
-#define PURO_H_
+#pragma once
 
-#include <iostream>
 #include <stdint.h>
 #include <map>
 #include <list>
+#include <iostream>
+
+
+#ifdef DEBUG
+#define dout std::cout
+#else
+#define dout 0 && std::cout
+#endif
+#define dndl std::endl
 
 // 8 characters used as identifier, passed as one 64bit int
 typedef uint64_t Tag;
-typedef uint64_t Time; // placeholder for now
+typedef uint64_t Time;
 
-class MainFrame;
+class PuroBase;
 class AudioStorage;
 class Buffer;
 class Drop;
 class Engine;
 class Idea;
 class Interpreter;
+class Onset;
 class Passage;
 class Worker;
 
 
 class Puro {
-	MainFrame* mainframe_;
+	PuroBase* base_;
 public:
 	Puro();
 	~Puro();
@@ -42,5 +50,3 @@ public:
 
 Tag CharsToTag(char*);
 void FloatListToPassage(Passage* passage_to_use, uint16_t n_data, float* data);
-
-#endif /* PURO_H_ */

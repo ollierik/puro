@@ -8,42 +8,54 @@
 
 #include "Interpreter.h"
 #include "Idea.h"
-#include "MainFrame.h"
+#include "PuroBase.h"
+#include "Passage.h"
 
-Interpreter::Interpreter(MainFrame* instance) {
+Interpreter::Interpreter(PuroBase* instance) {
 	//std::cout << "Interpreter" << std::endl;
-	instance_ = instance;
+	base_ = instance;
 }
+
 // TODO ACTUALLY INTERFACE THESE
 void
 Interpreter::SetMaterial(Tag idea, Tag material) {
-	Idea* idea_to_use = instance_->GetIdea(idea);
+	Idea* idea_to_use = base_->GetIdea(idea);
 	idea_to_use->SetMaterial(material);
 }
 
 void
-Interpreter::SetAudioPassage(Tag idea, uint16_t n_data, float* data) {
+Interpreter::SetSync(Tag idea) {
+    base_->SyncIdea(idea);
+}
 
-	Idea* idea_to_use = instance_->GetIdea(idea);
-	Passage* passage_to_use = idea_to_use->GetAudioPassage();
+void
+Interpreter::SetAudioPassage(Tag idea, uint16_t n_data, float* data) {
+    
+	Passage* passage_to_use = base_->GetFreeAudioPassage();
 	FloatListToPassage(passage_to_use, n_data, data);
+    dout << "Set Audio Passage" << dndl;
+    
+	Idea* idea_to_use = base_->GetIdea(idea);
+    idea_to_use->SetAudioPassage(passage_to_use);
 }
 
 void
 Interpreter::SetEnvelopePassage(Tag idea, uint16_t n_data, float* data) {
 
-	Idea* idea_to_use = instance_->GetIdea(idea);
-	Passage* passage_to_use = idea_to_use->GetEnvelopePassage();
+	//Passage* passage_to_use = idea_to_use->GetEnvelopePassage();
+	Passage* passage_to_use = base_->GetFreeEnvelopePassage();
 	FloatListToPassage(passage_to_use, n_data, data);
+    
+	Idea* idea_to_use = base_->GetIdea(idea);
+    idea_to_use->SetEnvelopePassage(passage_to_use);
 }
 
 void
-Interpreter::OnsetDropFromIdea(Tag idea) {
+Interpreter::OnsetDropFromIdea(Tag idea, Time time) {
 	//std::cout << "Onset drop from idea" << std::endl;
-	Idea* idea_to_use = instance_->GetIdea(idea);
-	instance_->OnsetDrop(idea_to_use);
+	base_->OnsetDrop(idea, time);
 }
 void
 Interpreter::LoadAudioMaterial(Tag association, char* path_to_file) {
-	instance_->LoadAudioMaterial(association, path_to_file);
+	base_->LoadAudioMaterial(association, path_to_file);
 }

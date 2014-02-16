@@ -54,7 +54,7 @@ void timing_test() {
 		interp->SetEnvelopePassage(idea, ARRLEN(envelope_list), envelope_list);
 
         unsigned interval = 6000;
-        for (int i=0; i<20; i++) {
+        for (int i=0; i<40; i++) {
             interp->OnsetDropFromIdea(idea, i*interval);
         }
         
@@ -71,7 +71,7 @@ void timing_test() {
 	///////////////////////////////////////////////
 
 	uint32_t n = 1024;
-	uint32_t blocks = 200;
+	uint32_t blocks = 500;
 	icstdsp::AudioFile* out_file = new icstdsp::AudioFile();
 	out_file->Create(n*blocks);
 	float* buffer = out_file->GetSafePt();
@@ -156,7 +156,7 @@ void output_test() {
 	///////////////////////////////////////////////
 
 	uint32_t n = 1024;
-	uint32_t blocks = 800;
+	uint32_t blocks = 1600;
 	icstdsp::AudioFile* out_file = new icstdsp::AudioFile();
 	out_file->Create(n*blocks);
 	float* buffer = out_file->GetSafePt();

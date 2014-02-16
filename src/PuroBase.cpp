@@ -121,7 +121,7 @@ PuroBase::OnsetDrop(Tag association, Time relative) {
         //drop->Initialize(idea);
         Time absolute = relative + idea->GetTimeOffset();
         
-        Onset* onset = new Onset(absolute);
+        Onset* onset = new Onset(absolute, idea->GetMaterial(), idea->GetAudioPassage(), idea->GetEnvelopePassage());
         
         // ARRANGE CHRONOLOGICALLY
         auto it = onsets_.begin();
@@ -137,11 +137,6 @@ PuroBase::OnsetDrop(Tag association, Time relative) {
 	}
 }
 
-bool
-PuroBase::HasFreeDrops() {
-    bool empty = onsets_.empty();
-    return !empty;
-}
 
 Onset*
 PuroBase::GetNextOnset() {
@@ -153,11 +148,16 @@ PuroBase::GetNextOnset() {
 	return next;
 }
 
-// TODO CHECKS
+bool
+PuroBase::HasFreeDrops() {
+    bool empty = drops_free_.empty();
+    return !empty;
+}
+
 Drop*
 PuroBase::PopFreeDrop() {
 	//std::cout << "Pop free drop, n: " << drops_free_.size() << std::endl;
-    if (drops_free_.empty()) {
+    if (!HasFreeDrops()) {
         dout << "NO FREE DROPS" << dndl;
         return 0;
     }

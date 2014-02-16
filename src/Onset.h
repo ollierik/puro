@@ -19,5 +19,5 @@ public:
     Passage* audio_passage_;
     Passage* envelope_passage_;
     
-    Onset(Time time);
+    Onset(Time time, Tag material, Passage* audio_passage_, Passage* envelope_passage_);
 };

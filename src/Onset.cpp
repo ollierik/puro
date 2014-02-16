@@ -8,10 +8,11 @@
 
 #include "Onset.h"
 
-Onset::Onset(Time time) {
+Onset::Onset(Time time, Tag material, Passage* audio_passage, Passage* envelope_passage) {
     time_ = time;
     drop_ = 0;
     index_ = 0;
-    audio_passage_ = 0;
-    envelope_passage_ = 0;
+    material_ = material;
+    audio_passage_ = audio_passage;
+    envelope_passage_ = envelope_passage;
 }

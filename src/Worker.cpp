@@ -21,7 +21,8 @@ void
 Worker::PrepareDrop(Onset* onset) {
 	//drop->Initialize(onset->GetAssociation(), onset->GetMaterial());
     
-    onset->drop_->ProcessAudio(onset->audio_passage_);
+    
+    onset->drop_->ProcessAudio(onset->material_, onset->audio_passage_);
     onset->drop_->ProcessEnvelope(onset->envelope_passage_);
     
     onset->audio_passage_->RemoveReference();
@@ -33,21 +34,18 @@ Worker::PrepareDrop(Onset* onset) {
     dout << "Drop Prepared" << dndl;
 }
 
+/*
+ Get free drod, get next onset, prepare it, schedule it"
+*/
 void
 Worker::Tick() {
     
-    if (!base_->HasFreeDrops())
-        return;
-    
-    Onset* onset = base_->GetNextOnset();
-    while (onset != 0) {
-        if (!base_->HasFreeDrops()) {
-            
-            
-        }
+    while (base_->HasFreeDrops()) {
+        Onset* onset = base_->GetNextOnset();
+        if (onset == 0)
+            break;
         onset->drop_ = base_->PopFreeDrop();
         PrepareDrop(onset);
         base_->ScheduleOnset(onset);
-        onset = base_->GetNextOnset();
     }
 }

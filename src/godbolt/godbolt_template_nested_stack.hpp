@@ -7,19 +7,19 @@ class Operation
 {
 public:
     virtual int perform(int x, int y) = 0;
+    int z;
 };
 
 class BeyondOperation : Operation
 {
     virtual void initialise(int c) { constant = c; };
-    int constant;
 };
 
 class DivOperation : public BeyondOperation
 {
 public:
-    void initialise(int c) override { constant = c * 2; }
-    int perform(int x, int y) { return x / (c*y); }
+    void initialise(int c) override { z = c * 2; }
+    int perform(int x, int y) { return x / (z*y); }
 };
 
 class PowOperation : public Operation

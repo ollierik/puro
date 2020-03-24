@@ -1,138 +1,163 @@
+#include <array>
 #include <vector>
 #include <memory>
 
 template <class ElementType>
-class Pool
+class PoolInterface
 {
 public:
 
-    //int size() const { return static_cast<int>(vec.size()); }
-    virtual int size() const = 0;
-    virtual const ElementType* data() const = 0;
-    //ElementType& operator [] (int i) { return *(vec[i]); }
-    virtual ElementType& operator [] (int i);
+    /** Number of elements that can be stored into the pool with current memory allocation */
+    virtual size_t capacity() const = 0;
 
-    /**
-    template<typename... Args>
-    bool emplace(Args... args)
-    {
-        if (capacity() != size())
-        {
-            auto e = std::make_unique<ElementType> (args);
-            vec.push_back(e);
-            return true;
-        }
-        return false;
-    }
-     */
+    /** Number of currently stored (i.e. active) elements */
+    virtual size_t size() const = 0;
 
-    
-    /*
-    bool add(ElementPtr e)
-    {
-        if (capacity() != size())
-        {
-            vec.push_back(std::move(e));
-            return true;
-        }
-        return false;
-    }
+    virtual ElementType& operator [] (int i) = 0;
 
-    void remove(int index)
-    {
-        const auto numElements = vec.size();
-        const auto indexOfLast = numElements - 1;
-        
-        if (numElements > 1)
-        {
-            vec[index].swap(vec[indexOfLast]);
-        }
-        
-        vec.erase(vec.begin() + indexOfLast);
-    }
+    /** Creates new Element directly into the Pool.
+       @return identifying index of the element that was created, or negative if couldn't add
     */
-
-    /** Returns negative if didn't succeed */
     template<typename... Args>
-    virtual int emplace(Args... args) = 0;
+    virtual int add(Args... args) = 0;
 
-    virtual = void remove(int index) = 0;
+    /** Removes the Element with the identifying index from the Pool. */
+    virtual void remove(int index) = 0;
 };
 
-template <class ElementType>
-class Pool
+
+
+
+/** Pool with fixed amount of elements. Allocates elements to stack.
+*/
+template <class ElementType, int PoolSize>
+class FixedPool : public PoolInterface<ElementType>
 {
-private:
-
-    using ElementPtr = std::unique_ptr<ElementType>;
-
-    std::vector<ElementPtr> vec;
-
 public:
 
-    //Pool() = default;
-    /**
-     How many elements to hold
-     */
-    Pool(int capacity)
+    FixedPool()
     {
-        vec.reserve(capacity);
+        // initialise lookup
+        for (int i=0; i<capacity(); i++)
+        {
+            lookup[i] = &elements[i];
+        }
     }
 
-    void reserve(int size) { vec.reserve(size); }
-    int capacity() const { return vec.capacity(); }
-    int size() const { return static_cast<int>(vec.size()); }
-    void clear() { vec.clear(); }
-    std::vector<ElementPtr>& vector() { return vec; }
-    ElementType* data() { return vec.data(); }
+    constexpr int capacity() const { return PoolSize; }
+    int size() const { return numActive; }
+    ElementType& operator [] (int i) { return elements[i]; }
 
-    ElementType& operator [] (int i) { return *(vec[i]); }
-
-    /**
-     Adds new element by emplacing it back.
-
-     @param args Arguments that will be passed to the constructor of the ElementType
-     @return true if success, false if no more Elements can fit the container
     template<typename... Args>
-    bool emplace(Args... args)
+    int add(Args... args)
     {
-        if (capacity() != size())
-        {
-            auto e = std::make_unique<ElementType> (args);
-            vec.push_back(e);
-            return true;
-        }
-        return false;
-    }
-     */
+        if (size() == capacity())
+            return -1;
 
-    
-    /**
-     Adds a new element by moving.
+        // use first unused Element and increment
+        const auto newElementIndex = lookup[numActive++];
+        ElementType* element = &elements[newElementIndex]
 
-     @param Pass the element as a std::unique_ptr with std::move(xyz)
-     @return true if success, false if no more Elements can fit the container
-     */
-    bool add(ElementPtr e)
-    {
-        if (capacity() != size())
-        {
-            vec.push_back(std::move(e));
-            return true;
-        }
-        return false;
+        // construct in-place to avoid copying
+        std::allocator<ElementType>::construct(element, args);
+
+        return newElementIndex;
     }
 
     void remove(int index)
     {
-        const auto numElements = vec.size();
-        const auto indexOfLast = numElements - 1;
-        
-        if (numElements > 1)
+        numActive -= 1;
+        const auto indexOfLast = numActive;
+        if (indexOfLast > 0)
         {
-            vec[index].swap(vec[indexOfLast]);
+            swapLookups(index, indexOfLast);
         }
-        
-        vec.erase(vec.begin() + indexOfLast);
     }
+
+protected:
+
+    std::array<ElementType, PoolSize> elements;
+    std::array<size_t, PoolSize> lookup;
+    size_t numActive = 0;
+
+private:
+
+    void swapLookups(int i, int j)
+    {
+        auto* temp = lookup[i];
+        lookup[i] = lookup[j];
+        lookup[j] = temp;
+    }
+};
+
+
+
+
+/** Pool with dynamic amount of elements.
+*/
+template <class ElementType, int InitialPoolSize, int MaxPoolSize = -1>
+class DynamicPool : public PoolInterface<ElementType>
+{
+    DynamicPool()
+    {
+        // Reserve initial capacity
+        elements.reserve(InitialPoolSize);
+        lookup.reserve(InitialPoolSize);
+
+        // Create lookup
+        for (int i=0; i<InitialPoolSize; i++)
+        {
+            lookup.push_back(static_cast<size_t>(i));
+        }
+
+    }
+
+    virtual size_t capacity() const { return elements.capacity(); };
+
+    /** Number of currently stored (i.e. active) elements */
+    virtual size_t size() const { return elements.size(); }
+
+    virtual ElementType& operator [] (int i) { return elements[i]; }
+
+    template<typename... Args>
+    int add(Args... args)
+    {
+        if (size() == capacity())
+        {
+            if (! attemptToIncreaseCapacity())
+                return -1;
+        }
+
+        // use first unused Element and increment
+        const auto newElementIndex = lookup[numActive++];
+        ElementType* element = &elements[newElementIndex]
+
+        // construct in-place to avoid copying
+        std::allocator<ElementType>::construct(element, args);
+
+        return newElementIndex;
+    }
+
+
+protected:
+
+    std::vector<ElementType> elements;
+    std::vector<ElementType> lookup;
+
+private:
+
+    /** Returns true if capacity was incrased */
+    bool attemptToIncreaseCapacity()
+    {
+        const auto currentCapacity = capacity();
+        auto targetSize = capacity() * 2;
+        if (targetSize > MaxPoolSize)
+        {
+            targetSize = MaxPoolSize;
+        }
+        elements.reserve(targetSize);
+
+        return (capacity() > currentCapacity);
+    }
+
 };

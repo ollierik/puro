@@ -1,27 +1,45 @@
 #include <iostream>
 #include <vector>
-#include "engine.hpp"
-#include "grain.hpp"
+#include "Pool.hpp"
 
+class Element
+{
+public:
+    Element(int i)
+    {
+        x = (size_t)i;
+    }
+    Element() = delete;
+
+    void print()
+    {
+        std::cout << "Element value:" << x << std::endl;
+    }
+
+    size_t x;
+};
 
 int main ()
 {
-    std::vector<float> buffer (128, 0);
+    const auto n = 10;
+    Pool<Element, n> pool;
+    std::cout << sizeof(Element) << std::endl;
+    std::cout << sizeof(pool) << std::endl;
+    std::cout << pool.size() << std::endl;
 
-    PlaybackInfo info (44100, 32);
-
-    Engine<float, Grain<float>> engine (info);
-
-    for (int i=0; i < (int)buffer.size(); i += info.bs)
+    for (int i=0; i<4; i++)
     {
-        engine.addNextOutput(&buffer[i]);
+        Element* e = pool.add(i*10);
     }
 
-    double sum = 0;
-    for (int i=0; i < (int)buffer.size(); ++i)
+    int c = 0;
+    for (auto e : pool)
     {
-        std::cout << buffer[i] << std::endl;;
-        sum += buffer[i];
+        e.print();
+        std::cout << "c:" << c << std::endl;
+        ++c;
     }
-    std::cout << "sum: " << sum << std::endl;
+
+
+    return 0;
 }

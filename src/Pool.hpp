@@ -2,162 +2,118 @@
 #include <vector>
 #include <memory>
 
-template <class ElementType>
-class PoolInterface
+
+template <class ElementType, int PoolSize>
+class StackMemory
 {
 public:
+    constexpr size_t size() { return PoolSize; };
+    ElementType& operator[] (int i)
+    {
+        return (ElementType&)elements[i * sizeof(ElementType)];
+    }
 
-    /** Number of elements that can be stored into the pool with current memory allocation */
-    virtual size_t capacity() const = 0;
-
-    /** Number of currently stored (i.e. active) elements */
-    virtual size_t size() const = 0;
-
-    virtual ElementType& operator [] (int i) = 0;
-
-    /** Creates new Element directly into the Pool.
-       @return identifying index of the element that was created, or negative if couldn't add
-    */
-    template<typename... Args>
-    virtual int add(Args... args) = 0;
-
-    /** Removes the Element with the identifying index from the Pool. */
-    virtual void remove(int index) = 0;
+    ElementType* ptr(int i)
+    {
+        //return (ElementType*)(&elements[i * sizeof(ElementType)]);
+        return reinterpret_cast<ElementType*>(&elements[i * sizeof(ElementType)]);
+    }
+private:
+    void* elements[PoolSize * sizeof(ElementType)];
 };
-
 
 
 
 /** Pool with fixed amount of elements. Allocates elements to stack.
 */
 template <class ElementType, int PoolSize>
-class FixedPool : public PoolInterface<ElementType>
+class Pool
 {
 public:
 
-    FixedPool()
+    class Iterator
     {
-        // initialise lookup
-        for (int i=0; i<capacity(); i++)
+    public:
+
+        Iterator(Pool& p, int i)
+            : pool(p)
+            , lookupIndex(i)
+        {}
+
+        ElementType& operator*() const
         {
-            lookup[i] = &elements[i];
+            return pool.elements[lookupIndex];
+        }
+
+        bool operator!= (const Iterator& other)
+        {
+            //if (depleted() && other.depleted())
+            return ! depleted();
+            // TODO other cases
+            // Now can't do iterator comparison, is this even needed?
+        }
+
+        Iterator& operator++()
+        {
+           lookupIndex++;
+           return *this;
+        }
+
+    private:
+
+        bool depleted() const
+        {
+            return (lookupIndex >= pool.used);
+        }
+
+        Pool<ElementType, PoolSize>& pool;
+        int lookupIndex;
+
+    };
+
+    Pool()
+    {
+        for (int i=0; i<PoolSize; ++i)
+        {
+            lookup[i] = i;
         }
     }
 
-    constexpr int capacity() const { return PoolSize; }
-    int size() const { return numActive; }
-    ElementType& operator [] (int i) { return elements[i]; }
-
-    template<typename... Args>
-    int add(Args... args)
+    Pool::Iterator begin()
     {
-        if (size() == capacity())
-            return -1;
-
-        // use first unused Element and increment
-        const auto newElementIndex = lookup[numActive++];
-        ElementType* element = &elements[newElementIndex]
-
-        // construct in-place to avoid copying
-        std::allocator<ElementType>::construct(element, args);
-
-        return newElementIndex;
+        return Pool::Iterator(*this, 0);
     }
 
-    void remove(int index)
+    /** Essentially a dummy value, since comparison is not done with this */
+    Pool::Iterator end()
     {
-        numActive -= 1;
-        const auto indexOfLast = numActive;
-        if (indexOfLast > 0)
+        return Pool::Iterator(*this, PoolSize);
+    }
+
+    template <class ...Args>
+    ElementType* add(Args... args)
+    {
+        if (used != PoolSize)
         {
-            swapLookups(index, indexOfLast);
+            ElementType* mem = elements.ptr(used++);
+            ElementType* e = new (mem) ElementType(args...);
+            return e;
         }
+        return nullptr;
     }
 
-protected:
-
-    std::array<ElementType, PoolSize> elements;
-    std::array<size_t, PoolSize> lookup;
-    size_t numActive = 0;
-
-private:
-
-    void swapLookups(int i, int j)
+    void remove(Pool<ElementType, PoolSize>::Iterator* it)
     {
-        auto* temp = lookup[i];
-        lookup[i] = lookup[j];
-        lookup[j] = temp;
+        *it.print();
+        // TODO out of range check
     }
-};
 
-
-
-
-/** Pool with dynamic amount of elements.
-*/
-template <class ElementType, int InitialPoolSize, int MaxPoolSize = -1>
-class DynamicPool : public PoolInterface<ElementType>
-{
-    DynamicPool()
+    constexpr size_t size()
     {
-        // Reserve initial capacity
-        elements.reserve(InitialPoolSize);
-        lookup.reserve(InitialPoolSize);
-
-        // Create lookup
-        for (int i=0; i<InitialPoolSize; i++)
-        {
-            lookup.push_back(static_cast<size_t>(i));
-        }
-
+        return elements.size();
     }
 
-    virtual size_t capacity() const { return elements.capacity(); };
-
-    /** Number of currently stored (i.e. active) elements */
-    virtual size_t size() const { return elements.size(); }
-
-    virtual ElementType& operator [] (int i) { return elements[i]; }
-
-    template<typename... Args>
-    int add(Args... args)
-    {
-        if (size() == capacity())
-        {
-            if (! attemptToIncreaseCapacity())
-                return -1;
-        }
-
-        // use first unused Element and increment
-        const auto newElementIndex = lookup[numActive++];
-        ElementType* element = &elements[newElementIndex]
-
-        // construct in-place to avoid copying
-        std::allocator<ElementType>::construct(element, args);
-
-        return newElementIndex;
-    }
-
-
-protected:
-
-    std::vector<ElementType> elements;
-    std::vector<ElementType> lookup;
-
-private:
-
-    /** Returns true if capacity was incrased */
-    bool attemptToIncreaseCapacity()
-    {
-        const auto currentCapacity = capacity();
-        auto targetSize = capacity() * 2;
-        if (targetSize > MaxPoolSize)
-        {
-            targetSize = MaxPoolSize;
-        }
-        elements.reserve(targetSize);
-
-        return (capacity() > currentCapacity);
-    }
-
+    size_t used = 0;
+    StackMemory<ElementType, PoolSize> elements;
+    StackMemory<size_t, PoolSize> lookup;
 };

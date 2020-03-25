@@ -13,7 +13,12 @@ public:
 
     void print()
     {
-        std::cout << "Element value:" << x << std::endl;
+        std::cout << "Element value: " << x << std::endl;
+    }
+
+    bool terminated() const
+    {
+        return x == 20;
     }
 
     size_t x;
@@ -26,22 +31,29 @@ int main ()
     std::cout << sizeof(Element) << std::endl;
     std::cout << sizeof(pool) << std::endl;
     std::cout << pool.size() << std::endl;
-    //std::cout << sizeof(Pool<Element, n>::EndMarker) << std::endl;
 
-    for (auto i=0; i<4; i++)
+    for (auto i=0; i<5; i++)
     {
         Element* e = pool.add((size_t)(i*10));
     }
 
-    int c = 0;
-    for (auto it : pool)
+    int i = 0;
+    for (auto& e : pool)
     {
-        //std::cout << "c: " << c << std::endl;
+        std::cout << "\n# " << i << ":\n";
 
+        if (i == 3)
+        {
+            pool.remove(e);
+            e->x = -1;
+        }
+        else
+        {
+            e.print();
+            e->print();
+        }
 
-        if (c == 1)
-            pool.remove(it);
-        ++c;
+        ++i;
     }
 
 

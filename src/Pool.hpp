@@ -40,7 +40,6 @@ public:
             , iteratorIndex(i)
         {}
 
-        //ElementType& operator*() const
         Iterator& operator*()
         {
             return *this;
@@ -48,11 +47,10 @@ public:
 
         ElementType* operator->()
         {
-            const auto lookupIndex = getLookupIndex();
-            return &pool.elements[lookupIndex];
+            return getElement();
         }
 
-        bool operator!= (const int& end)
+        bool operator!= (const int& /* dummy */)
         {
             return ! depleted();
         }
@@ -62,12 +60,20 @@ public:
             ++iteratorIndex;
             return *this;
         }
+        
+        void print()
+        {
+            std::cout << "Iterator: " << std::endl;
+            std::cout << "    iteratorIndex: " << iteratorIndex << std::endl;
+            std::cout << "    lookupIndex: " << getLookupIndex() << std::endl;
+        }
 
     private:
 
         friend class Pool<ElementType, PoolSize>;
 
         const size_t getLookupIndex() { return pool.lookup[iteratorIndex]; }
+        ElementType* getElement() { return &pool.elements[getLookupIndex()]; }
 
         bool depleted() const { return (iteratorIndex >= pool.used); }
 
@@ -102,7 +108,7 @@ public:
 
     void remove(Pool::Iterator& it)
     {
-        std::cout << "removing: " << it.getLookupIndex() << std::endl;
+        std::cout << "\nREMOVE: " << it.getLookupIndex() << std::endl << std::endl;;
 
         const auto indexToRemove = it.getLookupIndex();
         const auto indexOfLast = --used;
@@ -113,6 +119,8 @@ public:
             lookup[indexToRemove] = lookup[indexOfLast];
             lookup[indexOfLast] = temp;
         }
+
+        it.iteratorIndex -= 1;
     }
 
     constexpr size_t size()

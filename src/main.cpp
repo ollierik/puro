@@ -5,9 +5,9 @@
 class Element
 {
 public:
-    Element(int i)
+    Element(size_t i)
     {
-        x = (size_t)i;
+        x = i;
     }
     Element() = delete;
 
@@ -26,17 +26,21 @@ int main ()
     std::cout << sizeof(Element) << std::endl;
     std::cout << sizeof(pool) << std::endl;
     std::cout << pool.size() << std::endl;
+    //std::cout << sizeof(Pool<Element, n>::EndMarker) << std::endl;
 
-    for (int i=0; i<4; i++)
+    for (auto i=0; i<4; i++)
     {
-        Element* e = pool.add(i*10);
+        Element* e = pool.add((size_t)(i*10));
     }
 
     int c = 0;
-    for (auto e : pool)
+    for (auto it : pool)
     {
-        e.print();
-        std::cout << "c:" << c << std::endl;
+        //std::cout << "c: " << c << std::endl;
+
+
+        if (c == 1)
+            pool.remove(it);
         ++c;
     }
 

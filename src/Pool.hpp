@@ -8,12 +8,12 @@ class StackMemory
 {
 public:
     constexpr size_t size() { return PoolSize; };
-    ElementType& operator[] (int i)
+    ElementType& operator[] (size_t i)
     {
         return (ElementType&)elements[i * sizeof(ElementType)];
     }
 
-    ElementType* ptr(int i)
+    ElementType* ptr(size_t i)
     {
         //return (ElementType*)(&elements[i * sizeof(ElementType)]);
         return reinterpret_cast<ElementType*>(&elements[i * sizeof(ElementType)]);
@@ -37,38 +37,42 @@ public:
 
         Iterator(Pool& p, int i)
             : pool(p)
-            , lookupIndex(i)
+            , iteratorIndex(i)
         {}
 
-        ElementType& operator*() const
+        //ElementType& operator*() const
+        Iterator& operator*()
         {
-            return pool.elements[lookupIndex];
+            return *this;
         }
 
-        bool operator!= (const Iterator& other)
+        ElementType* operator->()
         {
-            //if (depleted() && other.depleted())
+            const auto lookupIndex = getLookupIndex();
+            return &pool.elements[lookupIndex];
+        }
+
+        bool operator!= (const int& end)
+        {
             return ! depleted();
-            // TODO other cases
-            // Now can't do iterator comparison, is this even needed?
         }
 
         Iterator& operator++()
         {
-           lookupIndex++;
-           return *this;
+            ++iteratorIndex;
+            return *this;
         }
 
     private:
 
-        bool depleted() const
-        {
-            return (lookupIndex >= pool.used);
-        }
+        friend class Pool<ElementType, PoolSize>;
+
+        const size_t getLookupIndex() { return pool.lookup[iteratorIndex]; }
+
+        bool depleted() const { return (iteratorIndex >= pool.used); }
 
         Pool<ElementType, PoolSize>& pool;
-        int lookupIndex;
-
+        int iteratorIndex;
     };
 
     Pool()
@@ -79,16 +83,10 @@ public:
         }
     }
 
-    Pool::Iterator begin()
-    {
-        return Pool::Iterator(*this, 0);
-    }
+    Pool::Iterator begin() { return Pool::Iterator(*this, 0); }
 
-    /** Essentially a dummy value, since comparison is not done with this */
-    Pool::Iterator end()
-    {
-        return Pool::Iterator(*this, PoolSize);
-    }
+    /** Returns int, used as a flag to check for depletion in the Iterators ++ */
+    int end() { return 0; } 
 
     template <class ...Args>
     ElementType* add(Args... args)
@@ -102,10 +100,19 @@ public:
         return nullptr;
     }
 
-    void remove(Pool<ElementType, PoolSize>::Iterator* it)
+    void remove(Pool::Iterator& it)
     {
-        *it.print();
-        // TODO out of range check
+        std::cout << "removing: " << it.getLookupIndex() << std::endl;
+
+        const auto indexToRemove = it.getLookupIndex();
+        const auto indexOfLast = --used;
+
+        if (indexOfLast > 0)
+        {
+            const auto temp = lookup[indexToRemove];
+            lookup[indexToRemove] = lookup[indexOfLast];
+            lookup[indexOfLast] = temp;
+        }
     }
 
     constexpr size_t size()

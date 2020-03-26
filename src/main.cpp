@@ -27,7 +27,7 @@ public:
 int main ()
 {
     const auto n = 10;
-    StackPool<Element, n> pool;
+    FixedPool<Element, n> pool;
     std::cout << sizeof(Element) << std::endl;
     std::cout << sizeof(pool) << std::endl;
     std::cout << pool.size() << std::endl;

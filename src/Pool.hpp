@@ -4,13 +4,14 @@
 
 
 template <class ElementType, int PoolSize>
-class StackMemory
+class StackMemoryManager
 {
 public:
     constexpr size_t size() { return PoolSize; };
     ElementType& operator[] (size_t i)
     {
-        return (ElementType&)elements[i * sizeof(ElementType)];
+        //return (ElementType&)elements[i * sizeof(ElementType)];
+        return reinterpret_cast<ElementType&>(elements[i * sizeof(ElementType)]);
     }
 
     ElementType* ptr(size_t i)
@@ -21,6 +22,31 @@ public:
 private:
     void* elements[PoolSize * sizeof(ElementType)];
 };
+
+
+
+
+template <class ElementType, int PoolSize>
+class DynamicMemoryManager
+{
+public:
+    constexpr size_t size() { return PoolSize; };
+    ElementType& operator[] (size_t i)
+    {
+        //return (ElementType&)elements[i * sizeof(ElementType)];
+        return reinterpret_cast<ElementType&>(elements[i * sizeof(ElementType)]);
+    }
+
+    ElementType* ptr(size_t i)
+    {
+        //return (ElementType*)(&elements[i * sizeof(ElementType)]);
+        return reinterpret_cast<ElementType*>(&elements[i * sizeof(ElementType)]);
+    }
+private:
+    void* elements[PoolSize * sizeof(ElementType)];
+};
+
+
 
 
 
@@ -52,7 +78,7 @@ public:
 
         bool operator!= (const int& /* dummy */)
         {
-            return ! depleted();
+            return shouldContinue();
         }
 
         Iterator& operator++()
@@ -75,7 +101,7 @@ public:
         const size_t getLookupIndex() { return pool.lookup[iteratorIndex]; }
         ElementType* getElement() { return &pool.elements[getLookupIndex()]; }
 
-        bool depleted() const { return (iteratorIndex >= pool.used); }
+        bool shouldContinue() const { return (iteratorIndex < pool.numInUse); }
 
         Pool<ElementType, PoolSize>& pool;
         int iteratorIndex;
@@ -91,15 +117,15 @@ public:
 
     Pool::Iterator begin() { return Pool::Iterator(*this, 0); }
 
-    /** Returns int, used as a flag to check for depletion in the Iterators ++ */
+    /** Returns int, used as a flag to check for depletion in the Iterator's ++ */
     int end() { return 0; } 
 
     template <class ...Args>
     ElementType* add(Args... args)
     {
-        if (used != PoolSize)
+        if (numInUse != PoolSize)
         {
-            ElementType* mem = elements.ptr(used++);
+            ElementType* mem = elements.ptr(numInUse++);
             ElementType* e = new (mem) ElementType(args...);
             return e;
         }
@@ -111,7 +137,7 @@ public:
         std::cout << "\nREMOVE: " << it.getLookupIndex() << std::endl << std::endl;;
 
         const auto indexToRemove = it.getLookupIndex();
-        const auto indexOfLast = --used;
+        const auto indexOfLast = --numInUse;
 
         if (indexOfLast > 0)
         {
@@ -128,7 +154,7 @@ public:
         return elements.size();
     }
 
-    size_t used = 0;
-    StackMemory<ElementType, PoolSize> elements;
-    StackMemory<size_t, PoolSize> lookup;
+    size_t numInUse = 0;
+    StackMemoryManager<ElementType, PoolSize> elements;
+    StackMemoryManager<size_t, PoolSize> lookup;
 };

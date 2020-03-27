@@ -1,6 +1,7 @@
 #include <memory>
 #include <forward_list>
 #include <vector>
+#include <cassert>
 
 /** Pool with fixed amount of elements. Allocates elements to stack.
 */
@@ -71,7 +72,7 @@ public:
         friend class FixedPool<ElementType, PoolSize>;
 
         const size_t getLookupIndex() { return pool.lookup[iteratorIndex]; }
-        ElementType* getElement() { return &pool.elements[getLookupIndex()]; }
+        ElementType* getElement() { return pool.getElement(iteratorIndex); }
 
         bool shouldContinue() const { return (iteratorIndex < pool.numInUse); }
 
@@ -87,7 +88,7 @@ public:
         }
     }
 
-    FixedPool::Iterator begin() { return FixedPool::Iterator(*this, 0); }
+    FixedPool::Iterator begin() { return FixedPool::Iterator(*this); }
 
     /** Returns int, used as a flag to check for depletion in the Iterator's ++ */
     int end() { return 0; } 
@@ -106,28 +107,15 @@ public:
 
     void remove(FixedPool::Iterator& it)
     {
-        /*
-        std::cout << "\nREMOVE: " << it.getLookupIndex() << std::endl << std::endl;;
-
-        const auto indexToRemove = it.getLookupIndex();
-        const auto indexOfLast = --numInUse;
-
-        if (indexOfLast > 0)
-        {
-            const auto temp = lookup[indexToRemove];
-            lookup[indexToRemove] = lookup[indexOfLast];
-            lookup[indexOfLast] = temp;
-        }
-
-        it.iteratorIndex -= 1;
-        */
         remove(it.getLookupIndex());
         --it.iteratorIndex;
     }
 
     void remove(size_t lookupIndex)
     {
-        std::cout << "\nREMOVE: " << lookupIndex() << std::endl << std::endl;;
+        std::cout << "\nREMOVE: " << lookupIndex << std::endl << std::endl;;
+
+        const auto indexToRemove = lookupIndex;
         const auto indexOfLast = --numInUse;
 
         if (indexOfLast > 0)
@@ -138,13 +126,23 @@ public:
         }
     }
 
-
-    constexpr size_t size()
+    ElementType* getElement(int index)
     {
-        return elements.size();
+        const auto lookupIndex = lookup[index];
+        return &elements[lookupIndex];
     }
 
- private:
+    constexpr size_t capacity()
+    {
+        return PoolSize;
+    }
+
+    size_t size() const
+    {
+        return numInUse;
+    }
+
+ protected:
 
     size_t numInUse = 0;
     Container<ElementType, PoolSize> elements;
@@ -152,88 +150,171 @@ public:
 };
 
 
-
-
-template <class ElementType, int ChunkSize = 32>
+template <class ElementType, int PoolSize = 32>
 class DynamicPool
 {
 public:
 
+    template<class ElementType, int PoolSize>
+    class Iterator;
+
     template <class ElementType, int PoolSize>
-    class PoolList
+    class SubPool : public FixedPool<ElementType, PoolSize>
     {
     public:
 
-        PoolList() : next(nullptr) {}
+        SubPool() : nextPool(nullptr) {}
 
-        PoolList* allocateNext()
+        SubPool<ElementType, PoolSize>* allocateNext()
         {
-            next = std::make_unique<PoolList> ();
-            return next.get();
+            nextPool = std::make_unique<SubPool<ElementType, PoolSize>> ();
+            return nextPool.get();
         }
 
-        FixedPool<ElementType, PoolSize> pool;
-        std::unique_ptr<PoolList> next;
+        SubPool<ElementType, PoolSize>* next() { return nextPool.get(); }
+
+    private:
+
+        std::unique_ptr<SubPool> nextPool;
     };
 
+    template <class ElementType, int PoolSize>
     class Iterator
     {
     public:
-        Iterator(DynamicPool& p)
-            : dynamicPool(p)
-            , poolList(dynamicPool.poolList.get())
+        Iterator(DynamicPool<ElementType, PoolSize>& p)
+            : dynamicPool(p), subPool(dynamicPool.subPools.get())
         {
         }
 
         Iterator& operator++()
         {
-            if (iteratorIndex >= )
+            const auto s = subPool->size();
+            if (iteratorIndex >= s)
+            {
+                subPool = subPool->next();
+                iteratorIndex = 0;
+            }
+            ++iteratorIndex;
             return *this;
+        }
+
+        Iterator& operator*()
+        {
+            return *this;
+        }
+
+        ElementType* operator->()
+        {
+            return getElement();
+        }
+
+        bool operator!= (const int& /* dummy */) const
+        {
+            if (subPool == nullptr)
+                return false;
+
+             return (iteratorIndex < subPool->size());
+        }
+
+        void print()
+        {
+            std::cout << "Iterator: " << std::endl;
+            std::cout << "    iteratorIndex: " << iteratorIndex << std::endl;
+            //std::cout << "    lookupIndex: " << getLookupIndex() << std::endl;
         }
 
     private:
 
-        int iteratorIndex = 0;
+        friend class DynamicPool<ElementType, PoolSize>;
+
+        ElementType* getElement()
+        {
+            assert(subPool != nullptr);
+            //return subPool->getElement(subPool->lookup[iteratorIndex]);
+            return subPool->getElement(iteratorIndex);
+        }
+
+        /*
+        int getLookupIndex()
+        {
+            assert((subPool != nullptr));
+            return subPool->lookup[iteratorIndex];
+        }
+        */
+
+        int iteratorIndex;
         DynamicPool& dynamicPool;
-        PoolList* poolList;
+        SubPool<ElementType, PoolSize>* subPool;
     };
+
 
     DynamicPool()
     {
     }
 
+    DynamicPool::Iterator<ElementType, PoolSize> begin() { return DynamicPool::Iterator<ElementType, PoolSize>(*this); }
+
+    /** Returns int, used as a flag to check for depletion in the Iterator's ++ */
+    int end() { return 0; } 
+
     template <class ...Args>
     ElementType* add(Args... args)
     {
         // if pool list hasn't been initialised, create it and add to it
-        if (poolList == nullptr)
+        if (subPools == nullptr)
         {
-            poolList = std::make_unique<PoolList> ();
-            return poolList->pool.add(args...);
+            subPools = std::make_unique<SubPool<ElementType, PoolSize>> ();
+            return subPools->add(args...);
         }
 
         // try to add to existing containers
         // iterate through pool list to access subpools
-        PoolList* pl = poolList.get();
-        while (pl != nullptr)
+        SubPool<ElementType, PoolSize>* sp = subPools.get();
+        while (sp != nullptr)
         {
-            ElementType* e = pl->pool.add(args...);
+            ElementType* e = sp->add(args...);
             if (e != nullptr)
             {
                 return e;
             }
-            pl = pl.getNext();
+            sp = sp->next();
         }
         // all existing containers full, create new and add to it
         // TODO check for size here to ensure we are allowed to do this
-        pl = poolList->allocateNext();
-        return pl->pool.add(args...);
+        sp = sp->allocateNext();
+        return sp->add(args...);
     }
 
-    void remove(DynamicPool::Iterator& it)
+    void remove(DynamicPool::Iterator<ElementType, PoolSize>& it)
     {
+        it.subPool->remove(it.getLookupIndex());
+        it.iteratorIndex--;
     }
 
-    //std::forward_list<FixedPool<ElementType, ChunkSize>> containers;
-    std::unique_ptr<PoolList<ElementType, ChunkSize>> poolList;
+    size_t size()
+    {
+        size_t sum = 0;
+        SubPool<ElementType, PoolSize>* sp = subPools.get();
+        while (sp != nullptr)
+        {
+            sum += sp->size();
+            sp = sp->next();
+        }
+        return sum;
+    }
+
+    size_t capacity()
+    {
+        size_t sum = 0;
+        SubPool<ElementType, PoolSize>* sp = subPools.get();
+        while (sp != nullptr)
+        {
+            sum += sp->capacity();
+            sp = sp->next();
+        }
+        return sum;
+    }
+
+    std::unique_ptr<SubPool<ElementType, PoolSize>> subPools;
 };

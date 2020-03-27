@@ -27,10 +27,12 @@ public:
 int main ()
 {
     const auto n = 10;
-    FixedPool<Element, n> pool;
-    std::cout << sizeof(Element) << std::endl;
-    std::cout << sizeof(pool) << std::endl;
-    std::cout << pool.size() << std::endl;
+    //FixedPool<Element, n> pool;
+    DynamicPool<Element, n> pool;
+    std::cout << "Size of Element: " << sizeof(Element) << std::endl;
+    std::cout << "Size of pool: " << sizeof(pool) << std::endl;
+    std::cout << "Pool size: " << pool.size() << std::endl;
+    std::cout << "Pool capacity: " << pool.capacity() << std::endl;
 
     for (auto i=0; i<5; i++)
     {
@@ -55,7 +57,6 @@ int main ()
 
         ++i;
     }
-
 
     return 0;
 }

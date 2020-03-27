@@ -1,3 +1,5 @@
+#pragma once 
+
 #include <memory>
 #include <cassert>
 #include <cstddef>
@@ -28,10 +30,10 @@ public:
     }
 
     /** Return number of active elements in the container */
-    int size() { return numInUse; };
+    int size() const { return numInUse; };
 
     /** Return the total capacity of the container */
-    constexpr int capacity() { return Capacity; };
+    constexpr int capacity() const { return Capacity; };
 
     /** Calls getElementWithAccessIndex() */
     ElementType& operator[] (int accessIndex)
@@ -76,9 +78,6 @@ public:
 
         ElementPtr* mappingPos = elementToMapping(e);
         ElementPtr* lastPos = &mapping[--numInUse];
-
-        std::cout << "mappingPos points to index: " << offsetInMemory(*mappingPos) << std::endl;
-        std::cout << "lastPos points to index: " << offsetInMemory(*lastPos) << std::endl;
  
         // swap positions of released element and last element in the mapping
         {
@@ -87,16 +86,22 @@ public:
             *lastPos = tempVal;
         }
 
-        const int atmIndex1 = offsetInMemory(*mappingPos);
-        const int atmIndex2 = offsetInMemory(*lastPos);
-
         // swap inverse lookups
-        //swap<int>(&accessToMapping[atmIndex1], &accessToMapping[atmIndex2]);
         {
+            const int atmIndex1 = offsetInMemory(*mappingPos);
+            const int atmIndex2 = offsetInMemory(*lastPos);
+
             int tempVal = accessToMapping[atmIndex1];
             accessToMapping[atmIndex1] = accessToMapping[atmIndex2];
             accessToMapping[atmIndex2] = tempVal;
         }
+    }
+
+    bool containedHere(ElementType* element)
+    {
+        ElementType* e0 = (getElementAtMemoryLocation(0));
+        ElementType* en = (getElementAtMemoryLocation(Capacity));
+
     }
 
 private:
@@ -118,12 +123,14 @@ private:
 
     int numInUse = 0;
 
-    // Can't use array, since ElementType is not expected to have default constructor
+    // Can't use array, since ElementType is not expected to have a default constructor
     void* elements[Capacity * sizeof(ElementType)];
-
     ElementPtr mapping[Capacity];
     int accessToMapping[Capacity];
 };
+
+
+
 
 
 /** Pool with fixed amount of elements. Allocates elements to stack.
@@ -133,6 +140,10 @@ template <class ElementType, int PoolSize>
 class FixedPool
 {
 public:
+
+    FixedPool() = default;
+
+    /////////////////////////////////////////////////////////////////////////
 
     template <class ElementType, int PoolSize>
     class Iterator
@@ -144,9 +155,9 @@ public:
             , accessIndex(i)
         {}
 
-        Iterator& operator*()
+        ElementType* operator*()
         {
-            return *this;
+            return &elements[accessIndex];
         }
 
         ElementType* operator->()
@@ -154,7 +165,7 @@ public:
             return elements[accessIndex];
         }
 
-        bool operator!= (const FixedPool<ElementType, PoolSize>& other)
+        bool operator!= (const Iterator<ElementType, PoolSize>& other)
         {
             return accessIndex != other.accessIndex;
         }
@@ -173,21 +184,21 @@ public:
 
     private:
 
-        friend class FixedPool<ElementType, PoolSize>;
-
         PoolMemory<ElementType, PoolSize>& elements;
         int accessIndex;
     };
 
+    FixedPool::Iterator<ElementType, PoolSize> begin()
+    {
+        return FixedPool<ElementType, PoolSize>::Iterator<ElementType, PoolSize>(elements, elements.size()-1);
+    }
+    FixedPool::Iterator<ElementType, PoolSize> end()
+    {
+        return FixedPool<ElementType, PoolSize>::Iterator<ElementType, PoolSize>(elements, -1);
+    }
 
     /////////////////////////////////////////////////////////////////////////
 
-    FixedPool()
-    {
-    }
-
-    FixedPool::Iterator<ElementType, PoolSize> begin() { return FixedPool::Iterator(elements, elements.size()-1); }
-    FixedPool::Iterator<ElementType, PoolSize> end() { return FixedPool::Iterator(elements, -1); }
 
     template <class ...Args>
     ElementType* add(Args... args)
@@ -205,7 +216,7 @@ public:
         return PoolSize;
     }
 
-    int size() const
+    int size()
     {
         return elements.size();
     }

@@ -28,6 +28,7 @@
     <ClInclude Include="..\src\Grain.hpp" />
     <ClInclude Include="..\src\Pool.hpp" />
     <ClInclude Include="..\src\structs.hpp" />
+    <ClInclude Include="..\src\test_stubs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />

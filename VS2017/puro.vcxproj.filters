@@ -37,6 +37,9 @@
     <ClInclude Include="..\src\DynamicPool.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\test_stubs.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">

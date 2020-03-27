@@ -5,30 +5,74 @@
 class Element
 {
 public:
-    Element(size_t i)
+    Element(int i)
     {
         x = i;
+        y = i;
     }
-    Element() = delete;
+    //Element() = delete;
+    Element() = default;
 
     void print()
     {
         std::cout << "Element value: " << x << std::endl;
     }
 
-    bool terminated() const
-    {
-        return x == 20;
-    }
-
-    size_t x;
+    int x;
+    int y;
 };
 
 int main ()
 {
     const auto n = 10;
-    //FixedPool<Element, n> pool;
-    DynamicPool<Element, n> pool;
+    PoolMemory<Element, 8> mem;
+
+    for (int i=0; i<n; i++)
+    {
+        auto e = mem.add(i*10);
+        if (e != nullptr)
+            e->print();
+        else
+            std::cout << "Couldn't add, container full" << std::endl;
+    }
+
+    std::cout << "Print all elements" << std::endl;
+    for (int i = 0; i < mem.size(); i++)
+    {
+        mem[i].print();
+    }
+
+    {
+        Element* elementToRelease = &mem[2];
+        std::cout << "Element to release at location 1:\n    ";
+        elementToRelease->print();
+        std::cout << std::endl;
+        mem.release(elementToRelease);
+    }
+
+    std::cout << "Print all elements" << std::endl;
+    for (int i = 0; i < mem.size(); i++)
+    {
+        mem[i].print();
+    }
+
+    {
+        Element* elementToRelease = &mem[2];
+        std::cout << "Element to release at location 1:\n    ";
+        elementToRelease->print();
+        std::cout << std::endl;
+        mem.release(elementToRelease);
+    }
+
+    std::cout << "Print all elements" << std::endl;
+    for (int i = 0; i < mem.size(); i++)
+    {
+        mem[i].print();
+    }
+
+    /*
+    FixedPool<Element, n> pool;
+    //DynamicPool<Element, n> pool;
     std::cout << "Size of Element: " << sizeof(Element) << std::endl;
     std::cout << "Size of pool: " << sizeof(pool) << std::endl;
     std::cout << "Pool size: " << pool.size() << std::endl;
@@ -57,6 +101,6 @@ int main ()
 
         ++i;
     }
-
     return 0;
+    */
 }

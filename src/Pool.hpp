@@ -97,12 +97,14 @@ public:
         }
     }
 
+    /*
     bool containedHere(ElementType* element)
     {
         ElementType* e0 = (getElementAtMemoryLocation(0));
         ElementType* en = (getElementAtMemoryLocation(Capacity));
-
+        return element - e0
     }
+    */
 
 private:
 
@@ -155,14 +157,19 @@ public:
             , accessIndex(i)
         {}
 
-        ElementType* operator*()
+        Iterator<ElementType, PoolSize>& operator*()
         {
-            return &elements[accessIndex];
+            return *this;
         }
 
         ElementType* operator->()
         {
             return elements[accessIndex];
+        }
+
+        ElementType* getElement()
+        {
+            return elements->getElementWithAccessIndex(accessIndex);
         }
 
         bool operator!= (const Iterator<ElementType, PoolSize>& other)
@@ -206,9 +213,14 @@ public:
         return elements.add(args...);
     }
 
-    void remove(ElementType* element)
+    void remove(Iterator<ElementType, PoolSize>& iterator)
     {
-        elements.release(element);
+        // TODO
+        // assert instead
+        if (iterator.elements == elements)
+        {
+            elements.release(iterator->getElement());
+        }
     }
 
     constexpr int capacity() const

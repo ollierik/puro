@@ -1,36 +1,63 @@
 #pragma once
 
-#include "structs.hpp"
-#include "pool.hpp"
-#include "audiosource.hpp"
+class Binding
+{
+    void tick()
 
-template <typename FloatType, class AudioObjectType>
-class Engine
+
+};
+
+
+template <class GrainType>
+class SchedulerTemplate
 {
 public:
 
-    Engine(PlaybackInfo& info)
-        : info(info)
-        , pool(32)
+    void tick(int n)
     {
-    }
-
-    /** Adds n samples of output from all Playheads of the engine to the provided buffer */
-    void addNextOutput(FloatType* vec)
-    {
-        for (auto i=0; i<pool.size();  ++i)
+        counter += n;
+        if (counter >= period)
         {
-            pool[i].addNextOutput(vec);
+            counter -= period;
         }
     }
 
-    bool addGrain(int offsetFromBlockStart, std::unique_ptr<AudioObjectType> grain)
+    int counter = 0;
+    int period = 1000;
+};
+
+template <typename FloatType, class GrainType, class PoolType, class SchedulerType>
+class EngineTemplate
+{
+public:
+
+    EngineTemplate() = default;
+
+    void tick(FloatType* output, int n)
     {
-        return pool.add(std::move(grain));
+        // scheduler operation
+        scheduler.tick(n);
+
+        // grain operations
+        for (auto& it : pool)
+        {
+            it->addNextOutput(output, n);
+
+            if (it->terminated())
+            {
+                pool.remove(it);
+            }
+        }
+    }
+
+    template <class ...Args>
+    bool addGrain(Args... grainArgs)
+    {
+        return (pool.add(grainArgs) != nullptr);
     }
 
 private:
 
-    const PlaybackInfo& info;
-    Pool<AudioObjectType> pool;
+    PoolType pool;
+    SchedulerType scheduler;
 };

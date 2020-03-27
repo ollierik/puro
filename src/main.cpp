@@ -1,63 +1,28 @@
 #include <iostream>
 #include <vector>
+
+#include "Engine.hpp"
 #include "Pool.hpp"
-#include "DynamicPool.hpp"
-
-class Element
-{
-public:
-    Element(int i)
-    {
-        x = i;
-        y = i;
-    }
-    Element() = delete;
-
-    void print()
-    {
-        std::cout << "    Element value: " << x << std::endl;
-    }
-
-    int x;
-    int y;
-};
+#include "Grain.hpp"
 
 int main ()
 {
-    //FixedPool<Element, 8> pool;
-    DynamicPool<Element, 4> pool;
+    const int n = 2048;
+    std::vector<float> output (n, 0.0f);
 
-    for (auto i=0; i<6; i++)
+    using Grain = GrainTemplate<float>;
+    using Pool = FixedPool<Grain, 16>;
+    using Scheduler = SchedulerTemplate<Grain>;
+    using Engine = EngineTemplate<float, Grain, Pool, Scheduler>;
+
+    Engine engine;
+    Scheduler scheduler;
+
+    engine.setScheduler(&scheduler);
+
+    const int blockSize = 32;
+    for (int i=0; i<n; i+=blockSize)
     {
-        Element* e = pool.add((size_t)(i*10));
+        engine.tick(&output[i], blockSize);
     }
-
-    std::cout << "Print all Elements: " << std::endl;
-    for (auto& e : pool)
-    {
-        e->print();
-    }
-
-    std::cout << "Remove element while iterating: " << std::endl;
-    for (auto& e : pool)
-    {
-        if (e->x == 20)
-        {
-            std::cout << "*** Remove element *** ";
-            e->print();
-            pool.remove(e);
-        }
-        else
-        {
-            e->print();
-        }
-    }
-
-    std::cout << "Print all Elements: " << std::endl;
-    for (auto& e : pool)
-    {
-        e->print();
-    }
-
-    return 0;
 }

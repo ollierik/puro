@@ -1,36 +1,52 @@
 #pragma once
 
-#include <vector>
-
-#include "AudioObject.hpp"
-#include "AudioSource.hpp"
-#include "Envelope.hpp"
-#include "structs.hpp"
+//#include <vector>
+//#include "AudioSource.hpp"
+//#include "Envelope.hpp"
 
 template <class FloatType>
-class Grain : public AudioObject<FloatType>
+class GrainTemplate
 {
 public:
 
     using Buffer = std::vector<FloatType>;
 
-    Grain(PlaybackInfo& info,
-                  double lengthInSeconds,
-                  AudioSource<FloatType> audioSource)
-        : AudioObject(info)
+    GrainTemplate(int offset, int lengthInSamples)
+        : offset(offset)
+        , lengthInSamples(lengthInSamples)
     {
     }
 
-    void addNextOutput(FloatType* vec) override
+    void addNextOutput(FloatType* vec, int n)
     {
-        for (int i=0; i<info.bs; i++)
+        // Grain created
+        if (offset > 0)
         {
-            vec[i] += 1;
+            for (int i=offset; i<n; i++)
+            {
+                vec[i] += 1;
+            }
+            offset = 0;
         }
-    };
+        else
+        {
+            for (int i=0; i < n && index < lengthInSamples; i++, index++)
+            {
+                vec[i] += 1;
+            }
+        
+        }
+    }
+
+    bool terminated()
+    {
+        return index >= lengthInSamples;
+    }
+
 
 private:
     
-    const PlaybackInfo& info;
+    int offset;
+    int index = 0;
     const int lengthInSamples;
 };

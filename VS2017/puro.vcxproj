@@ -19,10 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\AudioObject.hpp" />
     <ClInclude Include="..\src\AudioSource.hpp" />
     <ClInclude Include="..\src\definitions.hpp" />
-    <ClInclude Include="..\src\DynamicPool.hpp" />
     <ClInclude Include="..\src\Engine.hpp" />
     <ClInclude Include="..\src\Envelope.hpp" />
     <ClInclude Include="..\src\Grain.hpp" />

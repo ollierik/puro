@@ -10,9 +10,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\AudioObject.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\AudioSource.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -32,9 +29,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\structs.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\DynamicPool.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\test_stubs.h">

@@ -10,25 +10,18 @@ public:
 
     PoolChunk() = default;
 
-    ~PoolChunk()
-    {
-        if (nextChunk != nullptr)
-            delete nextChunk;
-    }
-
     PoolChunk* allocateNext()
     {
-        nextChunk = new PoolChunk<ElementType, ChunkAllocationSize> ();
-        return nextChunk;
+        std::cout << "*** Allocate new PoolChunk" << std::endl;
+        nextChunk = std::make_unique<PoolChunk<ElementType, ChunkAllocationSize>> ();
+        return nextChunk.get();
     }
 
-    PoolChunk<ElementType, ChunkAllocationSize>* next() { return nextChunk; }
+    PoolChunk<ElementType, ChunkAllocationSize>* next() { return nextChunk.get(); }
 
 private:
-    PoolChunk<ElementType, ChunkAllocationSize>* nextChunk = nullptr;
+    std::unique_ptr<PoolChunk<ElementType, ChunkAllocationSize>> nextChunk = nullptr;
 };
-
-
 
 
 template <class ElementType, int ChunkAllocationSize = 32>
@@ -57,7 +50,7 @@ public:
         {
             if (chunk != nullptr)
             {
-                return chunk->elements[chunkAccessIndex];
+                return chunk->getElementWithAccessIndex(chunkAccessIndex);
             }
             return nullptr;
         }
@@ -78,6 +71,9 @@ public:
         }
 
     private:
+
+        friend class DynamicPool<ElementType, ChunkAllocationSize>;
+
         PoolChunk<ElementType, ChunkAllocationSize>* chunk;
         int chunkAccessIndex;
     };
@@ -97,7 +93,7 @@ public:
         // if pool list hasn't been initialised, create it and add to it
         if (chunks == nullptr)
         {
-            ++combinedCapacity;
+            combinedCapacity += ChunkAllocationSize;
             ++numInUse;
             chunks = std::make_unique<PoolChunk<ElementType, ChunkAllocationSize>> ();
             return chunks->add(args...);
@@ -106,15 +102,19 @@ public:
         // try to add to existing containers
         // iterate through pool list to access subpools
         PoolChunk<ElementType, ChunkAllocationSize>* c = chunks.get();
-        while (c != nullptr)
+        for (;;)
         {
             ElementType* e = c->add(args...);
-            if (c != nullptr)
+            if (e != nullptr)
             {
                 ++numInUse;
                 return e;
             }
-            c = c->next();
+
+            auto next = c->next();
+            if (next == nullptr) break;
+            else c = next;
+                
         }
         // all existing containers full, create new and add to it
         // TODO check for size here to ensure we are allowed to do this
@@ -131,8 +131,7 @@ public:
         // Assert instead
         if (iterator.chunk != nullptr)
         {
-            iterator.chunk->release(iterator.);
-
+            iterator.chunk->release(iterator.chunkAccessIndex);
             --numInUse;
         }
     }

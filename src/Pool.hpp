@@ -23,9 +23,7 @@ public:
         {
             ElementPtr e = getElementAtMemoryLocation(i);
             mapping[i] = e;
-            std::cout << i << ": " << e << std::endl;
-
-            accessToMapping[i] = i;
+            std::cout << "    " << i << ": " << e << std::endl;
         }
     }
 
@@ -72,63 +70,26 @@ public:
         return nullptr;
     }
 
-    void release(ElementType* e)
+    void release(int accessIndex)
     {
         // TODO bounds check
 
-        ElementPtr* mappingPos = elementToMapping(e);
+        ElementPtr* mappingPos = &mapping[accessIndex];
         ElementPtr* lastPos = &mapping[--numInUse];
  
         // swap positions of released element and last element in the mapping
-        {
-            ElementPtr tempVal = *mappingPos;
-            *mappingPos = *lastPos;
-            *lastPos = tempVal;
-        }
-
-        // swap inverse lookups
-        {
-            const int atmIndex1 = offsetInMemory(*mappingPos);
-            const int atmIndex2 = offsetInMemory(*lastPos);
-
-            int tempVal = accessToMapping[atmIndex1];
-            accessToMapping[atmIndex1] = accessToMapping[atmIndex2];
-            accessToMapping[atmIndex2] = tempVal;
-        }
+        ElementPtr tempVal = *mappingPos;
+        *mappingPos = *lastPos;
+        *lastPos = tempVal;
     }
-
-    /*
-    bool containedHere(ElementType* element)
-    {
-        ElementType* e0 = (getElementAtMemoryLocation(0));
-        ElementType* en = (getElementAtMemoryLocation(Capacity));
-        return element - e0
-    }
-    */
 
 private:
-
-    ElementPtr* elementToMapping(ElementType* e)
-    {
-        //std::cout << "elementToMapping:" << std::endl;
-        const int offset = offsetInMemory(e);
-        //std::cout << "offset in memory: " << offset << std::endl;
-        const int accessIndex = accessToMapping[offset];
-        return &mapping[accessIndex];
-    }
-
-    int offsetInMemory(ElementType* e)
-    {
-        int offset = (e - getElementAtMemoryLocation(0)) / sizeof(ElementType*);
-        return offset;
-    }
 
     int numInUse = 0;
 
     // Can't use array, since ElementType is not expected to have a default constructor
     void* elements[Capacity * sizeof(ElementType)];
     ElementPtr mapping[Capacity];
-    int accessToMapping[Capacity];
 };
 
 
@@ -164,13 +125,15 @@ public:
 
         ElementType* operator->()
         {
-            return elements[accessIndex];
+            return &elements[accessIndex];
         }
 
         ElementType* getElement()
         {
             return elements->getElementWithAccessIndex(accessIndex);
         }
+
+        //int getAccessIndex() { return accessIndex; }
 
         bool operator!= (const Iterator<ElementType, PoolSize>& other)
         {
@@ -190,6 +153,8 @@ public:
         }
 
     private:
+
+        friend class FixedPool<ElementType, PoolSize>;
 
         PoolMemory<ElementType, PoolSize>& elements;
         int accessIndex;
@@ -217,10 +182,9 @@ public:
     {
         // TODO
         // assert instead
-        if (iterator.elements == elements)
-        {
-            elements.release(iterator->getElement());
-        }
+        //if (&iterator.elements == &elements)
+
+        elements.release(iterator.accessIndex);
     }
 
     constexpr int capacity() const

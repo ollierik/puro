@@ -15,6 +15,7 @@ public:
         : offset(offset)
         , lengthInSamples(lengthInSamples)
     {
+        std::cout << "*** Create grain *** offset: " << offset << std::endl;
     }
 
     void addNextOutput(FloatType* vec, int n)

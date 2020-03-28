@@ -2,59 +2,57 @@
 #include <cstdlib>
 #include <math.h>
 
-
-class SchedulerInterface
+template <class ElementType>
+class EngineInterface
 {
-    virtual void tick() = 0;
-    virtual void setRunner(RunnerInterface* r) = 0;
+public:
+    virtual ElementType getNumber() = 0;
 };
 
-template <class RunnerType>
-class Scheduler : public SchedulerInterface
+template <class ElementType>
+class SchedulerTemplate
 {
-    void tick() override
+public:
+
+    int tick()
     {
-        runner->action();
+        return engine->getNumber();
     }
 
-    void setRunner(RunnerType* r) override { runner = r; };
-
-    RunnerInterface* runner;
+    EngineInterface<ElementType>* engine;
 };
 
-
-class RunnerInterface
+template <class ElementType, class SchedulerType>
+class EngineTemplate : public EngineInterface<ElementType>
 {
-    virtual void action() = 0;
-    virtual void setScheduler(SchedulerInterface* r) = 0;
-};
+public:
 
-template <class SchedulerType>
-class Runner : public RunnerInterface
-{
-    void advance()
+    EngineTemplate(SchedulerType& s) : scheduler(s)
     {
-        scheduler->tick();
+        scheduler.engine = this;
     }
 
-    void action() override
+    int advance()
     {
-        std::cout << "foobar\n";
+        return scheduler.tick();
     }
 
-    void setScheduler(SchedulerType* s) override { scheduler = s; };
+    ElementType getNumber() override
+    {
+        return static_cast<ElementType> (std::rand());
+    }
 
-    SchedulerType* scheduler;
+    SchedulerType& scheduler;
 };
 
 int main()
 {
-    Scheduler<RunnerInterface> scheduler;
-    Runner<SchedulerInterface> runner;
+    using Element = int;
+    using Scheduler = SchedulerTemplate<Element>;
+    using Engine = EngineTemplate<Element, Scheduler>;
 
-    scheduler.setRunner(&runner);
-    runner.setScheduler(&scheduler);
+    Scheduler scheduler;
+    Engine engine(scheduler);
 
-    runner.advance();
-    return 0;
+    return engine.advance();
 }

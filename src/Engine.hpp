@@ -1,37 +1,22 @@
 #pragma once
 
-class Binding
-{
-    void tick()
-
-
-};
-
-
 template <class GrainType>
-class SchedulerTemplate
+class EngineInterface
 {
 public:
-
-    void tick(int n)
-    {
-        counter += n;
-        if (counter >= period)
-        {
-            counter -= period;
-        }
-    }
-
-    int counter = 0;
-    int period = 1000;
+    virtual GrainType* allocateGrain() = 0;
 };
 
 template <typename FloatType, class GrainType, class PoolType, class SchedulerType>
-class EngineTemplate
+class EngineTemplate : public EngineInterface<GrainType>
 {
 public:
 
-    EngineTemplate() = default;
+    EngineTemplate(SchedulerType& s)
+        : scheduler(s)
+    {
+        scheduler.setEngine(this);
+    }
 
     void tick(FloatType* output, int n)
     {
@@ -50,14 +35,18 @@ public:
         }
     }
 
-    template <class ...Args>
-    bool addGrain(Args... grainArgs)
+    GrainType* allocateGrain() override
     {
-        return (pool.add(grainArgs) != nullptr);
+        return pool.allocate();
     }
+
+   bool testFunction(int i)
+   {
+       return i == 0;
+   }
 
 private:
 
     PoolType pool;
-    SchedulerType scheduler;
+    SchedulerType& scheduler;
 };

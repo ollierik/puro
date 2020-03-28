@@ -13,12 +13,12 @@ public:
 
     PoolMemory()
     {
-        std::cout << "Initialise mapping:\n";
+        //std::cout << "Initialise mapping:\n";
         for (int i=0; i<Capacity; i++)
         {
             ElementPtr e = getElementAtMemoryLocation(i);
             mapping[i] = e;
-            std::cout << "    " << i << ": " << e << std::endl;
+            //std::cout << "    " << i << ": " << e << std::endl;
         }
     }
 
@@ -48,19 +48,13 @@ public:
         return e;
     }
 
-    template <class ...Args>
-    ElementType* add(Args... args)
+    ElementType* allocate()
     {
         if (numInUse != Capacity)
         {
             // get first free position
             ElementType* mem = mapping[numInUse++];
-
-            std::cout << "Add to: " << mem << std::endl;
-
-            // construct in-place
-            ElementType* e = new (mem) ElementType(args...);
-            return e;
+            return mem;
         }
         return nullptr;
     }
@@ -132,8 +126,6 @@ public:
             return elements->getElementWithAccessIndex(accessIndex);
         }
 
-        //int getAccessIndex() { return accessIndex; }
-
         bool operator!= (const Iterator<ElementType, PoolSize>& other)
         {
             return accessIndex != other.accessIndex;
@@ -171,11 +163,7 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 
-    template <class ...Args>
-    ElementType* add(Args... args)
-    {
-        return elements.add(args...);
-    }
+    ElementType* allocate() { return elements.allocate(); }
 
     void remove(Iterator<ElementType, PoolSize>& iterator)
     {
@@ -285,16 +273,21 @@ public:
         return Iterator<ElementType, ChunkAllocationSize> (nullptr);
     };
 
-    template <class ...Args>
-    ElementType* add(Args... args)
+    //template <class ...Args>
+    //ElementType* add(Args... args)
+    ElementType* allocate()
     {
+        // TODO implement size constraint
+        
         // if pool list hasn't been initialised, create it and add to it
         if (chunks == nullptr)
         {
+            chunks = std::make_unique<PoolChunk<ElementType, ChunkAllocationSize>> ();
+
             combinedCapacity += ChunkAllocationSize;
             ++numInUse;
-            chunks = std::make_unique<PoolChunk<ElementType, ChunkAllocationSize>> ();
-            return chunks->add(args...);
+
+            return chunks->allocate();
         }
 
         // try to add to existing containers
@@ -302,7 +295,7 @@ public:
         PoolChunk<ElementType, ChunkAllocationSize>* c = chunks.get();
         for (;;)
         {
-            ElementType* e = c->add(args...);
+            ElementType* e = c->allocate();
             if (e != nullptr)
             {
                 ++numInUse;
@@ -312,15 +305,14 @@ public:
             auto next = c->next();
             if (next == nullptr) break;
             else c = next;
-                
         }
         // all existing containers full, create new and add to it
         // TODO check for size here to ensure we are allowed to do this
 
-        ++combinedCapacity;
+        combinedCapacity += ChunkAllocationSize;
         ++numInUse;
         c = c->allocateNext();
-        return c->add(args...);
+        return c->allocate();
     }
 
     void remove(Iterator<ElementType, ChunkAllocationSize>& iterator)

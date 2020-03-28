@@ -12,7 +12,7 @@ int main ()
     std::vector<float> output (n, 0.0f);
 
     using Grain = GrainTemplate<float>;
-    using Pool = FixedPool<Grain, 16>;
+    using Pool = FixedPool<Grain, 5>;
     using Scheduler = SchedulerTemplate<Grain>;
     using Engine = EngineTemplate<float, Grain, Pool, Scheduler>;
 

@@ -6,22 +6,23 @@ template <class GrainType>
 class SchedulerTemplate
 {
 public:
-    SchedulerTemplate() : period(200), counter(period)
+    SchedulerTemplate() : period(20), counter(0)
     {}
 
     void tick(int n)
     {
-        std::cout << counter << std::endl;;
+        std::cout << counter << " -> " << counter + n << std::endl;;
+        counter += n;
         if (counter >= period)
         {
             counter -= period;
+            const int offset = n - counter;
             GrainType* g = engine->allocateGrain();
             if (g != nullptr)
             {
-                new (g) GrainType(counter, grainLength);
+                new (g) GrainType(offset, grainLength);
             }
         }
-        counter += n;
     }
 
     void setEngine(EngineInterface<GrainType>* e) { engine = e; }
@@ -30,5 +31,5 @@ public:
 
     const int period;
     int counter;
-    const int grainLength = 100;
+    const int grainLength = 10;
 };

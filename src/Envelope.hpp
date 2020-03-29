@@ -13,13 +13,16 @@ public:
     {
     }
 
-    FloatType getNext()
+    void getNextOutput(FloatType* vec, int numSamples)
     {
-        // TODO template sin and sinf
-        const double pi = 3.14159265359;
-        const FloatType y = std::sinf(static_cast<FloatType> (position * pi));
-        position += increment;
-        return y;
+        for (int i=0; i<numSamples; i++)
+        {
+            // TODO template sin and sinf
+            const double pi = 3.14159265359;
+            const FloatType y = std::sinf(static_cast<FloatType> (position * pi));
+            position += increment;
+            vec[i] = y;
+        }
     }
 
 private:

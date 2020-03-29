@@ -10,9 +10,12 @@ public:
 
     AudioSourceTemplate() = default;
 
-    FloatType getNext()
+    void getNextOutput(FloatType* vec, int numSamples)
     {
-        const FloatType sample = static_cast<FloatType> (std::rand()) / static_cast<FloatType> (RAND_MAX);
-        return sample;
+        for (int i=0; i<numSamples; i++)
+        {
+            const FloatType sample = static_cast<FloatType> (std::rand()) / static_cast<FloatType> (RAND_MAX);
+            vec[i] = sample;
+        }
     }
 };

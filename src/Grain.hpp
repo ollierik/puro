@@ -19,9 +19,39 @@ public:
         std::cout << "*** Create grain *** offset: " << offset << std::endl;
     }
 
-    void addNextOutput(FloatType* vec, int n)
+    void getNextOutput(FloatType* audioBuffer, FloatType* envelopeBuffer, int numSamples)
     {
-        // TODO SIMD compatibility?
+        // TODO:
+        // SIMD compatibility?
+        // Refactor to work with buffers instead of single samples
+        const int indexFirst = offset;
+        const int indexLast = (offset + index > numSamples) ? numSamples : offset + index;
+
+        // clear the beginning of the block if needed
+        for (int i=0; i<offset; ++i)
+        {
+            audioBuffer[i] = 0;
+            envelopeBuffer[i] = 0;
+        }
+
+        // get the relevant content from envelope and audiosource
+        const int n = indexLast - indexFirst;
+        audioSource.getNextOutput(&audioBuffer[offset], n);
+        envelope.getNextOutput(&envelopeBuffer[offset], n);
+
+        // clear the tail if needed
+        for (int i=indexLast; i < numSamples; ++i)
+        {
+            audioBuffer[i] = 0;
+            envelopeBuffer[i] = 0;
+        }
+        
+        index -= (numSamples-offset);
+        offset = 0;
+    }
+
+    void getNextEnvelopeOutput(FloatType* vec, int n)
+    {
         const int i0 = offset;
         const int i1 = (offset + index > n) ? n : offset + index;
 
@@ -29,9 +59,6 @@ public:
         {
             vec[i] += audioSource.getNext() * envelope.getNext();
         }
-        
-        index -= (n-offset);
-        offset = 0;
     }
 
     bool terminated()

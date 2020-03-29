@@ -37,6 +37,9 @@
     <ClInclude Include="..\src\Scheduler.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Buffer.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">

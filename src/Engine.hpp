@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include "Buffer.hpp"
+
 template <class GrainType>
 class EngineInterface
 {
@@ -7,7 +10,7 @@ public:
     virtual GrainType* allocateGrain() = 0;
 };
 
-template <typename FloatType, class GrainType, class PoolType, class SchedulerType>
+template <typename FloatType, class BufferType, class GrainType, class PoolType, class SchedulerType>
 class EngineTemplate : public EngineInterface<GrainType>
 {
 public:
@@ -18,15 +21,21 @@ public:
         scheduler.setEngine(this);
     }
 
-    void tick(FloatType* output, int n)
+    void tick(FloatType* output, int numSamples)
     {
         // scheduler operation
-        scheduler.tick(n);
+        scheduler.tick(numSamples);
 
         // grain operations
         for (auto& it : pool)
         {
-            it->addNextOutput(output, n);
+            //it->addNextOutput(output, n);
+            it->getNextOutput(audioBuffer.getRaw(), envelopeBuffer.getRaw(), numSamples);
+
+            for (int i=0; i<numSamples; i++)
+            {
+                output[i] += audioBuffer[i] * envelopeBuffer[i];
+            }
 
             if (it->terminated())
             {
@@ -46,6 +55,9 @@ public:
    }
 
 private:
+
+    BufferType audioBuffer;
+    BufferType envelopeBuffer;
 
     PoolType pool;
     SchedulerType& scheduler;

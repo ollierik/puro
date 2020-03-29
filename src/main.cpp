@@ -13,12 +13,13 @@ int main ()
     const int n = 512*2;
     std::vector<float> output (n, 0.0f);
 
+    using Buffer = ConstantBuffer<float, 32>;
     using Envelope = EnvelopeTemplate<float>;
     using AudioSource = AudioSourceTemplate<float>;
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Pool = FixedPool<Grain, 5>;
     using Scheduler = SchedulerTemplate<Grain, AudioSource, Envelope>;
-    using Engine = EngineTemplate<float, Grain, Pool, Scheduler>;
+    using Engine = EngineTemplate<float, Buffer, Grain, Pool, Scheduler>;
 
     Scheduler scheduler;
     Engine engine(scheduler);

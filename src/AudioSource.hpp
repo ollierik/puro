@@ -4,23 +4,15 @@
 #include <cstdlib>
 
 template <typename FloatType>
-class AudioSource
+class AudioSourceTemplate
 {
 public:
 
-    AudioSource(const PlaybackInfo& info)
-        : info(info)
-    {}
+    AudioSourceTemplate() = default;
 
-    int getNextSamples(FloatType* vec)
+    FloatType getNext()
     {
-        for (int i=0; i<info.blockSize; i++)
-        {
-            FloatType sample = static_cast<FloatType> (std::rand() / RAND_MAX);
-            vec[i] = sample;
-        }
+        const FloatType sample = static_cast<FloatType> (std::rand()) / static_cast<FloatType> (RAND_MAX);
+        return sample;
     }
-
-    const PlaybackInfo& info;
-    const double location;
 };

@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "Envelope.hpp"
+#include "AudioSource.hpp"
 #include "Grain.hpp"
 #include "Pool.hpp"
 #include "Engine.hpp"
@@ -13,9 +14,10 @@ int main ()
     std::vector<float> output (n, 0.0f);
 
     using Envelope = EnvelopeTemplate<float>;
-    using Grain = GrainTemplate<float, Envelope>;
+    using AudioSource = AudioSourceTemplate<float>;
+    using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Pool = FixedPool<Grain, 5>;
-    using Scheduler = SchedulerTemplate<Grain, Envelope>;
+    using Scheduler = SchedulerTemplate<Grain, AudioSource, Envelope>;
     using Engine = EngineTemplate<float, Grain, Pool, Scheduler>;
 
     Scheduler scheduler;

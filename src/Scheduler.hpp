@@ -3,7 +3,7 @@
 #include "Engine.hpp"
 #include <utility>
 
-template <class GrainType, class EnvelopeType>
+template <class GrainType, class AudioSourceType, class EnvelopeType>
 class SchedulerTemplate
 {
 public:
@@ -32,7 +32,10 @@ public:
         GrainType* g = engine->allocateGrain();
         if (g != nullptr)
         {
-            new (g) GrainType(offset, grainLength, std::move(EnvelopeType(grainLength)));
+            new (g) GrainType(offset,
+                grainLength,
+                std::move(AudioSourceType()),
+                std::move(EnvelopeType(grainLength)));
         }
         else
         {

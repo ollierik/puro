@@ -4,16 +4,17 @@
 #include <utility>
 
 template <class GrainType, class AudioSourceType, class EnvelopeType>
-class SchedulerTemplate
+class ControllerTemplate
 {
 public:
-    SchedulerTemplate() : period(20), counter(0)
+    ControllerTemplate() : period(20), counter(0)
     {}
 
     void tick(int n)
     {
         // TODO:
         // refactor into not using a per-sample loop
+
         int i = 0;
         while (i<n)
         {
@@ -44,6 +45,11 @@ public:
     }
 
     void setEngine(EngineInterface<GrainType>* e) { engine = e; }
+
+    void setAudioFileBuffer()
+    {
+    
+    }
 
     EngineInterface<GrainType>* engine;
 

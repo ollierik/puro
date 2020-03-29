@@ -10,12 +10,12 @@ public:
     virtual GrainType* allocateGrain() = 0;
 };
 
-template <typename FloatType, class BufferType, class GrainType, class PoolType, class SchedulerType>
+template <typename FloatType, class BufferType, class GrainType, class PoolType, class ControllerType>
 class EngineTemplate : public EngineInterface<GrainType>
 {
 public:
 
-    EngineTemplate(SchedulerType& s)
+    EngineTemplate(ControllerType& s)
         : scheduler(s)
     {
         scheduler.setEngine(this);
@@ -49,16 +49,11 @@ public:
         return pool.allocate();
     }
 
-   bool testFunction(int i)
-   {
-       return i == 0;
-   }
-
 private:
 
     BufferType audioBuffer;
     BufferType envelopeBuffer;
 
     PoolType pool;
-    SchedulerType& scheduler;
+    ControllerType& scheduler;
 };

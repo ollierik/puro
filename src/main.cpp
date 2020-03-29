@@ -6,7 +6,7 @@
 #include "Grain.hpp"
 #include "Pool.hpp"
 #include "Engine.hpp"
-#include "Scheduler.hpp"
+#include "Controller.hpp"
 
 int main ()
 {
@@ -15,13 +15,13 @@ int main ()
 
     using Buffer = ConstantBuffer<float, 32>;
     using Envelope = EnvelopeTemplate<float>;
-    using AudioSource = AudioSourceTemplate<float>;
+    using AudioSource = NoiseSource<float>;
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Pool = FixedPool<Grain, 5>;
-    using Scheduler = SchedulerTemplate<Grain, AudioSource, Envelope>;
-    using Engine = EngineTemplate<float, Buffer, Grain, Pool, Scheduler>;
+    using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
+    using Engine = EngineTemplate<float, Buffer, Grain, Pool, Controller>;
 
-    Scheduler scheduler;
+    Controller scheduler;
     Engine engine(scheduler);
 
     const int blockSize = 32;

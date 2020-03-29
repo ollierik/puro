@@ -34,10 +34,10 @@
     <ClInclude Include="..\src\test_stubs.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Scheduler.hpp">
+    <ClInclude Include="..\src\Buffer.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Buffer.hpp">
+    <ClInclude Include="..\src\Controller.hpp">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

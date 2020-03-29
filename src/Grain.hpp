@@ -22,9 +22,10 @@ public:
     void getNextOutput(FloatType* audioBuffer, FloatType* envelopeBuffer, int numSamples)
     {
         // TODO:
-        // SIMD compatibility?
-        // Refactor to work with buffers instead of single samples
+        // Refactor to clear up
+        // Refactor to use SIMD wrapper?
         const int indexFirst = offset;
+        const int n = indexLast - indexFirst;
         const int indexLast = (offset + index > numSamples) ? numSamples : offset + index;
 
         // clear the beginning of the block if needed
@@ -35,9 +36,22 @@ public:
         }
 
         // get the relevant content from envelope and audiosource
-        const int n = indexLast - indexFirst;
-        audioSource.getNextOutput(&audioBuffer[offset], n);
+        const int numSamplesFromSource = audioSource.getNextOutput(&audioBuffer[offset], n);
         envelope.getNextOutput(&envelopeBuffer[offset], n);
+
+        // audio file ended
+        if (numSamplesFroSource < n)
+        {
+            // clear the tail
+            for (int i=indexLast; i < indexFirst + numSamplesFromSource; ++i)
+            {
+                audioBuffer[i] = 0;
+                envelopeBuffer[i] = 0;
+            }
+
+            index = 0;
+            return;
+        }
 
         // clear the tail if needed
         for (int i=indexLast; i < numSamples; ++i)

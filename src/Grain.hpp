@@ -5,44 +5,43 @@
 //#include "Envelope.hpp"
 #include <algorithm>
 
-template <class FloatType>
+template <class FloatType, class EnvelopeType>
 class GrainTemplate
 {
 public:
 
-    using Buffer = std::vector<FloatType>;
-
-    GrainTemplate(int offset, int lengthInSamples)
-        : length(lengthInSamples)
+    GrainTemplate(int offset, int lengthInSamples, EnvelopeType&& envelope)
+        : envelope(std::move(envelope))
         , offset(offset)
-        , index(0)
+        , index(lengthInSamples)
     {
         std::cout << "*** Create grain *** offset: " << offset << std::endl;
     }
 
     void addNextOutput(FloatType* vec, int n)
     {
-        // Grain created
-        const int start = offset;
-        const int num = start + std::min(n, length - index);
+        // TODO SIMD compatibility?
+        const int i0 = offset;
+        const int i1 = (offset + index > n) ? n : offset + index;
 
-        for (int i=start; i<num; ++i)
+        for (int i=i0 ; i<i1; ++i)
         {
-            vec[i] += 1;
+            vec[i] += 1.0f * envelope.getNext();
         }
-
-        index += num;
+        
+        index -= (n-offset);
         offset = 0;
     }
 
     bool terminated()
     {
-        return index >= length;
+        return (index <= 0);
     }
 
 private:
+
+    EnvelopeType envelope;
     
-    const int length;
     int offset;
     int index;
 };

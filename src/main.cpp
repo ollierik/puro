@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Envelope.hpp"
 #include "Grain.hpp"
 #include "Pool.hpp"
 #include "Engine.hpp"
@@ -8,12 +9,13 @@
 
 int main ()
 {
-    const int n = 1024;
+    const int n = 512*2;
     std::vector<float> output (n, 0.0f);
 
-    using Grain = GrainTemplate<float>;
+    using Envelope = EnvelopeTemplate<float>;
+    using Grain = GrainTemplate<float, Envelope>;
     using Pool = FixedPool<Grain, 5>;
-    using Scheduler = SchedulerTemplate<Grain>;
+    using Scheduler = SchedulerTemplate<Grain, Envelope>;
     using Engine = EngineTemplate<float, Grain, Pool, Scheduler>;
 
     Scheduler scheduler;
@@ -32,6 +34,9 @@ int main ()
     {
         std::cout << i << ": " << output[i] << std::endl;
     }
+
+    return 0;
 }
 
-//#include "godbolt/godbolt_cyclical_template.hpp"
+
+//#include "godbolt/godbolt_for_expansion.hpp"

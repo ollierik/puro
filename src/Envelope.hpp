@@ -1,34 +1,29 @@
 #pragma once
 
-#include "definitions.hpp"
+#include <cmath>
 
 template <class FloatType>
-class Envelope
+class EnvelopeTemplate
 {
 public:
 
-    Envelope(const PlaybackInfo& info, int lengthInSamples)
-        : lengthInSamples(lengthInSamples)
-        , increment(1.0 / static_cast<double>(lengthInSamples))
+    EnvelopeTemplate(int lengthInSamples)
+        : increment(1.0 / static_cast<double>(lengthInSamples))
         , position(0)
     {
     }
 
-    void getNextSamples(FloatType* vec)
+    FloatType getNext()
     {
-        for (int i=0; i<info.bs; i++)
-        {
-            const FloatType y = std::sin<FloatType> (static_cast<FloatType> (position * M_PI));
-            vec[i] = y;
-            position += increment;
-        }
+        // TODO template sin and sinf
+        const double pi = 3.14159265359;
+        const FloatType y = std::sinf(static_cast<FloatType> (position * pi));
+        position += increment;
+        return y;
     }
 
 private:
 
-    const PlaybackInfo& info;
-    const int lengthInSamples;
-
-    const int increment;
+    const double increment;
     double position;
 };

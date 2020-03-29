@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Engine.hpp"
+#include <utility>
 
-template <class GrainType>
+template <class GrainType, class EnvelopeType>
 class SchedulerTemplate
 {
 public:
@@ -11,17 +12,31 @@ public:
 
     void tick(int n)
     {
-        std::cout << counter << " -> " << counter + n << std::endl;;
-        counter += n;
-        if (counter >= period)
+        // TODO:
+        // refactor into not using a per-sample loop
+        int i = 0;
+        while (i<n)
         {
-            counter -= period;
-            const int offset = n - counter;
-            GrainType* g = engine->allocateGrain();
-            if (g != nullptr)
+            if (counter <= 0)
             {
-                new (g) GrainType(offset, grainLength);
+                createGrain(i);
+                counter = period;
             }
+            ++i;
+            --counter;
+        }
+    }
+
+    void createGrain(int offset)
+    {
+        GrainType* g = engine->allocateGrain();
+        if (g != nullptr)
+        {
+            new (g) GrainType(offset, grainLength, std::move(EnvelopeType(grainLength)));
+        }
+        else
+        {
+            std::cout << "Couldn't create a new grain\n";
         }
     }
 

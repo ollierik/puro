@@ -40,6 +40,9 @@
     <ClInclude Include="..\src\Controller.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Parameter.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">

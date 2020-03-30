@@ -1,7 +1,9 @@
 #pragma once
 
 #include <vector>
+#include <type_traits>
 #include "Buffer.hpp"
+#include "Parameter.hpp"
 
 template <class GrainType>
 class EngineInterface
@@ -10,21 +12,21 @@ public:
     virtual GrainType* allocateGrain() = 0;
 };
 
-template <typename FloatType, class BufferType, class GrainType, class PoolType, class ControllerType>
+template <typename FloatType, class BlockSize, class GrainType, class PoolType, class ControllerType>
 class EngineTemplate : public EngineInterface<GrainType>
 {
 public:
 
-    EngineTemplate(ControllerType& s)
-        : scheduler(s)
+    EngineTemplate(ControllerType& c)
+        : controller(c)
     {
-        scheduler.setEngine(this);
+        controller.setEngine(this);
     }
 
     void tick(FloatType* output, int numSamples)
     {
         // scheduler operation
-        scheduler.tick(numSamples);
+        controller.tick(numSamples);
 
         // grain operations
         for (auto& it : pool)
@@ -51,9 +53,11 @@ public:
 
 private:
 
-    BufferType audioBuffer;
-    BufferType envelopeBuffer;
+    //const BlockSize blockSize;
+
+    BufferTemplate<FloatType, BlockSize> audioBuffer;
+    BufferTemplate<FloatType, BlockSize> envelopeBuffer;
 
     PoolType pool;
-    ControllerType& scheduler;
+    ControllerType& controller;
 };

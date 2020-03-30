@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Parameter.hpp"
 #include "Envelope.hpp"
 #include "AudioSource.hpp"
 #include "Grain.hpp"
@@ -8,18 +9,25 @@
 #include "Engine.hpp"
 #include "Controller.hpp"
 
+
 int main ()
 {
     const int n = 512*2;
     std::vector<float> output (n, 0.0f);
 
-    using Buffer = ConstantBuffer<float, 32>;
+    using BlockSize = ConstIntParameter<32>;
+
+    //using Buffer = ConstantBuffer<float, blockSize>;
     using Envelope = EnvelopeTemplate<float>;
     using AudioSource = NoiseSource<float>;
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Pool = FixedPool<Grain, 5>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
-    using Engine = EngineTemplate<float, Buffer, Grain, Pool, Controller>;
+    //using Engine = EngineTemplate<float, Buffer, Grain, Pool, Controller>;
+
+    using Engine = EngineTemplate<float, BlockSize, Grain, Pool, Controller>;
+
+    //BlockSize bs;
 
     Controller scheduler;
     Engine engine(scheduler);
@@ -40,6 +48,3 @@ int main ()
 
     return 0;
 }
-
-
-//#include "godbolt/godbolt_for_expansion.hpp"

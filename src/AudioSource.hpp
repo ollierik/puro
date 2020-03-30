@@ -26,6 +26,7 @@ public:
     }
 };
 
+/*
 template <typename FloatType, class BufferType>
 class AudioFileSource : public AudioSourceTemplate<FloatType>
 {
@@ -61,3 +62,4 @@ class AudioFileSource : public AudioSourceTemplate<FloatType>
     int index = 0;
     BufferType& buffer;
 };
+*/

@@ -25,8 +25,8 @@ public:
         // Refactor to clear up
         // Refactor to use SIMD wrapper?
         const int indexFirst = offset;
-        const int n = indexLast - indexFirst;
         const int indexLast = (offset + index > numSamples) ? numSamples : offset + index;
+        const int n = indexLast - indexFirst;
 
         // clear the beginning of the block if needed
         for (int i=0; i<offset; ++i)
@@ -40,7 +40,7 @@ public:
         envelope.getNextOutput(&envelopeBuffer[offset], n);
 
         // audio file ended
-        if (numSamplesFroSource < n)
+        if (numSamplesFromSource < n)
         {
             // clear the tail
             for (int i=indexLast; i < indexFirst + numSamplesFromSource; ++i)

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 
+//#if 0
+
 #include "Parameter.hpp"
 #include "Envelope.hpp"
 #include "AudioSource.hpp"
@@ -15,9 +17,9 @@ int main ()
     const int n = 512*2;
     std::vector<float> output (n, 0.0f);
 
-    using BlockSize = ConstIntParameter<32>;
+    using BlockSizeType = ConstIntParameter<32>;
+    static const BlockSizeType blockSize;
 
-    //using Buffer = ConstantBuffer<float, blockSize>;
     using Envelope = EnvelopeTemplate<float>;
     using AudioSource = NoiseSource<float>;
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
@@ -25,18 +27,16 @@ int main ()
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
     //using Engine = EngineTemplate<float, Buffer, Grain, Pool, Controller>;
 
-    using Engine = EngineTemplate<float, BlockSize, Grain, Pool, Controller>;
+    //using Engine = EngineTemplate<float, blockSize, Grain, Pool, Controller>;
 
     //BlockSize bs;
 
-    Controller scheduler;
-    Engine engine(scheduler);
+    Controller controller;
+    EngineTemplate<float, BlockSizeType, blockSize, Grain, Pool, Controller> engine(controller);
 
-    const int blockSize = 32;
-
-    for (int i=0; i<n; i+=blockSize)
+    for (int i=0; i<n; i+=blockSize.getValue())
     {
-        engine.tick(&output[i], blockSize);
+        engine.tick(&output[i], blockSize.getValue());
     }
 
     std::cout << "\n    OUTPUT\n----------\n";
@@ -48,3 +48,6 @@ int main ()
 
     return 0;
 }
+//#endif
+
+//#include "godbolt/type_deduction.hpp"

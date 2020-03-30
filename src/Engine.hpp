@@ -12,7 +12,7 @@ public:
     virtual GrainType* allocateGrain() = 0;
 };
 
-template <typename FloatType, class BlockSize, class GrainType, class PoolType, class ControllerType>
+template <typename FloatType, class SizeParamType, const SizeParamType& SizeParam, class GrainType, class PoolType, class ControllerType>
 class EngineTemplate : public EngineInterface<GrainType>
 {
 public:
@@ -53,10 +53,12 @@ public:
 
 private:
 
-    //const BlockSize blockSize;
+    const SizeParamType blockSize;
 
-    BufferTemplate<FloatType, BlockSize> audioBuffer;
-    BufferTemplate<FloatType, BlockSize> envelopeBuffer;
+    BufferTemplate<FloatType, SizeParamType> audioBuffer;
+    BufferTemplate<FloatType, SizeParamType> envelopeBuffer;
+    //BufferTemplate<FloatType, decltype(blockSize)> audioBuffer;
+    //BufferTemplate<FloatType, decltype(blockSize)> envelopeBuffer;
 
     PoolType pool;
     ControllerType& controller;

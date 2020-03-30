@@ -4,37 +4,25 @@
 #include <vector>
 #include <type_traits>
 
+#include "Parameter.hpp"
+
 #include "definitions.hpp"
 
-template <typename FloatType, class SizeParam>
+template <typename FloatType, class Param>
 class BufferTemplate
 {
-    typedef typename std::conditional<
-        std::is_same<SizeParam, ConstIntParameter>,
-        std::array<FloatType, 32>,
-        std::vector>
-        ::type ArrayType;
-
-    ArrayType buffer;
 };
 
+/** std::array*/
 
-#if 0
-/** Wraps a buffer object, either  std::array or  std::vector */
-template <typename FloatType, class MemoryType>
-class BufferTemplate
+template <typename FloatType, int N>
+class BufferTemplate <FloatType, ConstIntParameter<N>>
 {
 public:
 
-    FloatType* getRaw()
-    {
-        return &buffer[0];
-    }
+    FloatType* getRaw() { return &buffer[0]; }
 
-    size_t size()
-    {
-        return buffer.size();
-    }
+    constexpr size_t size() { return N; }
 
     FloatType& operator[] (int i)
     {
@@ -43,27 +31,29 @@ public:
     }
 
 private:
-
-    MemoryType buffer;
+    std::array<FloatType, N> buffer;
 };
 
-/*
-template <typename FloatType, int BufferSize>
-class ConstantBuffer : public BufferTemplate<FloatType, std::array<FloatType, BufferSize>>
-{
-};
-*/
 
-/*
-template <class Parameter>
-class ConstantBuffer : public BufferTemplate<float, std::array<float, Parameter>>
-{
-};
-
+/** std::vector */
 template <typename FloatType>
-class ResizeableBuffer : public BufferTemplate<FloatType, std::vector<FloatType>>
+class BufferTemplate <FloatType, IntParameter>
 {
-    // TODO allocating and resize
+    BufferTemplate()
+    {
+        buffer.resize(32, 0.0);
+    }
+
+    FloatType* getRaw() { return &buffer[0]; }
+
+    size_t size() { return buffer.size(); }
+
+    FloatType& operator[] (int i)
+    {
+        passert(i < 0 || i >= buffer.size(), "Index out of range");
+        return buffer[i];
+    }
+
+private:
+    std::vector<FloatType> buffer;
 };
-*/
-#endif

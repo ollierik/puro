@@ -1,35 +1,31 @@
 #pragma once
 
 template <typename ValueType, ValueType Value>
-class ConstParameter 
+class ConstParameter
 {
 public:
-
-    constexpr ValueType getValue()
-    {
-        return Value;
-    }
+    constexpr ValueType getValue() const { return value; };
+private:
+    const ValueType value = Value;
 };
+
+template <typename ValueType>
+class Parameter 
+{
+public:
+    Parameter(ValueType v) : value(v) {}
+    ValueType getValue() { return value; }
+    ValueType setValue(ValueType v) { value = v; }
+private:
+    ValueType value;
+};
+
 
 template <int Value>
 class ConstIntParameter : public ConstParameter<int, Value>
 {
 };
 
-template <typename ValueType>
-class MutableParameter 
+class IntParameter : public Parameter<int>
 {
-public:
-    ValueType getValue() override
-    {
-        return value;
-    }
-
-    void setValue(ValueType newValue)
-    {
-        value = newValue;
-    }
-
-private:
-    ValueType& value;
 };

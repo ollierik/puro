@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-//#if 0
+#if 1
 
 #include "Parameter.hpp"
 #include "Envelope.hpp"
@@ -11,28 +11,28 @@
 #include "Engine.hpp"
 #include "Controller.hpp"
 
-
 int main ()
 {
     const int n = 512*2;
     std::vector<float> output (n, 0.0f);
 
-    using BlockSizeType = ConstIntParameter<32>;
-    static const BlockSizeType blockSize;
+    //using BlockSizeParameter = ConstIntParameter<32>;
+
+    using BlockSizeParameter = IntParameter;
 
     using Envelope = EnvelopeTemplate<float>;
     using AudioSource = NoiseSource<float>;
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Pool = FixedPool<Grain, 5>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
-    //using Engine = EngineTemplate<float, Buffer, Grain, Pool, Controller>;
+    using Engine = EngineTemplate<float, BlockSizeParameter, Grain, Pool, Controller>;
 
-    //using Engine = EngineTemplate<float, blockSize, Grain, Pool, Controller>;
-
-    //BlockSize bs;
-
+    BlockSizeParameter blockSize(32);
     Controller controller;
-    EngineTemplate<float, BlockSizeType, blockSize, Grain, Pool, Controller> engine(controller);
+
+    Engine engine(blockSize, controller);
+
+
 
     for (int i=0; i<n; i+=blockSize.getValue())
     {
@@ -48,6 +48,7 @@ int main ()
 
     return 0;
 }
-//#endif
 
-//#include "godbolt/type_deduction.hpp"
+#else
+#include "godbolt/template_specialisation.hpp"
+#endif

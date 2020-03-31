@@ -8,12 +8,15 @@
 
 #include "definitions.hpp"
 
+/*
 template <typename FloatType, class Param>
 class BufferTemplate
 {
 };
 
 /** std::array*/
+
+#if 0
 
 template <typename FloatType, int N>
 class BufferTemplate <FloatType, ConstIntParameter<N>>
@@ -57,3 +60,5 @@ class BufferTemplate <FloatType, IntParameter>
 private:
     std::vector<FloatType> buffer;
 };
+
+#endif

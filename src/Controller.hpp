@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Engine.hpp"
-#include <utility>
-
 template <class GrainType, class AudioSourceType, class EnvelopeType>
 class ControllerTemplate
 {

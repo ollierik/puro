@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cmath>
-
 template <class FloatType>
 class EnvelopeTemplate
 {

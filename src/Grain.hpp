@@ -1,7 +1,5 @@
 #pragma once
 
-#include <algorithm>
-
 template <class FloatType, class AudioSourceType, class EnvelopeType>
 class GrainTemplate
 {

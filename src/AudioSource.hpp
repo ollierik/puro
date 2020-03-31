@@ -1,8 +1,5 @@
 #pragma once
 
-#include "structs.hpp"
-#include <cstdlib>
-
 template <typename FloatType>
 class AudioSourceTemplate
 {

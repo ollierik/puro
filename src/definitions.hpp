@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cassert>
-#include <intrin.h>
+//#include <cassert>
+//#include <intrin.h>
 
 #ifndef PURO_DEBUG
     #define PURO_DEBUG 1

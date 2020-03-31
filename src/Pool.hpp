@@ -1,9 +1,5 @@
 #pragma once 
 
-#include <memory>
-#include <cassert>
-#include <cstddef>
-
 template <class ElementType, int Capacity>
 class PoolMemory
 {
@@ -273,8 +269,6 @@ public:
         return Iterator<ElementType, ChunkAllocationSize> (nullptr);
     };
 
-    //template <class ...Args>
-    //ElementType* add(Args... args)
     ElementType* allocate()
     {
         // TODO implement size constraint

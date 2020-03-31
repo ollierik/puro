@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AudioSource.hpp" />
-    <ClInclude Include="..\src\Buffer.hpp" />
     <ClInclude Include="..\src\definitions.hpp" />
     <ClInclude Include="..\src\Engine.hpp" />
     <ClInclude Include="..\src\Envelope.hpp" />
@@ -28,6 +27,7 @@
     <ClInclude Include="..\src\Parameter.hpp" />
     <ClInclude Include="..\src\Pool.hpp" />
     <ClInclude Include="..\src\Controller.hpp" />
+    <ClInclude Include="..\src\PuroHeader.h" />
     <ClInclude Include="..\src\structs.hpp" />
     <ClInclude Include="..\src\test_stubs.h" />
   </ItemGroup>

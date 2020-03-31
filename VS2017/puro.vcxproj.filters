@@ -34,13 +34,13 @@
     <ClInclude Include="..\src\test_stubs.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Buffer.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Controller.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Parameter.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PuroHeader.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,17 +1,9 @@
-#include <iostream>
-#include <vector>
-
 #if 1
 
-#include "Parameter.hpp"
-#include "Envelope.hpp"
-#include "AudioSource.hpp"
-#include "Grain.hpp"
-#include "Pool.hpp"
-#include "Engine.hpp"
-#include "Controller.hpp"
+//#include "PuroHeader.h"
+#include "puro.hpp"
 
-int main ()
+int main()
 {
     const int n = 512*2;
     std::vector<float> output (n, 0.0f);
@@ -32,11 +24,9 @@ int main ()
 
     Engine engine(blockSize, controller);
 
-
-
-    for (int i=0; i<n; i+=blockSize.getValue())
+    for (int i=0; i<n; i+=blockSize)
     {
-        engine.tick(&output[i], blockSize.getValue());
+        engine.tick(&output[i], blockSize);
     }
 
     std::cout << "\n    OUTPUT\n----------\n";

@@ -1,14 +1,14 @@
 #pragma once
 
-// TODO:
-// - How to do this as DRY?
-
 template <class GrainType>
 class EngineInterface
 {
 public:
     virtual GrainType* allocateGrain() = 0;
 };
+
+// TODO:
+// - How to do this as DRY?
 
 /** Primary template, not implemented */
 template <typename FloatType, class BlockSize, class GrainType, class PoolType, class ControllerType>
@@ -17,12 +17,10 @@ class EngineTemplate : public EngineInterface<GrainType>
 };
 
 
-
-
 /** Partial specialisation, constant buffer size */
 
 template <typename FloatType, int N, class GrainType, class PoolType, class ControllerType>
-class EngineTemplate<typename FloatType, ConstIntParameter<N>, GrainType, PoolType, ControllerType> : public EngineInterface<GrainType>
+class EngineTemplate<FloatType, ConstIntParameter<N>, GrainType, PoolType, ControllerType> : public EngineInterface<GrainType>
 {
 public:
 

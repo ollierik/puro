@@ -9,12 +9,10 @@ public:
 
     PoolMemory()
     {
-        //std::cout << "Initialise mapping:\n";
         for (int i=0; i<Capacity; i++)
         {
             ElementPtr e = getElementAtMemoryLocation(i);
             mapping[i] = e;
-            //std::cout << "    " << i << ": " << e << std::endl;
         }
     }
 
@@ -97,32 +95,34 @@ public:
 
     /////////////////////////////////////////////////////////////////////////
 
-    template <class ElementType, int PoolSize>
+
+    /** Template names prefixed with N because of MSVC */
+    template <class NElementType, int NPoolSize>
     class Iterator
     {
     public:
 
-        Iterator(PoolMemory<ElementType, PoolSize>& e, int i)
+        Iterator(PoolMemory<NElementType, PoolSize>& e, int i)
             : elements(e)
             , accessIndex(i)
         {}
 
-        Iterator<ElementType, PoolSize>& operator*()
+        Iterator<NElementType, PoolSize>& operator*()
         {
             return *this;
         }
 
-        ElementType* operator->()
+        NElementType* operator->()
         {
             return &elements[accessIndex];
         }
 
-        ElementType* getElement()
+        NElementType* getElement()
         {
             return elements->getElementWithAccessIndex(accessIndex);
         }
 
-        bool operator!= (const Iterator<ElementType, PoolSize>& other)
+        bool operator!= (const Iterator<NElementType, PoolSize>& other)
         {
             return accessIndex != other.accessIndex;
         }
@@ -141,9 +141,9 @@ public:
 
     private:
 
-        friend class FixedPool<ElementType, PoolSize>;
+        friend class FixedPool<NElementType, PoolSize>;
 
-        PoolMemory<ElementType, PoolSize>& elements;
+        PoolMemory<NElementType, PoolSize>& elements;
         int accessIndex;
     };
 
@@ -163,10 +163,6 @@ public:
 
     void remove(Iterator<ElementType, PoolSize>& iterator)
     {
-        // TODO
-        // assert instead
-        //if (&iterator.elements == &elements)
-
         elements.release(iterator.accessIndex);
     }
 
@@ -184,6 +180,8 @@ public:
 
     PoolMemory<ElementType, PoolSize> elements;
 };
+
+
 
 template <class ElementType, int ChunkAllocationSize>
 class PoolChunk : public PoolMemory<ElementType, ChunkAllocationSize>
@@ -213,22 +211,22 @@ public:
 
     DynamicPool() = default;
 
-    template <class ElementType, int ChunkAllocationSize = 32>
+    template <class NElementType, int NChunkAllocationSize = 32>
     class Iterator
     {
     public:
-        Iterator(PoolChunk<ElementType, ChunkAllocationSize>* c)
+        Iterator(PoolChunk<NElementType, NChunkAllocationSize>* c)
             : chunk(c)
             , chunkAccessIndex(chunk == nullptr ? -1 : chunk->size()-1)
         {
         }
 
-        Iterator<ElementType, ChunkAllocationSize>& operator*()
+        Iterator<NElementType, NChunkAllocationSize>& operator*()
         {
             return *this;
         }
 
-        ElementType* operator->()
+        NElementType* operator->()
         {
             if (chunk != nullptr)
             {
@@ -247,16 +245,16 @@ public:
             return *this;
         }
 
-        bool operator!= (const Iterator<ElementType, ChunkAllocationSize>& other)
+        bool operator!= (const Iterator<NElementType, NChunkAllocationSize>& other)
         {
             return ! (chunkAccessIndex == other.chunkAccessIndex && chunk == other.chunk);
         }
 
     private:
 
-        friend class DynamicPool<ElementType, ChunkAllocationSize>;
+        friend class DynamicPool<NElementType, NChunkAllocationSize>;
 
-        PoolChunk<ElementType, ChunkAllocationSize>* chunk;
+        PoolChunk<NElementType, NChunkAllocationSize>* chunk;
         int chunkAccessIndex;
     };
 

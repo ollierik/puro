@@ -360,5 +360,6 @@ MigrationBackup/
 ##################
 # Other stuff
 ##################
-puro.hpp
+export.cpp
+
 .idea

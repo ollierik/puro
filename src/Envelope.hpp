@@ -17,7 +17,7 @@ public:
         {
             // TODO template sin and sinf
             const double pi = 3.14159265359;
-            const FloatType y = std::sinf(static_cast<FloatType> (position * pi));
+            const FloatType y = sinf(static_cast<FloatType> (position * pi));
             position += increment;
             vec[i] = y;
         }

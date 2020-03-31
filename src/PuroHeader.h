@@ -5,7 +5,6 @@
 #include <array>
 #include <memory>
 #include <cstdlib>
-#include <intrin.h> // MSVS breakpoint
 #include <cmath>
 #include <utility>
 
@@ -15,5 +14,6 @@
 #include "AudioSource.hpp"
 #include "Grain.hpp"
 #include "Pool.hpp"
+#include "EngineInterface.hpp"
 #include "Engine.hpp"
 #include "Controller.hpp"

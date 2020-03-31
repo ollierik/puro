@@ -43,6 +43,9 @@
     <ClInclude Include="..\src\PuroHeader.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\EngineInterface.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">

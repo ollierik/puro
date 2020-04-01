@@ -1,13 +1,12 @@
 #include "PuroHeader.h"
 
 // TODO
-// - Mechanism for signalling for grains to die
-//      - Extra parameter that holds a bool&
 // - Mechanism for changing audio file buffer on-the-fly
 //      - Is this needed, tho?
 // - Audio file reader and utility class
 // - Parameters for controller randomness
-// - Multichannel
+// - Multichannel via Buffer
+// - BlockSizeParam to its own type? Should represent channel config as well
 
 int main()
 {

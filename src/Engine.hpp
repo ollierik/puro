@@ -1,7 +1,9 @@
 #pragma once
 
+
+
 // TODO:
-// - How to do this as DRY?
+// - How to do this as DRY? Partial specialisations always need the whole class?
 
 /** Primary template, not implemented */
 template <typename FloatType, class BlockSizeParameter, class GrainType, class PoolType, class ControllerType>
@@ -41,11 +43,11 @@ public:
             }
 
             if (it->hasTerminated())
-            {
                 pool.remove(it);
-            }
         }
     }
+
+    PoolType& getPool() { return pool; }
 
 private:
 
@@ -55,8 +57,6 @@ private:
     PoolType pool;
     ControllerType& controller;
 };
-
-
 
 
 
@@ -107,6 +107,8 @@ public:
                 pool.remove(it);
         }
     }
+
+    PoolType& getPool() { return pool; }
 
 private:
 

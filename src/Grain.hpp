@@ -20,7 +20,7 @@ public:
     void getNextOutput(FloatType* audioBuffer, FloatType* envelopeBuffer, int numSamples)
     {
         // TODO:
-        // Refactor to clear up
+        // Refactor to clean up
         // Refactor to use SIMD wrapper?
         const int indexFirst = offset;
         const int indexLast = (offset + index > numSamples) ? numSamples : offset + index;

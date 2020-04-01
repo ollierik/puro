@@ -1,17 +1,10 @@
 #pragma once
 
 template <typename FloatType>
-class AudioSourceTemplate
+class NoiseSource
 {
 public:
-    virtual int getNextOutput(FloatType* vec, int numSamples) = 0;
-};
-
-template <typename FloatType>
-class NoiseSource : public AudioSourceTemplate<FloatType>
-{
-public:
-    int getNextOutput(FloatType* vec, int numSamples) override
+    int getNextOutput(FloatType* vec, int numSamples)
     {
         for (int i=0; i<numSamples; i++)
         {

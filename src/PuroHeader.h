@@ -14,6 +14,5 @@
 #include "AudioSource.hpp"
 #include "Grain.hpp"
 #include "Pool.hpp"
-#include "EngineInterface.hpp"
 #include "Engine.hpp"
 #include "Controller.hpp"

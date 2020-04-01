@@ -22,7 +22,6 @@
     <ClInclude Include="..\src\AudioSource.hpp" />
     <ClInclude Include="..\src\definitions.hpp" />
     <ClInclude Include="..\src\Engine.hpp" />
-    <ClInclude Include="..\src\EngineInterface.hpp" />
     <ClInclude Include="..\src\Envelope.hpp" />
     <ClInclude Include="..\src\Grain.hpp" />
     <ClInclude Include="..\src\Parameter.hpp" />

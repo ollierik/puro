@@ -11,7 +11,7 @@ int main()
     using Envelope = EnvelopeTemplate<float>;
     using AudioSource = NoiseSource<float>;
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
-    using Pool = FixedPool<Grain, 5>;
+    using Pool = FixedPool<Grain, 4>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
     using Engine = EngineTemplate<float, BlockSizeParameter, Grain, Pool, Controller>;
 

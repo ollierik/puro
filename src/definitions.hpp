@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined (_MSC_VER)
-#define PURO_WINDOWS 1
+    #define PURO_WINDOWS 1
 #endif
 
 #ifndef PURO_DEBUG

@@ -37,8 +37,8 @@ public:
         const int numSamplesFromSource = audioSource.getNextOutput(&audioBuffer[offset], n);
         envelope.getNextOutput(&envelopeBuffer[offset], n);
 
-        // audio file ended
-        if (numSamplesFromSource < n)
+        // audio buffer ended or changed
+        if (numSamplesFromSource != n)
         {
             // clear the tail
             for (int i=indexLast; i < indexFirst + numSamplesFromSource; ++i)
@@ -62,20 +62,14 @@ public:
         offset = 0;
     }
 
-    void getNextEnvelopeOutput(FloatType* vec, int n)
-    {
-        const int i0 = offset;
-        const int i1 = (offset + index > n) ? n : offset + index;
-
-        for (int i=i0 ; i<i1; ++i)
-        {
-            vec[i] += audioSource.getNext() * envelope.getNext();
-        }
-    }
-
-    bool terminated()
+    bool hasTerminated()
     {
         return (index <= 0);
+    }
+
+    void terminate()
+    {
+        index = 0;
     }
 
 private:

@@ -16,27 +16,30 @@ public:
     }
 };
 
-/*
-template <typename FloatType, class BufferType>
-class AudioFileSource : public AudioSourceTemplate<FloatType>
+
+template <typename FloatType>
+class AudioBufferSource
 {
-    AudioFileSource(Buffer& fileBuffer, int startIndex)
+public:
+    AudioBufferSource(std::vector<FloatType>& fileBuffer, int startIndex)
         : buffer(fileBuffer)
         , index(startIndex)
     {
     }
 
-    int getNextOutput(FloatType* vec, int numSamples) override
+    int getNextOutput(FloatType* vec, int numSamples)
     {
-        const int bufferSize = buffer.size();
-        const int n = (bufferSize < index + numSamples) ? bufferSize - index : numSamples;
-        if (n < numSamples)
+        const auto bufferSize = buffer.size();
+        const auto numRemaining = (bufferSize < index + numSamples) ? bufferSize - index : numSamples;
+
+        // if audio buffer is going to end before the number of requested samples
+        if (numRemaining < numSamples)
         {
-            for (int i=0; i<n; ++i)
+            for (int i=0; i<numRemaining; ++i)
             {
                 vec[i] = buffer[index++];
             }
-            return n;
+            return static_cast<int> (numRemaining);
         }
         else
         {
@@ -49,7 +52,7 @@ class AudioFileSource : public AudioSourceTemplate<FloatType>
         }
     }
 
-    int index = 0;
-    BufferType& buffer;
+private:
+    int index;
+    std::vector<FloatType>& buffer;
 };
-*/

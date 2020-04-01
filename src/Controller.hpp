@@ -27,12 +27,13 @@ public:
 
     void createGrain(int offset)
     {
-        GrainType* g = engine->allocateGrain();
+        GrainType* g = allocationCallback();
         if (g != nullptr)
         {
             new (g) GrainType(offset,
                 grainLength,
-                std::move(AudioSourceType()),
+                //std::move(AudioSourceType()),
+                std::move(audioSourceFactoryCallback()),
                 std::move(EnvelopeType(grainLength)));
         }
         else
@@ -41,14 +42,18 @@ public:
         }
     }
 
-    void setEngine(EngineInterface<GrainType>* e) { engine = e; }
-
-    void setAudioFileBuffer()
+    void bindAllocation(std::function<GrainType* ()> callback)
     {
-    
+        allocationCallback = callback;
     }
 
-    EngineInterface<GrainType>* engine;
+    void bindAudioSourceFactory(std::function<AudioSourceType&& ()> callback)
+    {
+        audioSourceFactoryCallback = callback;
+    }
+
+    std::function<GrainType* ()> allocationCallback;
+    std::function<AudioSourceType&& ()> audioSourceFactoryCallback;
 
     const int period;
     int counter;

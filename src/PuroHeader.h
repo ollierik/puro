@@ -1,14 +1,16 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <array>
+#include <vector>
 #include <memory>
 #include <cstdlib>
 #include <cmath>
+#include <functional>
 #include <utility>
 
 #include "definitions.hpp"
+#include "Buffer.hpp"
 #include "Parameter.hpp"
 #include "Envelope.hpp"
 #include "AudioSource.hpp"

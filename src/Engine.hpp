@@ -1,18 +1,11 @@
 #pragma once
 
-template <class GrainType>
-class EngineInterface
-{
-public:
-    virtual GrainType* allocateGrain() = 0;
-};
-
 // TODO:
 // - How to do this as DRY?
 
 /** Primary template, not implemented */
-template <typename FloatType, class BlockSize, class GrainType, class PoolType, class ControllerType>
-class EngineTemplate : public EngineInterface<GrainType>
+template <typename FloatType, class BlockSizeParameter, class GrainType, class PoolType, class ControllerType>
+class EngineTemplate
 {
 };
 
@@ -20,14 +13,14 @@ class EngineTemplate : public EngineInterface<GrainType>
 /** Partial specialisation, constant buffer size */
 
 template <typename FloatType, int N, class GrainType, class PoolType, class ControllerType>
-class EngineTemplate<FloatType, ConstIntParameter<N>, GrainType, PoolType, ControllerType> : public EngineInterface<GrainType>
+class EngineTemplate<FloatType, ConstIntParameter<N>, GrainType, PoolType, ControllerType>
 {
 public:
 
     EngineTemplate(ConstIntParameter<N>& /*bs*/, ControllerType& c)
         : controller(c)
     {
-        controller.setEngine(this);
+        controller.bindAllocation(std::bind(&PoolType::allocate, &pool));
     }
 
     /** numSamples provided for convenience and ignored */
@@ -47,16 +40,11 @@ public:
                 output[i] += audioBuffer[i] * envelopeBuffer[i];
             }
 
-            if (it->terminated())
+            if (it->hasTerminated())
             {
                 pool.remove(it);
             }
         }
-    }
-
-    GrainType* allocateGrain() override
-    {
-        return pool.allocate();
     }
 
 private:
@@ -75,13 +63,13 @@ private:
 /** Partial specialisation, variable buffer size */
 
 template <typename FloatType, class GrainType, class PoolType, class ControllerType>
-class EngineTemplate <FloatType, IntParameter, GrainType, PoolType, ControllerType> : public EngineInterface<GrainType>
+class EngineTemplate <FloatType, IntParameter, GrainType, PoolType, ControllerType>
 {
 public:
     EngineTemplate(IntParameter& blockSizeParameter, ControllerType& c)
         : controller(c), blockSize(blockSizeParameter)
     {
-        controller.setEngine(this);
+        controller.bindAllocation(std::bind(&PoolType::allocate, &pool));
     }
 
     /** Reserves buffer size for internal buffers.
@@ -108,7 +96,6 @@ public:
         // grain operations
         for (auto& it : pool)
         {
-            //it->addNextOutput(output, n);
             it->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), numSamples);
 
             for (int i=0; i<numSamples; ++i)
@@ -116,16 +103,9 @@ public:
                 output[i] += audioBuffer[i] * envelopeBuffer[i];
             }
 
-            if (it->terminated())
-            {
+            if (it->hasTerminated())
                 pool.remove(it);
-            }
         }
-    }
-
-    GrainType* allocateGrain() override
-    {
-        return pool.allocate();
     }
 
 private:

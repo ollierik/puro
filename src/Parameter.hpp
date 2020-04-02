@@ -1,14 +1,5 @@
 #pragma once
 
-template <typename ValueType, ValueType Value>
-class ConstParameter
-{
-public:
-    constexpr ValueType getValue() const { return value; };
-private:
-    const ValueType value = Value;
-};
-
 template <typename ValueType>
 class Parameter 
 {
@@ -19,14 +10,6 @@ public:
     ValueType setValue(ValueType v) { value = v; }
 protected:
     ValueType value;
-};
-
-
-template <int Value>
-class ConstIntParameter : public ConstParameter<int, Value>
-{
-public:
-    operator int() const { return Value; }
 };
 
 

@@ -22,17 +22,6 @@ public:
         }
 
         Math::sin(vec, numSamples);
-
-            /*
-        for (int i=0; i<numSamples; i++)
-        {
-            // TODO template sin and sinf
-            const double pi = 3.14159265359;
-            const FloatType y = sinf(static_cast<FloatType> (position * pi));
-            position += increment;
-            vec[i] = y;
-        }
-            */
     }
 
 private:

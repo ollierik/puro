@@ -13,18 +13,14 @@ int main()
     const int n = 512*2;
     std::vector<float> output (n, 0.0f);
 
-    using BlockSizeParameter = ConstIntParameter<32>;
-    //using BlockSizeParameter = IntParameter;
-
     using Envelope = EnvelopeTemplate<float>;
 
-    //using AudioSource = NoiseSource<float>;
     using AudioSource = AudioBufferSource<float>;
 
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Pool = FixedPool<Grain, 4>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
-    using Engine = EngineTemplate<float, BlockSizeParameter, Grain, Pool, Controller>;
+    using Engine = EngineTemplate<float, Grain, Pool, Controller>;
 
 
     std::vector<float> fileBuffer(1024, 0.0f);
@@ -41,14 +37,13 @@ int main()
         return as;
     };
 
-    BlockSizeParameter blockSize;
-    //BlockSizeParameter blockSize(32);
-
     Controller controller;
 
     controller.bindAudioSourceFactory(audioSourceFactory);
 
-    Engine engine(blockSize, controller);
+    Engine engine(controller);
+
+    const int blockSize = 64;
 
     for (int i=0; i<n; i+=blockSize)
     {

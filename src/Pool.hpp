@@ -1,5 +1,9 @@
 #pragma once 
 
+
+// TODO
+// - Since FixedPool never seems to outperform DynamicPool, refactor and loose FixedPool
+
 template <class ElementType, int Capacity>
 class PoolMemory
 {

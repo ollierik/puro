@@ -19,7 +19,7 @@ public:
                 counter = 0;
 
                 const int offset = n - samplesRemaining;
-                // if we can't create a new grain, stop trying to add grains and exit loop
+                // if we can't create a new grain, stop trying and exit loop
                 if (!createGrain(offset))
                 {
                     break;

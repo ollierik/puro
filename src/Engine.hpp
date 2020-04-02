@@ -1,70 +1,13 @@
 #pragma once
 
 
-
-// TODO:
-// - How to do this as DRY? Partial specialisations always need the whole class?
-
 /** Primary template, not implemented */
-template <typename FloatType, class BlockSizeParameter, class GrainType, class PoolType, class ControllerType>
+template <typename FloatType, class GrainType, class PoolType, class ControllerType>
 class EngineTemplate
 {
-};
-
-
-/** Partial specialisation, constant buffer size */
-
-template <typename FloatType, int N, class GrainType, class PoolType, class ControllerType>
-class EngineTemplate<FloatType, ConstIntParameter<N>, GrainType, PoolType, ControllerType>
-{
 public:
-
-    EngineTemplate(ConstIntParameter<N>& /*bs*/, ControllerType& c)
+    EngineTemplate(ControllerType& c)
         : controller(c)
-    {
-        controller.bindAllocation(std::bind(&PoolType::allocate, &pool));
-    }
-
-    /** numSamples provided for convenience and ignored */
-    void tick(FloatType* output, int /*numSamples*/)
-    {
-        // scheduler operation
-        controller.tick(N);
-
-        // grain operations
-        for (auto& it : pool)
-        {
-            //it->addNextOutput(output, n);
-            it->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), N);
-
-            Math::multiplyAdd(output, audioBuffer.data(), envelopeBuffer.data(), N);
-
-            if (it->hasTerminated())
-                pool.remove(it);
-        }
-    }
-
-    PoolType& getPool() { return pool; }
-
-private:
-
-    std::array<FloatType, N> audioBuffer;
-    std::array<FloatType, N> envelopeBuffer;
-
-    PoolType pool;
-    ControllerType& controller;
-};
-
-
-
-/** Partial specialisation, variable buffer size */
-
-template <typename FloatType, class GrainType, class PoolType, class ControllerType>
-class EngineTemplate <FloatType, IntParameter, GrainType, PoolType, ControllerType>
-{
-public:
-    EngineTemplate(IntParameter& blockSizeParameter, ControllerType& c)
-        : controller(c), blockSize(blockSizeParameter)
     {
         controller.bindAllocation(std::bind(&PoolType::allocate, &pool));
     }
@@ -75,8 +18,8 @@ public:
     void reserveBufferSize(int size)
     {
         std::cout << "Resize buffers" << std::endl;
-        audioBuffer.resize(blockSize);
-        envelopeBuffer.resize(blockSize);
+        audioBuffer.resize(size);
+        envelopeBuffer.resize(size);
     }
 
     /** numSamples provided for convenience and ignored */
@@ -105,8 +48,6 @@ public:
     PoolType& getPool() { return pool; }
 
 private:
-
-    IntParameter& blockSize;
 
     std::vector<FloatType> audioBuffer;
     std::vector<FloatType> envelopeBuffer;

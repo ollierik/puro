@@ -37,11 +37,11 @@ public:
         GrainType* g = allocationCallback();
         if (g != nullptr)
         {
+
             new (g) GrainType(offset,
                 grainLength,
-                //std::move(AudioSourceType()),
-                std::move(audioSourceFactoryCallback()),
-                std::move(EnvelopeType(grainLength)));
+                audioSourceFactoryCallback(),
+                EnvelopeType(grainLength));
 
             return true;
         }
@@ -55,13 +55,13 @@ public:
         allocationCallback = callback;
     }
 
-    void bindAudioSourceFactory(std::function<AudioSourceType&& ()> callback)
+    void bindAudioSourceFactory(std::function<AudioSourceType()> callback)
     {
         audioSourceFactoryCallback = callback;
     }
 
     std::function<GrainType* ()> allocationCallback;
-    std::function<AudioSourceType&& ()> audioSourceFactoryCallback;
+    std::function<AudioSourceType ()> audioSourceFactoryCallback;
 
     const int period;
     int counter;

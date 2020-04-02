@@ -85,9 +85,11 @@ void dynamic_benchmark(std::vector<float>& output, std::vector<float>& fileBuffe
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
     using Engine = EngineTemplate<float, BlockSizeParameter, Grain, Pool, Controller>;
 
-    std::function<AudioSource&&()> audioSourceFactory = [&fileBuffer]()
+    std::function<AudioSource()> audioSourceFactory = [&fileBuffer]()
     {
-        return std::move(AudioSource(fileBuffer, 0));
+        std::cout << "create audio source" << std::endl;
+        AudioSource as (fileBuffer, 0);
+        return as;
     };
 
     BlockSizeParameter blockSize(BLOCK_SIZE);

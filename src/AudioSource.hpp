@@ -27,6 +27,7 @@ public:
     {
     }
 
+
     int getNextOutput(FloatType* vec, int numSamples)
     {
         const auto bufferSize = buffer.size();

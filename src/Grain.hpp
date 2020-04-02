@@ -7,10 +7,10 @@ public:
 
     GrainTemplate(int offset,
                   int lengthInSamples,
-                  AudioSourceType&& audioSource,
-                  EnvelopeType&& envelope)
-        : audioSource(std::move(audioSource))
-        , envelope(std::move(envelope))
+                  AudioSourceType audioSource,
+                  EnvelopeType envelope)
+        : audioSource(audioSource)
+        , envelope(envelope)
         , offset(offset)
         , index(lengthInSamples)
     {

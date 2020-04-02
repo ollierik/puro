@@ -34,8 +34,10 @@ private:
 
 
 #define BLOCK_SIZE 64
-#define N_BLOCKS 6890
-#define POOL_SIZE 8192
+#define N_BLOCKS 1000
+#define POOL_SIZE 2048
+
+int argBlockSize;
 
 void fixed_benchmark(std::vector<float>& output, std::vector<float>& fileBuffer)
 {
@@ -87,13 +89,13 @@ void dynamic_benchmark(std::vector<float>& output, std::vector<float>& fileBuffe
         return as;
     };
 
-    BlockSizeParameter blockSize(BLOCK_SIZE);
+    BlockSizeParameter blockSize(argBlockSize);
     Controller controller;
 
     controller.bindAudioSourceFactory(audioSourceFactory);
 
     Engine engine(blockSize, controller);
-    engine.reserveBufferSize(BLOCK_SIZE);
+    engine.reserveBufferSize(blockSize);
 
     for (int i=0; i<N_BLOCKS; i++)
     {
@@ -102,14 +104,14 @@ void dynamic_benchmark(std::vector<float>& output, std::vector<float>& fileBuffe
 
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    argBlockSize = std::atoi(argv[1]);
     const int samplerate = 44100;
 
     std::vector<float> fileBuffer(44100, 0.0f);
-    std::vector<float> output (BLOCK_SIZE, 0.0f);
+    std::vector<float> output (argBlockSize, 0.0f);
 
-    double fixedDur = 1e30;
     double dynamicDur = 1e30;
 
     for (int iter = 0; iter < 5; iter++)
@@ -118,41 +120,16 @@ int main()
         {
             f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
         }
-#if 0
-        for (auto& f : fileBuffer)
-        {
-            f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
-        }
-        std::cout << std::endl << iter << " ";
-        // FIXED
-        {
-            //std::cout << "\nFIXED:\n";
-            TimeIt tm;
-            fixed_benchmark(output, fileBuffer);
-            fixedDur = std::min<double>(tm.end(), fixedDur);
-
-            float sum = 0;
-            for (int i = 0; i < BLOCK_SIZE; i++)
-            {
-                sum += output[i];
-            }
-            std::cout << "(" << sum << ") ";
-        }
-
-        for (auto& f : output)
-            f = 0;
-#endif
 
         // DYNAMIC
         {
-            //std::cout << "\nDYNAMIC\n";
             TimeIt tm;
             dynamic_benchmark(output, fileBuffer);
 
             dynamicDur = std::min<double>(tm.end(), dynamicDur);
 
             float sum = 0;
-            for (int i = 0; i < BLOCK_SIZE; i++)
+            for (int i = 0; i < argBlockSize; i++)
             {
                 sum += output[i];
             }
@@ -163,7 +140,7 @@ int main()
             f = 0;
     }
 
-    std::cout << "\nBlock size: " << BLOCK_SIZE << std::endl;
+    std::cout << "\nBlock size: " << argBlockSize << std::endl;
     //std::cout << "Fixed: " << fixedDur << std::endl;
     std::cout << "Dynamic: " << dynamicDur << std::endl;
 

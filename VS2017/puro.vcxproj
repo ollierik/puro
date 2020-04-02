@@ -25,6 +25,7 @@
     <ClInclude Include="..\src\Engine.hpp" />
     <ClInclude Include="..\src\Envelope.hpp" />
     <ClInclude Include="..\src\Grain.hpp" />
+    <ClInclude Include="..\src\Math.hpp" />
     <ClInclude Include="..\src\Parameter.hpp" />
     <ClInclude Include="..\src\Pool.hpp" />
     <ClInclude Include="..\src\Controller.hpp" />

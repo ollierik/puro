@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "definitions.hpp"
+#include "Math.hpp"
 #include "Buffer.hpp"
 #include "Parameter.hpp"
 #include "Envelope.hpp"

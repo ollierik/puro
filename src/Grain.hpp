@@ -14,7 +14,7 @@ public:
         , offset(offset)
         , index(lengthInSamples)
     {
-        std::cout << "*** Create grain *** offset: " << offset << std::endl;
+        //std::cout << "*** Create grain *** offset: " << offset << std::endl;
     }
 
     void getNextOutput(FloatType* audioBuffer, FloatType* envelopeBuffer, int numSamples)

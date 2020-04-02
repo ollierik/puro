@@ -5,12 +5,13 @@
 #endif
 
 #ifndef PURO_DEBUG
-    #define PURO_DEBUG 0
+    #define PURO_DEBUG 1
 #endif
 
 // TODO currently works with Windows only
 
 #if PURO_DEBUG && PURO_WINDOWS
+    #include <Windows.h>
     #include <intrin.h> // MSVS breakpoint
     #define passertfalse __debugbreak()
     #define passert(condition, msg) if ((condition)) { std::cout << msg << std::endl; passertfalse; }
@@ -20,8 +21,4 @@
     #define passertfalse ((void)0)
     #define passert(condition, msg) ((void)0)
 #endif
-
-
-
-#define PI 3.14159265358979323846 
  

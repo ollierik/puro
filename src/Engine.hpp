@@ -37,10 +37,7 @@ public:
             //it->addNextOutput(output, n);
             it->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), N);
 
-            for (int i=0; i<N; ++i)
-            {
-                output[i] += audioBuffer[i] * envelopeBuffer[i];
-            }
+            Math::multiplyAdd(output, audioBuffer.data(), envelopeBuffer.data(), N);
 
             if (it->hasTerminated())
                 pool.remove(it);
@@ -98,10 +95,7 @@ public:
         {
             it->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), numSamples);
 
-            for (int i=0; i<numSamples; ++i)
-            {
-                output[i] += audioBuffer[i] * envelopeBuffer[i];
-            }
+            Math::multiplyAdd(output, audioBuffer.data(), envelopeBuffer.data(), numSamples);
 
             if (it->hasTerminated())
                 pool.remove(it);

@@ -9,23 +9,30 @@ public:
 
     void tick(int n)
     {
-        // TODO:
-        // refactor into not using a per-sample loop
-
-        int i = 0;
-        while (i<n)
+        int samplesRemaining = n;
+        while (samplesRemaining > 0)
         {
-            if (counter <= 0)
+            counter += samplesRemaining;
+            if (counter > period)
             {
-                createGrain(i);
-                counter = period;
+                samplesRemaining = counter - period;
+                counter = 0;
+
+                const int offset = n - samplesRemaining;
+                // if we can't create a new grain, stop trying to add grains and exit loop
+                if (!createGrain(offset))
+                {
+                    break;
+                }
             }
-            ++i;
-            --counter;
+            else
+            {
+                break;
+            }
         }
     }
 
-    void createGrain(int offset)
+    bool createGrain(int offset)
     {
         GrainType* g = allocationCallback();
         if (g != nullptr)
@@ -35,11 +42,12 @@ public:
                 //std::move(AudioSourceType()),
                 std::move(audioSourceFactoryCallback()),
                 std::move(EnvelopeType(grainLength)));
+
+            return true;
         }
-        else
-        {
-            std::cout << "Couldn't create a new grain\n";
-        }
+
+        //std::cout << "Couldn't create a new grain\n";
+        return false;
     }
 
     void bindAllocation(std::function<GrainType* ()> callback)

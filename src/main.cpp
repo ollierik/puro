@@ -30,7 +30,8 @@ int main()
     std::vector<float> fileBuffer(1024, 0.0f);
     for (auto& f : fileBuffer)
     {
-        f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
+        //f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
+        f = 1.0f;
     }
 
     std::function<AudioSource&&()> audioSourceFactory = [&fileBuffer]()

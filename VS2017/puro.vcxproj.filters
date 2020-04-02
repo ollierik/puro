@@ -46,6 +46,9 @@
     <ClInclude Include="..\src\Buffer.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Math.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">

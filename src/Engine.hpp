@@ -74,7 +74,7 @@ public:
     */
     void reserveBufferSize(int size)
     {
-        std::cout << "Resize buffers" << std::endl;
+        //std::cout << "Resize buffers" << std::endl;
         audioBuffer.resize(blockSize);
         envelopeBuffer.resize(blockSize);
     }

@@ -4,7 +4,7 @@ template <class GrainType, class AudioSourceType, class EnvelopeType>
 class ControllerTemplate
 {
 public:
-    ControllerTemplate() : period(20), counter(0)
+    ControllerTemplate() : period(100), counter(0)
     {}
 
     void tick(int n)
@@ -65,5 +65,5 @@ public:
 
     const int period;
     int counter;
-    const int grainLength = 10;
+    const int grainLength = 1000;
 };

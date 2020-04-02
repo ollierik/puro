@@ -17,21 +17,14 @@ public:
     {
     }
 
-    void end()
+    double end()
     {
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count();
 
-        if (duration <= 0)
-        {
-            auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+        return (double)duration;
 
-            std::cout << "Timeit stopped, duration: " << duration << " (ns)" << std::endl;
-        }
-        else
-        {
-            std::cout << "Timeit stopped, duration: " << duration << " (ms)" << std::endl;
-        }
+        //std::cout << "Timeit stopped, duration: " << duration << " (ns)" << std::endl;
     }
 
 private:
@@ -40,7 +33,9 @@ private:
 
 
 
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 2048
+#define N_BLOCKS 262144 / BLOCK_SIZE
+#define POOL_SIZE 1024
 
 void fixed_benchmark(std::vector<float>& output, std::vector<float>& fileBuffer)
 {
@@ -50,13 +45,14 @@ void fixed_benchmark(std::vector<float>& output, std::vector<float>& fileBuffer)
     using AudioSource = AudioBufferSource<float>;
 
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
-    using Pool = FixedPool<Grain, 1000>;
+    using Pool = FixedPool<Grain, POOL_SIZE>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
     using Engine = EngineTemplate<float, BlockSizeParameter, Grain, Pool, Controller>;
 
-    std::function<AudioSource&&()> audioSourceFactory = [&fileBuffer]()
+    std::function<AudioSource()> audioSourceFactory = [&fileBuffer]()
     {
-        return std::move(AudioSource(fileBuffer, 0));
+        AudioSource as = AudioSource(fileBuffer, 0);
+        return as;
     };
 
     BlockSizeParameter blockSize;
@@ -66,9 +62,9 @@ void fixed_benchmark(std::vector<float>& output, std::vector<float>& fileBuffer)
 
     Engine engine(blockSize, controller);
 
-    for (int i=0; i<output.size(); i+=blockSize)
+    for (int i=0; i<N_BLOCKS; i++)
     {
-        engine.tick(&output[i], blockSize);
+        engine.tick(&output[0], blockSize);
     }
 }
 
@@ -81,14 +77,13 @@ void dynamic_benchmark(std::vector<float>& output, std::vector<float>& fileBuffe
     using AudioSource = AudioBufferSource<float>;
 
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
-    using Pool = DynamicPool<Grain, 1000>;
+    using Pool = DynamicPool<Grain, POOL_SIZE>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
     using Engine = EngineTemplate<float, BlockSizeParameter, Grain, Pool, Controller>;
 
     std::function<AudioSource()> audioSourceFactory = [&fileBuffer]()
     {
-        std::cout << "create audio source" << std::endl;
-        AudioSource as (fileBuffer, 0);
+        AudioSource as = AudioSource(fileBuffer, 0);
         return as;
     };
 
@@ -100,9 +95,9 @@ void dynamic_benchmark(std::vector<float>& output, std::vector<float>& fileBuffe
     Engine engine(blockSize, controller);
     engine.reserveBufferSize(BLOCK_SIZE);
 
-    for (int i=0; i<output.size(); i+=blockSize)
+    for (int i=0; i<N_BLOCKS; i++)
     {
-        engine.tick(&output[i], blockSize);
+        engine.tick(&output[0], blockSize);
     }
 
 }
@@ -110,49 +105,61 @@ void dynamic_benchmark(std::vector<float>& output, std::vector<float>& fileBuffe
 int main()
 {
     const int samplerate = 44100;
-    const int n = samplerate*10;
 
-    std::vector<float> fileBuffer(1024, 0.0f);
-    for (auto& f : fileBuffer)
+    std::vector<float> fileBuffer(44100, 0.0f);
+    std::vector<float> output (BLOCK_SIZE, 0.0f);
+
+    double fixedDur = 1e30;
+    double dynamicDur = 1e30;
+
+    for (int iter = 0; iter < 10; iter++)
     {
-        f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
-    }
-
-    std::vector<float> output (n, 0.0f);
-
-    for (int iter = 0; iter < 5; iter++)
-    {
+        for (auto& f : fileBuffer)
+        {
+            f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
+        }
+        std::cout << std::endl << iter << " ";
         // FIXED
         {
-            std::cout << "\nFIXED:\n";
+            //std::cout << "\nFIXED:\n";
             TimeIt tm;
             fixed_benchmark(output, fileBuffer);
-            tm.end();
+            fixedDur = std::min<double>(tm.end(), fixedDur);
 
             float sum = 0;
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < BLOCK_SIZE; i++)
             {
                 sum += output[i];
             }
-            std::cout << "    dummy: " << sum << std::endl;
+            std::cout << "(" << sum << ") ";
         }
 
-        std::cout << "asd\n";
+        for (auto& f : output)
+            f = 0;
 
         // DYNAMIC
         {
-            std::cout << "\nDYNAMIC\n";
+            //std::cout << "\nDYNAMIC\n";
             TimeIt tm;
             dynamic_benchmark(output, fileBuffer);
-            tm.end();
+
+            dynamicDur = std::min<double>(tm.end(), dynamicDur);
+
             float sum = 0;
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < BLOCK_SIZE; i++)
             {
                 sum += output[i];
             }
-            std::cout << "    dummy: " << sum << std::endl;
+            std::cout << "(" << sum << ") ";
         }
+
+        for (auto& f : output)
+            f = 0;
     }
+
+    std::cout << "\nBlock size: " << BLOCK_SIZE << std::endl;
+    std::cout << "Fixed: " << fixedDur << std::endl;
+    std::cout << "Dynamic: " << dynamicDur << std::endl;
 
     return 0;
 }

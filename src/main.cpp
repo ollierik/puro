@@ -33,9 +33,9 @@ private:
 
 
 
-#define BLOCK_SIZE 2048
-#define N_BLOCKS 262144 / BLOCK_SIZE
-#define POOL_SIZE 1024
+#define BLOCK_SIZE 64
+#define N_BLOCKS 6890
+#define POOL_SIZE 8192
 
 void fixed_benchmark(std::vector<float>& output, std::vector<float>& fileBuffer)
 {
@@ -112,8 +112,13 @@ int main()
     double fixedDur = 1e30;
     double dynamicDur = 1e30;
 
-    for (int iter = 0; iter < 10; iter++)
+    for (int iter = 0; iter < 5; iter++)
     {
+        for (auto& f : fileBuffer)
+        {
+            f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
+        }
+#if 0
         for (auto& f : fileBuffer)
         {
             f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
@@ -136,6 +141,7 @@ int main()
 
         for (auto& f : output)
             f = 0;
+#endif
 
         // DYNAMIC
         {
@@ -158,7 +164,7 @@ int main()
     }
 
     std::cout << "\nBlock size: " << BLOCK_SIZE << std::endl;
-    std::cout << "Fixed: " << fixedDur << std::endl;
+    //std::cout << "Fixed: " << fixedDur << std::endl;
     std::cout << "Dynamic: " << dynamicDur << std::endl;
 
     return 0;

@@ -21,6 +21,6 @@ public:
 
 private:
 
-    int interval = 20;
-    int duration = 10;
+    int interval = 128;
+    int duration = 128;
 };

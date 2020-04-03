@@ -23,4 +23,12 @@ struct Math
         for (int i=0; i<n; ++i)
             buf[i] = std::sin(buf[i]);
     }
+
+    /** In-place cos */
+    template <typename FloatType>
+    static void cos(FloatType* buf, const int n)
+    {
+        for (int i=0; i<n; ++i)
+            buf[i] = std::cos(buf[i]);
+    }
 };

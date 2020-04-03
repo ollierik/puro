@@ -1,23 +1,20 @@
 #include "PuroHeader.h"
 
 // TODO
-// - Mechanism for changing audio file buffer on-the-fly
-//      - Is this needed, tho?
-// - Audio file reader and utility class
-// - Parameters for controller randomness
-// - Multichannel via Buffer
-// - BlockSizeParam to its own type? Should represent channel config as well
+// - Multichannel
+//      - Envelope max channels?
+// - Random deviation parameters 
 
 int main()
 {
-    const int n = 512;
+    const int n = 512 * 8;
     std::vector<float> output (n, 0.0f);
 
     {
-        using Envelope = EnvelopeTemplate<float>;
+        using Envelope = HannEnvelope<float>;
         //using AudioSource = AudioBufferSource<float>;
 
-        using AudioSource = NoiseSource<float>;
+        using AudioSource = ConstSource<float, 1>;
 
         using Grain = GrainTemplate<float, AudioSource, Envelope>;
         using Pool = FixedPool<Grain, 4>;
@@ -44,9 +41,8 @@ int main()
         const int blockSize = 64;
 
         Engine engine(controller);
-        //engine.reserveBufferSize(blockSize);
 
-        for (int i = 0; i < output.size() - 2*blockSize; i += blockSize)
+        for (int i = 0; i < output.size() - blockSize; i += blockSize)
         {
             engine.tick(&output[i], blockSize);
         }

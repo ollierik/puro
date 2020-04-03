@@ -73,6 +73,7 @@ private:
     /** Returns false if no new grains can be allocated */
     bool createGrain(int offset, int blockSize, FloatType* output)
     {
+        std::cout << "Create Grain\n";
         GrainType* g = pool.allocate();
         if (g != nullptr)
         {
@@ -80,7 +81,7 @@ private:
 
             // run grain manually for the first block
             // grain depletion is checked with the next block normally
-            g->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), blockSize);
+            g->getNextOutput(&audioBuffer[0], &envelopeBuffer[0], blockSize);
             Math::multiplyAdd(output, &audioBuffer[0], &envelopeBuffer[0], blockSize);
 
             return true;
@@ -94,7 +95,7 @@ private:
     std::vector<FloatType> audioBuffer;
     std::vector<FloatType> envelopeBuffer;
 
-    int counter;
+    int counter = 256;
 };
 
 

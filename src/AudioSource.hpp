@@ -1,5 +1,20 @@
 #pragma once
 
+template <typename FloatType, int C>
+class ConstSource
+{
+public:
+    int getNextOutput(FloatType* vec, int numSamples)
+    {
+        for (int i=0; i<numSamples; i++)
+        {
+            vec[i] = static_cast<FloatType> (C);
+        }
+
+        return numSamples;
+    }
+};
+
 template <typename FloatType>
 class NoiseSource
 {

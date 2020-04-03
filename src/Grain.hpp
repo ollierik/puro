@@ -32,6 +32,7 @@ public:
         // clear the beginning of the block if needed
         for (int i=0; i<offset; ++i)
         {
+            passert(i<0 || i>=64, "Found it 1");
             audioBuffer[i] = 0;
             envelopeBuffer[i] = 0;
         }
@@ -46,6 +47,7 @@ public:
             // clear the tail
             for (int i=indexLast; i < indexFirst + numSamplesFromSource; ++i)
             {
+                passert(i<0 || i>=64, "Found it 2");
                 audioBuffer[i] = 0;
                 envelopeBuffer[i] = 0;
             }
@@ -57,6 +59,7 @@ public:
         // clear the tail if needed
         for (int i=indexLast; i < numSamples; ++i)
         {
+            passert(i<0 || i>=64, "Found it 3");
             audioBuffer[i] = 0;
             envelopeBuffer[i] = 0;
         }

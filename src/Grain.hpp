@@ -62,7 +62,7 @@ public:
         offset = 0;
     }
 
-    bool hasTerminated()
+    bool depleted()
     {
         return (index <= 0);
     }

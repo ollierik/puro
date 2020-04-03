@@ -14,8 +14,8 @@ int main()
     std::vector<float> output (n, 0.0f);
 
     using Envelope = EnvelopeTemplate<float>;
-
-    using AudioSource = AudioBufferSource<float>;
+    //using AudioSource = AudioBufferSource<float>;
+    using AudioSource = NoiseSource<float>;
 
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Pool = FixedPool<Grain, 4>;
@@ -23,23 +23,22 @@ int main()
     using Engine = EngineTemplate<float, Grain, Pool, Controller>;
 
 
+    Controller controller;
+
+    /*
     std::vector<float> fileBuffer(1024, 0.0f);
     for (auto& f : fileBuffer)
     {
         //f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
         f = 1.0f;
     }
-
-    std::function<AudioSource()> audioSourceFactory = [&fileBuffer]()
+    controller.audioSourceFactoryCallback = [&fileBuffer]()
     {
         std::cout << "create audio source" << std::endl;
         AudioSource as (fileBuffer, 0);
         return as;
     };
-
-    Controller controller;
-
-    controller.bindAudioSourceFactory(audioSourceFactory);
+    */
 
     Engine engine(controller);
 

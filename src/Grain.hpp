@@ -19,6 +19,9 @@ public:
 
     void getNextOutput(FloatType* audioBuffer, FloatType* envelopeBuffer, int numSamples)
     {
+        if (depleted())
+            return;
+
         // TODO:
         // Refactor to clean up
         // Refactor to use SIMD wrapper?

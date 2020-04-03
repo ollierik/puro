@@ -14,7 +14,7 @@ public:
     */
     void reserveBufferSize(int size)
     {
-        std::cout << "Resize buffers" << std::endl;
+        std::cout << "Engine: resize buffers to " << size << std::endl;
         audioBuffer.resize(size);
         envelopeBuffer.resize(size);
     }
@@ -29,15 +29,14 @@ public:
         // grain operations
         for (auto& it : pool)
         {
-            it->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), blockSize);
-
-            Math::multiplyAdd(output, audioBuffer.data(), envelopeBuffer.data(), blockSize);
+            it->getNextOutput(&audioBuffer[0], &envelopeBuffer[0], blockSize);
+            Math::multiplyAdd(output, &audioBuffer[0], &envelopeBuffer[0], blockSize);
 
             if (it->depleted())
                 pool.remove(it);
         }
 
-        schedule(blockSize);
+        schedule(blockSize, output);
     }
 
     PoolType& getPool() { return pool; }
@@ -45,7 +44,7 @@ public:
 private:
 
     /** Called from tick, separated for convenience */
-    void schedule(int blockSize)
+    void schedule(int blockSize, FloatType* output)
     {
         int samplesRemaining = blockSize;
         while (samplesRemaining > 0)
@@ -63,8 +62,8 @@ private:
 
             const int offset = blockSize - samplesRemaining;
 
-            // if we can't create a new grain, stop trying and exit loop
-            if (! createGrain(offset, blockSize))
+            // if we can't create a new grain/, stop trying and exit loop
+            if (! createGrain(offset, blockSize, output))
             {
                 break;
             }
@@ -72,16 +71,17 @@ private:
     }
 
     /** Returns false if no new grains can be allocated */
-    bool createGrain(int offset, int blockSize)
+    bool createGrain(int offset, int blockSize, FloatType* output)
     {
         GrainType* g = pool.allocate();
         if (g != nullptr)
         {
-            //controller.createGrain(g, offset);
+            controller.createGrain(g, offset);
 
             // run grain manually for the first block
             // grain depletion is checked with the next block normally
-            //g->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), blockSize);
+            g->getNextOutput(audioBuffer.data(), envelopeBuffer.data(), blockSize);
+            Math::multiplyAdd(output, &audioBuffer[0], &envelopeBuffer[0], blockSize);
 
             return true;
         }

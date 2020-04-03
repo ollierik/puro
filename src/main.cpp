@@ -10,43 +10,46 @@
 
 int main()
 {
-    const int n = 512*2;
+    const int n = 512;
     std::vector<float> output (n, 0.0f);
 
-    using Envelope = EnvelopeTemplate<float>;
-    //using AudioSource = AudioBufferSource<float>;
-    using AudioSource = NoiseSource<float>;
-
-    using Grain = GrainTemplate<float, AudioSource, Envelope>;
-    using Pool = FixedPool<Grain, 4>;
-    using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
-    using Engine = EngineTemplate<float, Grain, Pool, Controller>;
-
-
-    Controller controller;
-
-    /*
-    std::vector<float> fileBuffer(1024, 0.0f);
-    for (auto& f : fileBuffer)
     {
-        //f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
-        f = 1.0f;
-    }
-    controller.audioSourceFactoryCallback = [&fileBuffer]()
-    {
-        std::cout << "create audio source" << std::endl;
-        AudioSource as (fileBuffer, 0);
-        return as;
-    };
-    */
+        using Envelope = EnvelopeTemplate<float>;
+        //using AudioSource = AudioBufferSource<float>;
 
-    Engine engine(controller);
+        using AudioSource = NoiseSource<float>;
 
-    const int blockSize = 64;
+        using Grain = GrainTemplate<float, AudioSource, Envelope>;
+        using Pool = FixedPool<Grain, 4>;
+        using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
+        using Engine = EngineTemplate<float, Grain, Pool, Controller>;
 
-    for (int i=0; i<n; i+=blockSize)
-    {
-        engine.tick(&output[i], blockSize);
+        Controller controller;
+
+        /*
+        std::vector<float> fileBuffer(1024, 0.0f);
+        for (auto& f : fileBuffer)
+        {
+            //f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
+            f = 1.0f;
+        }
+        controller.audioSourceFactoryCallback = [&fileBuffer]()
+        {
+            std::cout << "create audio source" << std::endl;
+            AudioSource as (fileBuffer, 0);
+            return as;
+        };
+        */
+
+        const int blockSize = 64;
+
+        Engine engine(controller);
+        //engine.reserveBufferSize(blockSize);
+
+        for (int i = 0; i < output.size() - 2*blockSize; i += blockSize)
+        {
+            engine.tick(&output[i], blockSize);
+        }
     }
 
     std::cout << "\n    OUTPUT\n----------\n";

@@ -12,7 +12,7 @@ struct Math
     template <typename FloatType>
     static void multiplyAdd(FloatType* dst, FloatType* src1, FloatType* src2, const int n)
     {
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; ++i)
             dst[i] += src1[i] * src2[i];
     };
 

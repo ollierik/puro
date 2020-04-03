@@ -48,7 +48,8 @@ public:
 
     ElementType* allocate()
     {
-        if (numInUse != Capacity)
+        const auto cap = Capacity;
+        if (numInUse < cap)
         {
             // get first free position
             ElementType* mem = mapping[numInUse++];
@@ -163,7 +164,10 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 
-    ElementType* allocate() { return elements.allocate(); }
+    ElementType* allocate()
+    {
+        return elements.allocate();
+    }
 
     void remove(Iterator<ElementType, PoolSize>& iterator)
     {

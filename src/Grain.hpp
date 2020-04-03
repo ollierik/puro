@@ -12,19 +12,47 @@ public:
         : audioSource(audioSource)
         , envelope(envelope)
         , offset(offset)
-        , index(lengthInSamples)
+        , remaining(lengthInSamples)
     {
         //std::cout << "*** Create grain *** offset: " << offset << std::endl;
     }
 
-    void getNextOutput(FloatType* audioBuffer, FloatType* envelopeBuffer, int numSamples)
+    void getNextOutput(Buffer<FloatType>& audio, Buffer<FloatType>& envelope, const int numSamples)
     {
+        if (depleted())
+            return;
+        
+        // clear before offset
+        audio.setAllChannelsTo(0, 0, offset);
+
+        int i0 = offset;
+        int i1 = numSamples;
+
+        if (remaining < (i1 - i0))
+        {
+            i1 = i0 + remaining;
+        }
+
+        const int nSource = audioSource.getNextOutput(audio, i0, i1 - i0);
+        envelope.getNextOutput(envelope, i0, i1 - i0);
+
+        // audio source depleted
+        if (nSource < i1 - i0)
+        {
+            remaining = 0;
+            i1 = i0 + nSource;
+        }
+
+        // clear the tail if needed
+        audio.setAllChannelsTo(0, i1, numSamples - i1);
+
+        offset = 0;
+#if 0
         if (depleted())
             return;
 
         // TODO:
         // Refactor to clean up
-        // Refactor to use SIMD wrapper?
         const int indexFirst = offset;
         const int indexLast = (offset + index > numSamples) ? numSamples : offset + index;
         const int n = indexLast - indexFirst;
@@ -32,7 +60,6 @@ public:
         // clear the beginning of the block if needed
         for (int i=0; i<offset; ++i)
         {
-            passert(i<0 || i>=64, "Found it 1");
             audioBuffer[i] = 0;
             envelopeBuffer[i] = 0;
         }
@@ -47,7 +74,6 @@ public:
             // clear the tail
             for (int i=indexLast; i < indexFirst + numSamplesFromSource; ++i)
             {
-                passert(i<0 || i>=64, "Found it 2");
                 audioBuffer[i] = 0;
                 envelopeBuffer[i] = 0;
             }
@@ -59,23 +85,23 @@ public:
         // clear the tail if needed
         for (int i=indexLast; i < numSamples; ++i)
         {
-            passert(i<0 || i>=64, "Found it 3");
             audioBuffer[i] = 0;
             envelopeBuffer[i] = 0;
         }
         
         index -= (numSamples-offset);
         offset = 0;
+#endif
     }
 
     bool depleted()
     {
-        return (index <= 0);
+        return (remaining <= 0);
     }
 
     void terminate()
     {
-        index = 0;
+        remaining = 0;
     }
 
 private:
@@ -84,5 +110,5 @@ private:
     EnvelopeType envelope;
     
     int offset;
-    int index;
+    int remaining;
 };

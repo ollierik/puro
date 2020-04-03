@@ -41,17 +41,26 @@ public:
     {
     }
 
-    void getNextOutput(FloatType* vec, int numSamples)
+    void getNextOutput(Buffer<FloatType>& envelope, int startIndex, int numSamples)
     {
-        for (int i = 0; i < numSamples; ++i)
+        for (int i = startIndex; i < numSamples; ++i)
         {
-
             const FloatType y = position * 2 * Math::pi<FloatType>();
-            vec[i] =  (1-y)/2;
+            envelope[i] = (1 - y) / 2;
             position += increment;
         }
 
-        Math::cos(vec, numSamples);
+        // calculate
+        Math::cos(envelope.getPtr(0, startIndex), numSamples);
+
+        // copy to other channels
+        for (int ch = 1; ch < envelope.numChannels; ++ch)
+        {
+            FloatType* dst = envelope.getPtr(ch, startIndex);
+            const FloatType* src = envelope.getPtr(0, startIndex);
+            Math::multiplySet(dst, src, numSamples);
+        }
+
     }
 
 private:

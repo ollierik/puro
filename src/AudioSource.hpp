@@ -4,11 +4,11 @@ template <typename FloatType, int C>
 class ConstSource
 {
 public:
-    int getNextOutput(FloatType* vec, int numSamples)
+    int getNextOutput(Buffer<FloatType>& audio, int startIndex, int numSamples)
     {
-        for (int i=0; i<numSamples; i++)
+        for (int ch=0; ch < audio.numChannels; ++ch)
         {
-            vec[i] = static_cast<FloatType> (C);
+            Math::set(audio.getPtr(ch, startIndex), numSamples, C);
         }
 
         return numSamples;

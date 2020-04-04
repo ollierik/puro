@@ -4,16 +4,23 @@ template <typename FloatType, int C>
 class ConstSource
 {
 public:
-    int getNextOutput(Buffer<FloatType>& audio, int startIndex, int numSamples)
+    int getNextOutput(Buffer<FloatType> audio)
     {
         for (int ch=0; ch < audio.numChannels; ++ch)
         {
-            Math::set(audio.getPtr(ch, startIndex), numSamples, C);
+            FloatType* dst = audio.channels[ch];
+
+            for (int i=0; i<audio.numSamples; ++i)
+            {
+                dst[i] = C * (ch + 1)*0.5;
+            }
         }
 
-        return numSamples;
+        return audio.numSamples;
     }
 };
+
+#if 0
 
 template <typename FloatType>
 class NoiseSource
@@ -72,3 +79,5 @@ private:
     int index;
     std::vector<FloatType>& buffer;
 };
+
+#endif

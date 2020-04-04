@@ -1,97 +1,87 @@
 #pragma once
 
+template <typename FloatType, class GrainType>
+class OffsetWrapper
+{
+public:
+    OffsetWrapper(int offset, GrainType grain) 
+        : offset(offset), grain(grain)
+    {
+    }
+
+    void addNextOutput(Buffer<FloatType>& audio)
+    {
+        const int n = audio.numSamples;
+
+        // no operations needed for this block
+        if (offset >= n)
+        {
+            offset -= n;
+            return;
+        }
+
+        // full audio needed for this block
+        if (offset == 0)
+        {
+            grain.addNextOutput(audio);
+            return;
+        }
+
+        // partial audio needed for this block
+        Buffer<FloatType> clipped = audio.clip(offset, n - offset);
+        grain.addNextOutput(clipped);
+        offset = 0;
+    }
+
+    GrainType* get() { return &grain; };
+
+private:
+    GrainType grain;
+    int offset = 0;
+};
+
+
+
 template <class FloatType, class AudioSourceType, class EnvelopeType>
 class GrainTemplate
 {
 public:
 
-    GrainTemplate(int offset,
-                  int lengthInSamples,
+    GrainTemplate(int lengthInSamples,
                   AudioSourceType audioSource,
                   EnvelopeType envelope)
         : audioSource(audioSource)
         , envelope(envelope)
-        , offset(offset)
         , remaining(lengthInSamples)
     {
-        //std::cout << "*** Create grain *** offset: " << offset << std::endl;
     }
 
-    void getNextOutput(Buffer<FloatType>& audio, Buffer<FloatType>& envelope, const int numSamples)
+    void addNextOutput(Buffer<FloatType>& audio)
     {
         if (depleted())
             return;
-        
-        // clear before offset
-        audio.setAllChannelsTo(0, 0, offset);
 
-        int i0 = offset;
-        int i1 = numSamples;
+        int n = audio.numSamples;
 
-        if (remaining < (i1 - i0))
+        if (remaining < n)
         {
-            i1 = i0 + remaining;
+            n = remaining;
+            remaining = 0;
+        }
+        else
+        {
+            remaining -= n;
         }
 
-        const int nSource = audioSource.getNextOutput(audio, i0, i1 - i0);
-        envelope.getNextOutput(envelope, i0, i1 - i0);
+        const int nSource = audioSource.getNextOutput(audio.clip(0, n));
+
+        //envelope.getNextOutput(envelope, i0, i1 - i0);
 
         // audio source depleted
-        if (nSource < i1 - i0)
+        if (nSource < n)
         {
             remaining = 0;
-            i1 = i0 + nSource;
         }
-
-        // clear the tail if needed
-        audio.setAllChannelsTo(0, i1, numSamples - i1);
-
-        offset = 0;
-#if 0
-        if (depleted())
-            return;
-
-        // TODO:
-        // Refactor to clean up
-        const int indexFirst = offset;
-        const int indexLast = (offset + index > numSamples) ? numSamples : offset + index;
-        const int n = indexLast - indexFirst;
-
-        // clear the beginning of the block if needed
-        for (int i=0; i<offset; ++i)
-        {
-            audioBuffer[i] = 0;
-            envelopeBuffer[i] = 0;
-        }
-
-        // get the relevant content from envelope and audiosource
-        const int numSamplesFromSource = audioSource.getNextOutput(&audioBuffer[offset], n);
-        envelope.getNextOutput(&envelopeBuffer[offset], n);
-
-        // audio buffer ended or changed
-        if (numSamplesFromSource != n)
-        {
-            // clear the tail
-            for (int i=indexLast; i < indexFirst + numSamplesFromSource; ++i)
-            {
-                audioBuffer[i] = 0;
-                envelopeBuffer[i] = 0;
-            }
-
-            index = 0;
-            return;
-        }
-
-        // clear the tail if needed
-        for (int i=indexLast; i < numSamples; ++i)
-        {
-            audioBuffer[i] = 0;
-            envelopeBuffer[i] = 0;
-        }
-        
-        index -= (numSamples-offset);
-        offset = 0;
-#endif
     }
 
     bool depleted()
@@ -109,6 +99,5 @@ private:
     AudioSourceType audioSource;
     EnvelopeType envelope;
     
-    int offset;
     int remaining;
 };

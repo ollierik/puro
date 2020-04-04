@@ -7,52 +7,41 @@
 
 int main()
 {
-    const int n = 512 * 8;
-    std::vector<float> output (n, 0.0f);
+    const int n = 256;
+    const int blockSize = 32;
+    const int numChannels = 2;
 
+    std::vector<float> left (n, 0.0f);
+    std::vector<float> right (n, 0.0f);
+
+    using Envelope = HannEnvelope<float>;
+    using AudioSource = ConstSource<float, 1>;
+
+    using Grain = GrainTemplate<float, AudioSource, Envelope>;
+    using Wrapper = OffsetWrapper<float, Grain>;
+    using Pool = FixedPool<Wrapper, 4>;
+
+    using Engine = EngineTemplate<float, Grain, Pool, Wrapper>;
+    using Controller = ControllerTemplate<Grain, AudioSource, Envelope, Engine>;
+
+    Engine engine;
+    Controller controller (engine);
+
+
+    for (int i = 0; i < n - blockSize; i += blockSize)
     {
-        using Envelope = HannEnvelope<float>;
-        //using AudioSource = AudioBufferSource<float>;
+        Buffer<float> buffer ( { &left[i], &right[i] }, numChannels, blockSize);
 
-        using AudioSource = ConstSource<float, 1>;
-
-        using Grain = GrainTemplate<float, AudioSource, Envelope>;
-        using Pool = FixedPool<Grain, 4>;
-        using Controller = ControllerTemplate<Grain, AudioSource, Envelope>;
-        using Engine = EngineTemplate<float, Grain, Pool, Controller>;
-
-        Controller controller;
-
-        /*
-        std::vector<float> fileBuffer(1024, 0.0f);
-        for (auto& f : fileBuffer)
-        {
-            //f = ((float)std::rand() / (float)RAND_MAX) * 2 - 1;
-            f = 1.0f;
-        }
-        controller.audioSourceFactoryCallback = [&fileBuffer]()
-        {
-            std::cout << "create audio source" << std::endl;
-            AudioSource as (fileBuffer, 0);
-            return as;
-        };
-        */
-
-        const int blockSize = 64;
-
-        Engine engine(controller);
-
-        for (int i = 0; i < output.size() - blockSize; i += blockSize)
-        {
-            engine.tick(&output[i], blockSize);
-        }
+        controller.advance(blockSize);
+        engine.addNextOutput(buffer);
     }
+
 
     std::cout << "\n    OUTPUT\n----------\n";
 
     for (int i=0; i<n; i++)
     {
-        std::cout << i << ": " << output[i] << std::endl;
+        std::cout << i << ":\t" << left[i] << "\t" << right[i] << std::endl;
     }
 
     return 0;

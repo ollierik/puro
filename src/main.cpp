@@ -14,14 +14,15 @@ int main()
     std::vector<float> left (n, 0.0f);
     std::vector<float> right (n, 0.0f);
 
-    using Envelope = HannEnvelope<float>;
-    using AudioSource = ConstSource<float, 1>;
+    using Envelope = ConstSource<float>;
+    using AudioSource = ConstSource<float>;
 
-    using Grain = GrainTemplate<float, AudioSource, Envelope>;
-    using Wrapper = OffsetWrapper<float, Grain>;
-    using Pool = DynamicPool<Grain, 4>;
+    using Context = GrainContext<float>;
+    using Grain = GrainTemplate<float, Context, AudioSource, Envelope>;
+    using Wrapper = OffsetWrapper<float, Grain, Context>;
+    using Pool = DynamicPool<Wrapper, 4>;
 
-    using Engine = EngineTemplate<float, Grain, Pool, Wrapper>;
+    using Engine = EngineTemplate<float, Grain, Pool, Wrapper, Context>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope, Engine>;
 
     Engine engine;

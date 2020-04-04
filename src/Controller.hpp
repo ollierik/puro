@@ -40,7 +40,7 @@ public:
 
     bool createGrain(int offset)
     {
-        GrainType* g = engine.addGrain(offset, duration, AudioSourceType(), EnvelopeType(duration));
+        GrainType* g = engine.addGrain(offset, duration, AudioSourceType(), EnvelopeType());
         return g == nullptr;
     }
 
@@ -49,6 +49,6 @@ private:
     EngineType& engine;
 
     int interval = 20;
-    int duration = 30;
+    int duration = 10;
     int counter;
 };

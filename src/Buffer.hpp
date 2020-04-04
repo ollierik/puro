@@ -25,6 +25,8 @@ struct Buffer
     Buffer<FloatType> (Buffer<FloatType>& other, std::vector<FloatType>& vector)
         : numChannels(other.numChannels), numSamples(other.numSamples)
     {
+        stopif(other.numChannels > 2, "TODO fix this");
+
         // resize if needed
         if (vector.size() < numSamples * numChannels)
         {
@@ -32,18 +34,24 @@ struct Buffer
         }
 
         for (int ch=0; ch<numChannels; ++ch)
-            buffer.channels[ch] = &vector[ch * numSamples];
-
-        return buffer;
+            channels[ch] = &vector[ch * numSamples];
     }
 
-    Buffer<FloatType>& clip(int offset, int n)
+    void trimBegin(int offset)
     {
-        Buffer clipped(numChannels, n);
-        for (int ch=0; ch<numChannels; ++ch)
-            clipped.channels[ch] = &channels[ch][offset];
+        stopif(offset < 0 || offset > numSamples, "offset out of bounds");
 
-        return clipped;
+        numSamples -= offset;
+
+        for (int ch=0; ch<numChannels; ++ch)
+            channels[ch] = &channels[ch][offset];
+    }
+
+    void trimLength(int newLength)
+    {
+        stopif(newLength < 0 || newLength > numSamples, "new length out of bounds");
+
+        numSamples = newLength;
     }
 
 
@@ -94,7 +102,7 @@ struct Buffer
 #endif
 };
 
-class SourceOperations
+struct SourceOperations
 {
     enum class Type { replace, add };
 
@@ -109,13 +117,12 @@ class SourceOperations
     {
         stopif(dst.numChannels != src1.numChannels, "Number of channels doesn't match");
         stopif(dst.numChannels != src2.numChannels, "Number of channels doesn't match");
+        stopif(dst.numSamples != src1.numSamples, "Number of samples doesn't match");
+        stopif(dst.numSamples != src2.numSamples, "Number of samples doesn't match");
 
-        // pick the smallest n
-        int n = std::min(std::min(dst.numSamples, src1.numSamples), src2.numSamples);
-
-        for (int ch=0; ch<dst.numChannels; ++c)
+        for (int ch=0; ch<dst.numChannels; ++ch)
         {
-            Math::multiplyAdd(dst.channels[ch], src1.numChannels[ch], src2.numChannels[ch]);
+            Math::multiplyAdd(dst.channels[ch], src1.channels[ch], src2.channels[ch], dst.numSamples);
         }
     }
 };

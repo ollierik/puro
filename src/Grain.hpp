@@ -2,7 +2,7 @@
 
 
 template <typename FloatType>
-class GrainContext
+struct GrainContext
 {
     std::vector<FloatType> tempAudioBuffer;
     std::vector<FloatType> tempEnvelopeBuffer;
@@ -14,12 +14,10 @@ class GrainTemplate
 {
 public:
 
-    GrainTemplate(int lengthInSamples,
-                  AudioSourceType audioSource,
+    GrainTemplate(AudioSourceType audioSource,
                   EnvelopeType envelope)
         : audioSource(audioSource)
-        , envelope(envelope)
-        , remaining(lengthInSamples)
+        , envelopeSource(envelope)
     {
     }
 
@@ -64,20 +62,8 @@ public:
     }
 #endif
 
-    bool depleted()
-    {
-        return (remaining <= 0);
-    }
-
-    void terminate()
-    {
-        remaining = 0;
-    }
-
 private:
 
     AudioSourceType audioSource;
-    EnvelopeType envelope;
-    
-    int remaining;
+    EnvelopeType envelopeSource;
 };

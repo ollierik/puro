@@ -1,39 +1,52 @@
 #pragma once
 
-template <typename FloatType, class GrainType>
+template <typename FloatType, class GrainType, class ContextType>
 class OffsetWrapper
 {
 public:
-    OffsetWrapper(int offset, GrainType grain) 
-        : offset(offset), grain(grain)
+    OffsetWrapper(int offset, int lengthInSamples, GrainType grain) 
+        : grain(grain)
+        , offset(offset)
+        , remaining(lengthInSamples)
     {
     }
 
-    void addNextOutput(Buffer<FloatType>& audio, Context<FloatType>& context)
+    void addNextOutput(Buffer<FloatType>& buffer, ContextType& context)
     {
-        const int n = audio.numSamples;
+        if (depleted())
+            return;
 
         // no operations needed for this block
-        if (offset >= n)
+        if (offset >= buffer.numSamples)
         {
-            offset -= n;
+            offset -= buffer.numSamples;
             return;
         }
 
-        // full audio needed for this block
-        if (offset == 0)
+        if (offset > 0)
+            buffer.trimBegin(offset);
+
+        // restrict range if grain should terminate this block
+        if (remaining < buffer.numSamples)
+            buffer.trimLength(remaining);
+
+        const int numSamplesRequested = buffer.numSamples;
+        grain.next(buffer, context);
+
+        // if grain changed the numSamples, one of the sources was depleted
+        if (buffer.numSamples != numSamplesRequested)
         {
-            grain.addNextOutput(audio, context);
+            remaining = 0;
             return;
         }
 
-        // partial audio needed for this block
-        Buffer<FloatType> clipped = audio.clip(offset, n - offset);
-        grain.addNextOutput(clipped, context);
+        remaining -= numSamplesRequested;
         offset = 0;
     }
 
     GrainType* get() { return &grain; };
+    bool depleted() { return remaining <= 0; }
+    void terminate() { remaining = 0; }
 
 private:
     GrainType grain;
@@ -42,7 +55,7 @@ private:
 };
 
 
-template <typename FloatType, class GrainType, class PoolType, class WrapperType>
+template <typename FloatType, class GrainType, class PoolType, class WrapperType, class ContextType>
 class EngineTemplate
 {
 public:
@@ -54,20 +67,21 @@ public:
         // grain operations
         for (auto& it : pool)
         {
-            it->addNextOutput(output, context);
+            Buffer<FloatType> range = output;
+            it->addNextOutput(range, context);
 
-            if (it->get()->depleted())
+            if (it->depleted())
                 pool.remove(it);
         }
     }
 
     template <typename... Args>
-    GrainType* addGrain(int offsetFromBlockStart, Args... grainArgs)
+    GrainType* addGrain(int offsetFromBlockStart, int lengthInSamples, Args... grainArgs)
     {
         WrapperType* w = pool.allocate();
         if (w != nullptr)
         {
-            new (w) WrapperType (offsetFromBlockStart, GrainType(grainArgs...));
+            new (w) WrapperType (offsetFromBlockStart, lengthInSamples, GrainType(grainArgs...));
 
             return w->get();
         }
@@ -75,8 +89,8 @@ public:
         return nullptr;
     }
 
-    GrainTemplate<FloatType, ConstSource, HannEnvelope>::Context<FloatType> context;
-    FixedPool<WrapperType, 4> pool;
+    ContextType context;
+    PoolType pool;
 };
 
 

@@ -13,8 +13,8 @@ public:
             
             for (int i=0; i<audio.numSamples; ++i)
             {
-                if (opType == add) dst[i] += 1.0
-                else dst[i] = 1.0
+                if (opType == SourceOperations::Type::add) dst[i] += 1.0;
+                else dst[i] = 1.0;
             }
         }
     }

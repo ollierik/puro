@@ -1,6 +1,19 @@
 #pragma once
 
 template <class FloatType>
+class ConstEnvelope
+{
+public:
+
+    ConstEnvelope()
+    {
+    }
+
+};
+
+
+#if 0
+template <class FloatType>
 class SineEnvelope
 {
 public:
@@ -68,3 +81,4 @@ private:
     const FloatType increment;
     FloatType position;
 };
+#endif

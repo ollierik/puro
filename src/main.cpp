@@ -17,13 +17,14 @@ int main()
     using Envelope = ConstSource<float>;
     using AudioSource = ConstSource<float>;
 
-    using Context = GrainContext<float>;
-    using Grain = GrainTemplate<float, Context, AudioSource, Envelope>;
-    using Wrapper = OffsetWrapper<float, Grain, Context>;
-    using Pool = DynamicPool<Wrapper, 4>;
+    using Context = EnvelopeProcessorContext<float>;
+    using Grain = EnvelopeProcessor<float, Context, AudioSource, Envelope>;
+    using Sound = SoundObject<float, Grain, Context>;
+    using Pool = DynamicPool<Sound, 4>;
 
-    using Engine = EngineTemplate<float, Grain, Pool, Wrapper, Context>;
-    using Controller = ControllerTemplate<Grain, AudioSource, Envelope, Engine>;
+    //using Engine = EngineTemplate<float, Grain, Pool, AudioObj, Context>;
+    using Engine = AudioObjectEngine<float, Sound, Grain, Context, Pool>;
+    using Controller = GranularController<Engine, Sound, AudioSource, Envelope>;
 
     Engine engine;
     Controller controller (engine);

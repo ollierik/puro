@@ -1,17 +1,17 @@
 #pragma once
 
-template <typename FloatType, class GrainType, class ContextType>
-class OffsetWrapper
+template <typename FloatType, class ProcessorType, class ProcessorContextType>
+class SoundObject
 {
 public:
-    OffsetWrapper(int offset, int lengthInSamples, GrainType grain) 
-        : grain(grain)
+    SoundObject(int offset, int lengthInSamples, ProcessorType processor) 
+        : processor(processor)
         , offset(offset)
         , remaining(lengthInSamples)
     {
     }
 
-    void addNextOutput(Buffer<FloatType>& buffer, ContextType& context)
+    void addNextOutput(Buffer<FloatType>& buffer, ProcessorContextType& context)
     {
         if (depleted())
             return;
@@ -31,7 +31,7 @@ public:
             buffer.trimLength(remaining);
 
         const int numSamplesRequested = buffer.numSamples;
-        grain.next(buffer, context);
+        processor.next(buffer, context);
 
         // if grain changed the numSamples, one of the sources was depleted
         if (buffer.numSamples != numSamplesRequested)
@@ -44,22 +44,21 @@ public:
         offset = 0;
     }
 
-    GrainType* get() { return &grain; };
+    ProcessorType* getProcessor() { return &processor; };
     bool depleted() { return remaining <= 0; }
     void terminate() { remaining = 0; }
 
 private:
-    GrainType grain;
+    ProcessorType processor;
     int offset = 0;
     int remaining;
 };
 
-
-template <typename FloatType, class GrainType, class PoolType, class WrapperType, class ContextType>
-class EngineTemplate
+template <typename FloatType, class SoundObjectType, class ProcessorType, class ProcessorContextType, class PoolType>
+class AudioObjectEngine
 {
 public:
-    EngineTemplate() = default;
+    AudioObjectEngine() = default;
 
     void addNextOutput(Buffer<FloatType>& output)
     {
@@ -75,21 +74,21 @@ public:
         }
     }
 
-    template <typename... Args>
-    GrainType* addGrain(int offsetFromBlockStart, int lengthInSamples, Args... grainArgs)
+    template <typename... ProcessorArgs>
+    SoundObjectType* addSound(int offsetFromBlockStart, int lengthInSamples, ProcessorArgs... processorArgs)
     {
-        WrapperType* w = pool.allocate();
-        if (w != nullptr)
+        SoundObjectType* s = pool.allocate();
+        if (s != nullptr)
         {
-            new (w) WrapperType (offsetFromBlockStart, lengthInSamples, GrainType(grainArgs...));
+            new (s) SoundObjectType (offsetFromBlockStart, lengthInSamples, ProcessorType(processorArgs...));
 
-            return w->get();
+            return s;
         }
 
         return nullptr;
     }
 
-    ContextType context;
+    ProcessorContextType context;
     PoolType pool;
 };
 

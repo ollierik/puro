@@ -1,12 +1,12 @@
 #pragma once
 
 /** Controls parameters and creates grains */
-template <class GrainType, class AudioSourceType, class EnvelopeType, class EngineType>
-class ControllerTemplate
+template <class EngineType, class SoundObjectType, class AudioSourceType, class EnvelopeType>
+class GranularController
 {
 public:
 
-    ControllerTemplate(EngineType& e) : engine(e), counter(interval)
+    GranularController(EngineType& e) : engine(e), counter(interval)
     {
     }
 
@@ -40,8 +40,8 @@ public:
 
     bool createGrain(int offset)
     {
-        GrainType* g = engine.addGrain(offset, duration, AudioSourceType(), EnvelopeType());
-        return g == nullptr;
+        SoundObjectType* s = engine.addSound(offset, duration, AudioSourceType(), EnvelopeType());
+        return s  == nullptr;
     }
 
 private:
@@ -49,6 +49,6 @@ private:
     EngineType& engine;
 
     int interval = 20;
-    int duration = 10;
+    int duration = 21;
     int counter;
 };

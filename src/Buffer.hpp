@@ -4,13 +4,40 @@
 template <class FloatType>
 struct Buffer
 {
-    Buffer(FloatType* data, int numChannels, int numSamples)
+    /*
+    Buffer(FloatType** channels, int numChannels, int numSamples)
         : data(data), numChannels(numChannels), numSamples(numSamples)
     {}
+    */
 
-    FloatType* data;
+    Buffer(int numChannels, int numSamples)
+        : numChannels(numChannels), numSamples(numSamples)
+    {}
+
+    Buffer(const std::array<FloatType*, 2>& channels, int numChannels, int numSamples)
+        : channels(channels), numChannels(numChannels), numSamples(numSamples)
+    {
+    }
+
+    std::array<FloatType*, 2> channels; // TODO stereo only for now
+
     const int numChannels;
     const int numSamples;
+
+    int getNumChannels() { return numChannels; };
+    int getNumSamples() { return numSamples; };
+
+    Buffer<FloatType> clip(int offset, int n)
+    {
+        Buffer clipped(numChannels, n);
+        for (int ch=0; ch<numChannels; ++ch)
+            clipped.channels[ch] = &channels[ch][offset];
+
+        return clipped;
+    }
+
+
+#if 0
 
     FloatType& operator[] (int i)
     {
@@ -54,4 +81,5 @@ struct Buffer
             Math::set(getPtr(ch, i0), num, value);
         }
     }
+#endif
 };

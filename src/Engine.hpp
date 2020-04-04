@@ -1,101 +1,41 @@
 #pragma once
 
-/** Primary template, not implemented */
-template <typename FloatType, class GrainType, class PoolType, class ControllerType>
+
+
+template <typename FloatType, class GrainType, class PoolType, class WrapperType>
 class EngineTemplate
 {
 public:
-    EngineTemplate(ControllerType& c) : controller(c)
-    {
-    }
+    EngineTemplate() = default;
 
-    /** Reserves buffer size for internal buffers.
-        Should be called before starting processing with maximum possible input buffer size to avoid allocation during audio loop.
-    */
-    void reserveBufferSize(int size)
+    void addNextOutput(Buffer<FloatType>& output)
     {
-        std::cout << "Engine: resize buffers to " << size << std::endl;
-        audioBuffer.resize(size);
-        envelopeBuffer.resize(size);
-    }
-
-    void tick(FloatType* output, int blockSize)
-    {
-        if (audioBuffer.size() < blockSize)
-        {
-            reserveBufferSize(blockSize);
-        }
 
         // grain operations
         for (auto& it : pool)
         {
-            it->getNextOutput(&audioBuffer[0], &envelopeBuffer[0], blockSize);
-            Math::multiplyAdd(output, &audioBuffer[0], &envelopeBuffer[0], blockSize);
+            it->addNextOutput(output);
 
-            if (it->depleted())
+            if (it->get()->depleted())
                 pool.remove(it);
         }
-
-        schedule(blockSize, output);
     }
 
-    PoolType& getPool() { return pool; }
-
-private:
-
-    /** Called from tick, separated for convenience */
-    void schedule(int blockSize, FloatType* output)
+    template <typename... Args>
+    GrainType* addGrain(int offsetFromBlockStart, Args... grainArgs)
     {
-        int samplesRemaining = blockSize;
-        while (samplesRemaining > 0)
+        WrapperType* w = pool.allocate();
+        if (w != nullptr)
         {
-            counter += samplesRemaining;
+            new (w) WrapperType (offsetFromBlockStart, GrainType(grainArgs...));
 
-            // shouldn't create grain this block
-            if (counter <= controller.getInterval())
-            {
-                break;
-            }
-
-            samplesRemaining = counter - controller.getInterval();
-            counter = 0;
-
-            const int offset = blockSize - samplesRemaining;
-
-            // if we can't create a new grain/, stop trying and exit loop
-            if (! createGrain(offset, blockSize, output))
-            {
-                break;
-            }
+            return w->get();
         }
-    }
 
-    /** Returns false if no new grains can be allocated */
-    bool createGrain(int offset, int blockSize, FloatType* output)
-    {
-        std::cout << "Create Grain\n";
-        GrainType* g = pool.allocate();
-        if (g != nullptr)
-        {
-            controller.createGrain(g, offset);
-
-            // run grain manually for the first block
-            // grain depletion is checked with the next block normally
-            g->getNextOutput(&audioBuffer[0], &envelopeBuffer[0], blockSize);
-            Math::multiplyAdd(output, &audioBuffer[0], &envelopeBuffer[0], blockSize);
-
-            return true;
-        }
-        return false;
+        return nullptr;
     }
 
     PoolType pool;
-    ControllerType& controller;
-
-    std::vector<FloatType> audioBuffer;
-    std::vector<FloatType> envelopeBuffer;
-
-    int counter = 256;
 };
 
 

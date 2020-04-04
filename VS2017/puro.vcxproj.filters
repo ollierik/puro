@@ -28,9 +28,6 @@
     <ClInclude Include="..\src\Pool.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\structs.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\test_stubs.h">
       <Filter>src</Filter>
     </ClInclude>

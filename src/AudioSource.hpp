@@ -1,22 +1,22 @@
 #pragma once
 
-template <typename FloatType, int C>
+template <typename FloatType>
 class ConstSource
 {
 public:
-    int getNextOutput(Buffer<FloatType> audio)
+
+    void next(Buffer<FloatType>& audio, SourceOperations::Type opType)
     {
         for (int ch=0; ch < audio.numChannels; ++ch)
         {
             FloatType* dst = audio.channels[ch];
-
+            
             for (int i=0; i<audio.numSamples; ++i)
             {
-                dst[i] = C * (ch + 1)*0.5;
+                if (opType == add) dst[i] += 1.0
+                else dst[i] = 1.0
             }
         }
-
-        return audio.numSamples;
     }
 };
 

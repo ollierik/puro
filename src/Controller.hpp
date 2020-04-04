@@ -49,6 +49,6 @@ private:
     EngineType& engine;
 
     int interval = 20;
-    int duration = 10;
+    int duration = 30;
     int counter;
 };

@@ -1,48 +1,15 @@
 #pragma once
 
-template <typename FloatType, class GrainType>
-class OffsetWrapper
+
+template <typename FloatType>
+class GrainContext
 {
-public:
-    OffsetWrapper(int offset, GrainType grain) 
-        : offset(offset), grain(grain)
-    {
-    }
-
-    void addNextOutput(Buffer<FloatType>& audio)
-    {
-        const int n = audio.numSamples;
-
-        // no operations needed for this block
-        if (offset >= n)
-        {
-            offset -= n;
-            return;
-        }
-
-        // full audio needed for this block
-        if (offset == 0)
-        {
-            grain.addNextOutput(audio);
-            return;
-        }
-
-        // partial audio needed for this block
-        Buffer<FloatType> clipped = audio.clip(offset, n - offset);
-        grain.addNextOutput(clipped);
-        offset = 0;
-    }
-
-    GrainType* get() { return &grain; };
-
-private:
-    GrainType grain;
-    int offset = 0;
+    std::vector<FloatType> tempAudioBuffer;
+    std::vector<FloatType> tempEnvelopeBuffer;
 };
 
 
-
-template <class FloatType, class AudioSourceType, class EnvelopeType>
+template <class FloatType, class ContextType, class AudioSourceType, class EnvelopeType>
 class GrainTemplate
 {
 public:
@@ -56,7 +23,19 @@ public:
     {
     }
 
-    void addNextOutput(Buffer<FloatType>& audio)
+    void next(Buffer<FloatType>& output, ContextType& context)
+    {
+        Buffer<FloatType> audioBuffer (output, context.tempAudioBuffer);
+        SourceOperations::replace(audioBuffer, audioSource);
+
+        Buffer<FloatType> envelopeBuffer (audioBuffer, context.tempEnvelopeBuffer);
+        SourceOperations::replace(envelopeBuffer, envelopeSource);
+
+        SourceOperations::multiplyAdd(output, audioBuffer, envelopeBuffer);
+    }
+
+#if 0
+    void addNextOutput(Buffer<FloatType>& audio, Context<FloatType> context)
     {
         if (depleted())
             return;
@@ -73,7 +52,7 @@ public:
             remaining -= n;
         }
 
-        const int nSource = audioSource.getNextOutput(audio.clip(0, n));
+        const int nSource = audioSource.addNextOutput<Context<FloatType>>(audio.clip(0, n));
 
         //envelope.getNextOutput(envelope, i0, i1 - i0);
 
@@ -83,6 +62,7 @@ public:
             remaining = 0;
         }
     }
+#endif
 
     bool depleted()
     {

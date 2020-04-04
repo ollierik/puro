@@ -1,5 +1,45 @@
 #pragma once
 
+template <typename FloatType, class GrainType>
+class OffsetWrapper
+{
+public:
+    OffsetWrapper(int offset, GrainType grain) 
+        : offset(offset), grain(grain)
+    {
+    }
+
+    void addNextOutput(Buffer<FloatType>& audio, Context<FloatType>& context)
+    {
+        const int n = audio.numSamples;
+
+        // no operations needed for this block
+        if (offset >= n)
+        {
+            offset -= n;
+            return;
+        }
+
+        // full audio needed for this block
+        if (offset == 0)
+        {
+            grain.addNextOutput(audio, context);
+            return;
+        }
+
+        // partial audio needed for this block
+        Buffer<FloatType> clipped = audio.clip(offset, n - offset);
+        grain.addNextOutput(clipped, context);
+        offset = 0;
+    }
+
+    GrainType* get() { return &grain; };
+
+private:
+    GrainType grain;
+    int offset = 0;
+    int remaining;
+};
 
 
 template <typename FloatType, class GrainType, class PoolType, class WrapperType>
@@ -14,7 +54,7 @@ public:
         // grain operations
         for (auto& it : pool)
         {
-            it->addNextOutput(output);
+            it->addNextOutput(output, context);
 
             if (it->get()->depleted())
                 pool.remove(it);
@@ -35,7 +75,8 @@ public:
         return nullptr;
     }
 
-    PoolType pool;
+    GrainTemplate<FloatType, ConstSource, HannEnvelope>::Context<FloatType> context;
+    FixedPool<WrapperType, 4> pool;
 };
 
 

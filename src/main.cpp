@@ -19,7 +19,7 @@ int main()
 
     using Grain = GrainTemplate<float, AudioSource, Envelope>;
     using Wrapper = OffsetWrapper<float, Grain>;
-    using Pool = FixedPool<Wrapper, 4>;
+    using Pool = DynamicPool<Grain, 4>;
 
     using Engine = EngineTemplate<float, Grain, Pool, Wrapper>;
     using Controller = ControllerTemplate<Grain, AudioSource, Envelope, Engine>;

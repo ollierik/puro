@@ -16,9 +16,6 @@
     <ClInclude Include="..\src\Pool.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\test_stubs.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Controller.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -41,6 +38,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Processors.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SafePool.hpp">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

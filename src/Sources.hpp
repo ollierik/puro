@@ -183,7 +183,7 @@ public:
         // identical channel config
         if (buffer.getNumChannels() == sourceBuffer.getNumChannels())
         {
-            for (int ch=0; ch<buffer.size(); ++ch)
+            for (int ch=0; ch<buffer.getNumChannels(); ++ch)
             {
                 FloatType* dst = buffer.channel(ch);
                 FloatType* src = &sourceBuffer.channel(ch)[index];

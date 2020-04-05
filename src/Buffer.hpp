@@ -1,5 +1,8 @@
 #pragma once
 
+// as macro for now, should be refactored
+#define PURO_BUFFER_MAX_CHANNELS 2
+
 /** Simple wrapper around audio buffer data with helper functions for accessing and debug checks. */
 template <class FloatType>
 class Buffer
@@ -9,21 +12,35 @@ public:
 
     //////////////////
 
-    Buffer(int numChannels, int numSamples)
+    Buffer (int numChannels, int numSamples)
         : numChannels(numChannels) , numSamples(numSamples)
     {}
 
-    Buffer(const std::array<FloatType*, 2>& channels, int numChannels, int numSamples)
+    Buffer (const std::array<FloatType*, PURO_BUFFER_MAX_CHANNELS>& channels, int numChannels, int numSamples)
         : channels(channels) , numChannels(numChannels), numSamples(numSamples)
     {}
 
+    /** Create a buffer with given shape, with channels fitted into the provided vector.
+        If vector can't fit the created buffer, it will be resized. */
+    Buffer (int numChannels, int numSamples, std::vector<FloatType>& vector)
+        : numChannels(numChannels), numSamples(numSamples)
+    {
+        // resize if needed
+        if (vector.size() < numSamples * numChannels)
+        {
+            vector.resize(numSamples * numChannels);
+        }
+
+        for (int ch=0; ch<numChannels; ++ch)
+            channels[ch] = &vector[ch * numSamples];
+    }
+
     /** Create a buffer that has same shape as the provided buffer, with channels fitted into the provided vector.
         If vector can't fit the created buffer, it will be resized. */
-
-    Buffer<FloatType> (Buffer<FloatType>& other, std::vector<FloatType>& vector)
+    Buffer (Buffer<FloatType>& other, std::vector<FloatType>& vector)
         : numChannels(other.numChannels), numSamples(other.numSamples)
     {
-        errorif(other.numChannels > 2, "TODO implement this in a more general way");
+        errorif(other.numChannels > PURO_BUFFER_MAX_CHANNELS, "TODO implement this in a more general way");
 
         // resize if needed
         if (vector.size() < numSamples * numChannels)
@@ -38,6 +55,7 @@ public:
     FloatType* channel(int ch) const
     {
         errorif(ch < 0 || ch > numChannels, "channel out of range");
+        errorif(ch >= PURO_BUFFER_MAX_CHANNELS, "requested channel above maxmimum");
         return channels[ch];
     }
 
@@ -79,7 +97,7 @@ public:
 
 private:
 
-    std::array<FloatType*, 2> channels;
+    std::array<FloatType*, PURO_BUFFER_MAX_CHANNELS> channels;
     int numChannels;
     int numSamples;
 };

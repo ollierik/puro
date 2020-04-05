@@ -29,8 +29,18 @@ int main()
     Engine engine;
     Controller controller (engine);
 
-    std::vector<float> fileVector (1024, 1.0f);
-    Buffer<float> fileBuffer({ &fileVector[0] }, 1, (int)fileVector.size());
+    std::vector<float> fileVector;
+
+    Buffer<float> fileBuffer (2, 1024, fileVector);
+
+    for (int i=0; i<fileBuffer.size(); ++i)
+    {
+        const float r1 = ((float)std::rand() / (float)RAND_MAX) * 2 -1;
+        fileBuffer.channel(0)[i] = r1;
+
+        const float r2 = ((float)std::rand() / (float)RAND_MAX) * 2 -1;
+        fileBuffer.channel(1)[i] = r2;
+    }
 
     controller.setAudioBuffer(fileBuffer);
 

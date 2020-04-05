@@ -9,13 +9,11 @@
 #include <functional>
 #include <utility>
 
-#include "definitions.hpp"
+#include "Definitions.hpp"
 #include "Math.hpp"
 #include "Buffer.hpp"
-#include "Parameter.hpp"
-#include "Envelope.hpp"
-#include "AudioSource.hpp"
-#include "Grain.hpp"
+#include "Sources.hpp"
+#include "Processors.hpp"
 #include "Pool.hpp"
 #include "Engine.hpp"
 #include "Controller.hpp"

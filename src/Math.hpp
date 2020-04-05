@@ -1,8 +1,8 @@
 #pragma once
 
+/** Maths routines for buffers. Used to allow flexibility later on by implementing vector math libs such as IPP */
 struct Math
 {
-
     template <typename FloatType>
     static FloatType pi()
     {
@@ -38,6 +38,22 @@ struct Math
     {
         for (int i=0; i<n; ++i)
             buf[i] = std::cos(buf[i]);
+    }
+
+    /** Copy from source to destination */
+    template <typename FloatType>
+    static void copy(FloatType* dst, FloatType* src, const int n)
+    {
+        for (int i=0; i<n; ++i)
+            dst[i] = src[i];
+    }
+
+    /** Set to constant */
+    template <typename FloatType>
+    static void add(FloatType* buf, const int n, FloatType value)
+    {
+        for (int i=0; i<n; ++i)
+            buf[i] += value;
     }
 
     /** Set to constant */

@@ -14,8 +14,8 @@ int main()
     std::vector<float> left (n, 0.0f);
     std::vector<float> right (n, 0.0f);
 
-    using Envelope = ConstSource<float>;
-    using AudioSource = ConstSource<float>;
+    using Envelope = SineEnvelope<float>;
+    using AudioSource = NoiseSource<float>;
 
     using Context = EnvelopeProcessorContext<float>;
     using Grain = EnvelopeProcessor<float, Context, AudioSource, Envelope>;
@@ -23,8 +23,8 @@ int main()
     using Pool = DynamicPool<Sound, 4>;
 
     //using Engine = EngineTemplate<float, Grain, Pool, AudioObj, Context>;
-    using Engine = AudioObjectEngine<float, Sound, Grain, Context, Pool>;
-    using Controller = GranularController<Engine, Sound, AudioSource, Envelope>;
+    using Engine = SoundObjectEngine<float, Sound, Grain, Context, Pool>;
+    using Controller = GranularController<float, Engine, Sound, AudioSource, Envelope>;
 
     Engine engine;
     Controller controller (engine);

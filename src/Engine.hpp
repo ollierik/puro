@@ -55,15 +55,13 @@ private:
 };
 
 template <typename FloatType, class SoundObjectType, class ProcessorType, class ProcessorContextType, class PoolType>
-class AudioObjectEngine
+class SoundObjectEngine
 {
 public:
-    AudioObjectEngine() = default;
+    SoundObjectEngine() = default;
 
     void addNextOutput(Buffer<FloatType>& output)
     {
-
-        // grain operations
         for (auto& it : pool)
         {
             Buffer<FloatType> range = output;

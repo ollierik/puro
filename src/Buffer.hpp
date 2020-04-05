@@ -4,22 +4,21 @@
 template <class FloatType>
 struct Buffer
 {
-    std::array<FloatType*, 2> channels; // TODO stereo only for now
+    std::array<FloatType*, 2> channels;
     int numChannels;
     int numSamples;
 
     //////////////////
 
     Buffer(int numChannels, int numSamples)
-        : numChannels(numChannels), numSamples(numSamples)
+        : numChannels(numChannels) , numSamples(numSamples)
     {}
 
     Buffer(const std::array<FloatType*, 2>& channels, int numChannels, int numSamples)
-        : channels(channels), numChannels(numChannels), numSamples(numSamples)
-    {
-    }
+        : channels(channels) , numChannels(numChannels), numSamples(numSamples)
+    {}
 
-    /** Return a buffer that can accomodate provided buffer, fitted into the provided vector
+    /** Construct a buffer that can accomodate provided buffer, fitted into the provided vector
         If vector can't fit the created buffer, it will be resized. */
 
     Buffer<FloatType> (Buffer<FloatType>& other, std::vector<FloatType>& vector)

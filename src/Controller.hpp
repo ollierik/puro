@@ -1,13 +1,18 @@
 #pragma once
 
 /** Controls parameters and creates grains */
-template <class EngineType, class SoundObjectType, class AudioSourceType, class EnvelopeType>
+template <typename FloatType, class EngineType, class SoundObjectType, class AudioSourceType, class EnvelopeType>
 class GranularController
 {
 public:
 
     GranularController(EngineType& e) : engine(e), counter(interval)
     {
+    }
+
+    void setAudioSourceBuffer(Buffer<FloatType>& buffer)
+    {
+    
     }
 
     /** Called from tick, separated for convenience */
@@ -40,7 +45,7 @@ public:
 
     bool createGrain(int offset)
     {
-        SoundObjectType* s = engine.addSound(offset, duration, AudioSourceType(), EnvelopeType());
+        SoundObjectType* s = engine.addSound(offset, duration, AudioSourceType(), EnvelopeType(duration));
         return s  == nullptr;
     }
 
@@ -49,6 +54,6 @@ private:
     EngineType& engine;
 
     int interval = 20;
-    int duration = 21;
+    int duration = 10;
     int counter;
 };

@@ -10,19 +10,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\AudioSource.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\definitions.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Engine.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Envelope.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Grain.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Pool.hpp">
@@ -44,6 +32,15 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Math.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Definitions.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Sources.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Processors.hpp">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

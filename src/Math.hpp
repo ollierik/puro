@@ -48,6 +48,14 @@ struct Math
             dst[i] = src[i];
     }
 
+    /** Add from source to destination */
+    template <typename FloatType>
+    static void add(FloatType* dst, FloatType* src, const int n)
+    {
+        for (int i=0; i<n; ++i)
+            dst[i] += src[i];
+    }
+
     /** Set to constant */
     template <typename FloatType>
     static void add(FloatType* buf, const int n, FloatType value)

@@ -66,12 +66,12 @@ public:
         // do sample-wise
         if (opType == SourceOperations::Type::add)
         {
-            for (int i=0; i<buffer.numSamples; ++i)
+            for (int i=0; i<buffer.size(); ++i)
             {
-                for (int ch=0; ch < buffer.numChannels; ++ch)
+                for (int ch=0; ch < buffer.getNumChannels(); ++ch)
                 {
                     const FloatType sample = sin(position);
-                    buffer.channels[ch][i] = sample;
+                    buffer.channel(ch)[i] = sample;
                 }
 
                 position += increment;
@@ -80,20 +80,20 @@ public:
         else
         {
             // do vectorised
-            FloatType* env = buffer.channels[0];
+            FloatType* env = buffer.channel(0);
 
-            for (int i=0; i<buffer.numSamples; ++i)
+            for (int i=0; i<buffer.size(); ++i)
             {
                 env[i] = position;
                 position += increment;
             }
 
-            Math::sin(env, buffer.numSamples);
+            Math::sin(env, buffer.size());
 
-            for (int ch=1; ch < buffer.numChannels; ++ch)
+            for (int ch=1; ch < buffer.getNumChannels(); ++ch)
             {
-                FloatType* dst = buffer.channels[ch];
-                Math::copy(dst, env, buffer.numSamples);
+                FloatType* dst = buffer.channel(ch);
+                Math::copy(dst, env, buffer.size());
             }
         }
     }
@@ -174,49 +174,46 @@ public:
 
     void next(Buffer<FloatType>& buffer, SourceOperations::Type opType)
     {
-        const auto sourceBufferSize = sourceBuffer.numSamples;
-
         // buffer will run out, trim it
-        if (sourceBufferSize < index + buffer.numSamples)
+        if (sourceBuffer.size()< index + buffer.size())
         {
-            buffer.trimLength(sourceBufferSize - index);
+            buffer.trimLength(sourceBuffer.size() - index);
         }
 
         // identical channel config
-        if (buffer.numChannels == sourceBuffer.numChannels)
+        if (buffer.getNumChannels() == sourceBuffer.getNumChannels())
         {
-            for (int ch=0; ch<buffer.numSamples; ++ch)
+            for (int ch=0; ch<buffer.size(); ++ch)
             {
-                FloatType* dst = buffer.channels[ch];
-                FloatType* src = &sourceBuffer.channels[ch][index];
+                FloatType* dst = buffer.channel(ch);
+                FloatType* src = &sourceBuffer.channel(ch)[index];
 
                 if (opType == SourceOperations::Type::add)
-                    Math::add(dst, src, buffer.numSamples);
+                    Math::add<FloatType>(dst, src, buffer.size());
                 else
-                    Math::copy(dst, src, buffer.numSamples);
+                    Math::copy<FloatType>(dst, src, buffer.size());
             }
-            index += buffer.numSamples;
+            index += buffer.size();
         }
         // mono source, use for all channels
-        else if (buffer.numChannels == 1)
+        else if (sourceBuffer.getNumChannels() == 1)
         {
-            FloatType* src = &sourceBuffer.channels[0][index];
+            FloatType* src = &sourceBuffer.channel(0)[index];
 
-            for (int ch=0; ch<buffer.numSamples; ++ch)
+            for (int ch=0; ch<buffer.getNumChannels(); ++ch)
             {
-                FloatType* dst = buffer.channels[ch];
+                FloatType* dst = buffer.channel(ch);
 
                 if (opType == SourceOperations::Type::add)
-                    Math::add(dst, src, buffer.numSamples);
+                    Math::add(dst, src, buffer.size());
                 else
-                    Math::copy(dst, src, buffer.numSamples);
+                    Math::copy(dst, src, buffer.size());
             }
-            index += buffer.numSamples;
+            index += buffer.size();
         }
         else
         {
-            // channel configs not implemented
-            stophere();
+            errorif(true, "channel config combination not implemented");
         }
 
     }

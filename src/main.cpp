@@ -1,9 +1,8 @@
 #include "PuroHeader.h"
 
 // TODO
-// - Multichannel
-//      - Envelope max channels?
-// - Random deviation parameters 
+// - Random deviation parameters for granulator
+// - ints to size_ts where appropriate
 
 int main()
 {
@@ -15,7 +14,8 @@ int main()
     std::vector<float> right (n, 0.0f);
 
     using Envelope = SineEnvelope<float>;
-    using AudioSource = NoiseSource<float>;
+    //using AudioSource = NoiseSource<float>;
+    using AudioSource = AudioBufferSource<float>;
 
     using Context = EnvelopeProcessorContext<float>;
     using Grain = EnvelopeProcessor<float, Context, AudioSource, Envelope>;
@@ -24,11 +24,15 @@ int main()
 
     //using Engine = EngineTemplate<float, Grain, Pool, AudioObj, Context>;
     using Engine = SoundObjectEngine<float, Sound, Grain, Context, Pool>;
-    using Controller = GranularController<float, Engine, Sound, AudioSource, Envelope>;
+    using Controller = BufferedGranularController<float, Engine, Sound, AudioSource, Envelope>;
 
     Engine engine;
     Controller controller (engine);
 
+    std::vector<float> fileVector (1024, 1.0f);
+    Buffer<float> fileBuffer({ &fileVector[0] }, 1, (int)fileVector.size());
+
+    controller.setAudioBuffer(fileBuffer);
 
     for (int i = 0; i < n - blockSize; i += blockSize)
     {

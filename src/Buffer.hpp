@@ -2,11 +2,10 @@
 
 /** Simple wrapper around audio buffer data with helper functions for accessing and debug checks. */
 template <class FloatType>
-struct Buffer
+class Buffer
 {
-    std::array<FloatType*, 2> channels;
-    int numChannels;
-    int numSamples;
+
+public:
 
     //////////////////
 
@@ -18,13 +17,13 @@ struct Buffer
         : channels(channels) , numChannels(numChannels), numSamples(numSamples)
     {}
 
-    /** Construct a buffer that can accomodate provided buffer, fitted into the provided vector
+    /** Create a buffer that has same shape as the provided buffer, with channels fitted into the provided vector.
         If vector can't fit the created buffer, it will be resized. */
 
     Buffer<FloatType> (Buffer<FloatType>& other, std::vector<FloatType>& vector)
         : numChannels(other.numChannels), numSamples(other.numSamples)
     {
-        stopif(other.numChannels > 2, "TODO fix this");
+        errorif(other.numChannels > 2, "TODO implement this in a more general way");
 
         // resize if needed
         if (vector.size() < numSamples * numChannels)
@@ -36,9 +35,20 @@ struct Buffer
             channels[ch] = &vector[ch * numSamples];
     }
 
+    FloatType* channel(int ch) const
+    {
+        errorif(ch < 0 || ch > numChannels, "channel out of range");
+        return channels[ch];
+    }
+
+    int getNumChannels() { return numChannels; };
+    int size() { return numSamples; };
+
+    const std::pair<int, int> shape() const { return { numChannels, numSamples }; };
+
     void trimBegin(int offset)
     {
-        stopif(offset < 0 || offset > numSamples, "offset out of bounds");
+        errorif(offset < 0 || offset > numSamples, "offset out of bounds");
 
         numSamples -= offset;
 
@@ -48,7 +58,7 @@ struct Buffer
 
     void trimLength(int newLength)
     {
-        stopif(newLength < 0 || newLength > numSamples, "new length out of bounds");
+        errorif(newLength < 0 || newLength > numSamples, "new length out of bounds");
 
         numSamples = newLength;
     }
@@ -61,7 +71,19 @@ struct Buffer
         }
     }
 
+    bool dimensionsMatch(const Buffer<FloatType>& other)
+    {
+        return (size() == other.size() && getNumChannels() == other.getNumChannels());
+    }
+
+
+private:
+
+    std::array<FloatType*, 2> channels;
+    int numChannels;
+    int numSamples;
 };
+
 
 struct SourceOperations
 {
@@ -76,14 +98,19 @@ struct SourceOperations
     template <typename FloatType>
     static void multiplyAdd(Buffer<FloatType>& dst, const Buffer<FloatType>& src1, const Buffer<FloatType>& src2)
     {
-        stopif(dst.numChannels != src1.numChannels, "Number of channels doesn't match");
-        stopif(dst.numChannels != src2.numChannels, "Number of channels doesn't match");
-        stopif(dst.numSamples != src1.numSamples, "Number of samples doesn't match");
-        stopif(dst.numSamples != src2.numSamples, "Number of samples doesn't match");
+        errorif(! (dst.shape() == src1.shape()), "dst and src1 buffer dimensions don't match");
+        errorif(! (dst.shape() == src2.shape()), "dst and src2 buffer dimensions don't match");
 
-        for (int ch=0; ch<dst.numChannels; ++ch)
+        for (int ch=0; ch<dst.getNumChannels(); ++ch)
         {
-            Math::multiplyAdd(dst.channels[ch], src1.channels[ch], src2.channels[ch], dst.numSamples);
+            /*
+            auto* d = dst.getChannel(ch);
+            const auto* s1 = src1.getConstChannel(ch);
+            const auto* s2 = src2.getConstChannel(ch);
+            Math::multiplyAdd<FloatType>(d, s1, s2, dst.size());
+            */
+            Math::multiplyAdd<FloatType>(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.size());
+            //Math::multiplyAdd<FloatType>(dst.getChannel(ch), src1.getConstChannel(ch), src2.getConstChannel(ch), dst.size());
         }
     }
 };

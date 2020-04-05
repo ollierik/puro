@@ -17,9 +17,9 @@ public:
             return;
 
         // no operations needed for this block
-        if (offset >= buffer.numSamples)
+        if (offset >= buffer.size())
         {
-            offset -= buffer.numSamples;
+            offset -= buffer.size();
             return;
         }
 
@@ -27,14 +27,14 @@ public:
             buffer.trimBegin(offset);
 
         // restrict range if grain should terminate this block
-        if (remaining < buffer.numSamples)
+        if (remaining < buffer.size())
             buffer.trimLength(remaining);
 
-        const int numSamplesRequested = buffer.numSamples;
+        const int numSamplesRequested = buffer.size();
         processor.next(buffer, context);
 
         // if grain changed the numSamples, one of the sources was depleted
-        if (buffer.numSamples != numSamplesRequested)
+        if (buffer.size()!= numSamplesRequested)
         {
             remaining = 0;
             return;

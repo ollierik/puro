@@ -13,8 +13,8 @@
 #if PURO_DEBUG && PURO_WINDOWS
     #include <Windows.h>
     #include <intrin.h> // MSVS breakpoint
-    #define stophere __debugbreak()
-    #define stopif(condition, msg) if ((condition)) { std::cout << msg << std::endl; stophere; }
+    #define breakpoint __debugbreak()
+    #define errorif(condition, msg) if ((condition)) { std::cout << msg << std::endl; breakpoint; }
 
 #else
 

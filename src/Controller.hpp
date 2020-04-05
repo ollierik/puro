@@ -10,11 +10,6 @@ public:
     {
     }
 
-    void setAudioSourceBuffer(Buffer<FloatType>& buffer)
-    {
-    
-    }
-
     /** Called from tick, separated for convenience */
     void advance(const int numSamples)
     {
@@ -43,13 +38,15 @@ public:
         }
     }
 
-    bool createGrain(int offset)
+    virtual bool createGrain(int offset) = 0;
+        /*
     {
         SoundObjectType* s = engine.addSound(offset, duration, AudioSourceType(), EnvelopeType(duration));
         return s  == nullptr;
     }
+    */
 
-private:
+protected:
 
     EngineType& engine;
 
@@ -57,3 +54,40 @@ private:
     int duration = 10;
     int counter;
 };
+
+/** Controls parameters and creates grains */
+template <typename FloatType, class EngineType, class SoundObjectType, class AudioSourceType, class EnvelopeType>
+class BufferedGranularController : public GranularController<FloatType, EngineType, SoundObjectType, AudioSourceType, EnvelopeType>
+{
+public:
+
+    using BaseClass = GranularController<FloatType, EngineType, SoundObjectType, AudioSourceType, EnvelopeType>;
+
+    BufferedGranularController(EngineType& e) : BaseClass(e) {}
+
+    bool createGrain(int offset) override
+    {
+        errorif(audioBuffer == nullptr, "audio buffer not set");
+        SoundObjectType* s = this->engine.addSound(offset,
+                                             this->duration,
+                                             AudioSourceType(*audioBuffer, bufferIndex),
+                                             EnvelopeType(this->duration));
+        return s  == nullptr;
+    }
+
+    void setAudioBuffer(Buffer<FloatType>& buffer)
+    {
+        audioBuffer = &buffer;
+    }
+
+    void setAudioSourceLocation(int indexInSamples)
+    {
+        bufferIndex = indexInSamples;
+    }
+
+private:
+
+    Buffer<FloatType>* audioBuffer;
+    int bufferIndex = 0;
+};
+

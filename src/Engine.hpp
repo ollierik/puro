@@ -11,10 +11,13 @@ public:
     {
     }
 
-    void addNextOutput(Buffer<FloatType>& buffer, ProcessorContextType& context)
+    void addNextOutput(const Buffer<FloatType>& outputBuffer, ProcessorContextType& context)
     {
         if (depleted())
             return;
+
+        // local copy for possible mutating
+        Buffer<FloatType> buffer = outputBuffer;
 
         // no operations needed for this block
         if (offset >= buffer.size())
@@ -64,8 +67,7 @@ public:
     {
         for (auto& it : pool)
         {
-            Buffer<FloatType> range = output;
-            it->addNextOutput(range, context);
+            it->addNextOutput(output, context);
 
             if (it->depleted())
                 pool.remove(it);
@@ -80,6 +82,23 @@ public:
         {
             new (s) SoundObjectType (offsetFromBlockStart, lengthInSamples, ProcessorType(processorArgs...));
 
+            return s;
+        }
+
+        return nullptr;
+    }
+
+    template <typename... ProcessorArgs>
+    SoundObjectType* addAndRunSound(Buffer<FloatType>& output,
+                                    int offsetFromBlockStart,
+                                    int lengthInSamples,
+                                    ProcessorArgs... processorArgs)
+    {
+        auto* s = addSound(offsetFromBlockStart, lengthInSamples, processorArgs);
+
+        if (s != nullptr)
+        {
+            s->addNextOutpupt(output, context);
             return s;
         }
 

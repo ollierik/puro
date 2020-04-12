@@ -1,5 +1,5 @@
-#if 0
 #include "PuroHeader.h"
+#if 0
 
 // TODO
 // - Random deviation parameters for granulator
@@ -64,3 +64,28 @@ int main()
     return 0;
 }
 #endif
+
+#include "SafePool.hpp"
+
+
+class Element
+{
+public:
+
+    Element() = delete;
+    Element(int v) : value(v) {}
+
+    int value;
+};
+
+int main()
+{
+    const int n = 8;
+    SafePool<Element> pool;
+    pool.reserve(8);
+
+    for (int i=0; i<n; i++)
+        pool.add(i*10);
+
+    return 0;
+}

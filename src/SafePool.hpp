@@ -5,16 +5,45 @@
 template <typename ElementType>
 struct Node
 {
-    Node(ElementType e) : element(e), next(nullptr) {}
+    Node() : next(nullptr) {}
 
-    ElementType element;
+    /** Not guaranteed to be constructed */
+    ElementType* getElement()
+    {
+        return reinterpret_cast<ElementType*> (element);
+    }
+
+    void print()
+    {
+        std::cout << "this: ";
+        getElement()->print();
+        std::cout << "\tnext: ";
+        if (next == nullptr)
+            std::cout << "nullptr\n";
+        else
+            next->getElement()->print();
+    }
+
     Node* next;
+private:
+
+    // workaround to skip the need for a default ctor
+    void* element[sizeof(ElementType)];
 };
  
 template <typename ElementType>
 class List
 {
  public:
+
+     List() : head(nullptr)
+     {
+     }
+
+     bool empty() const
+     {
+         return head.load() == nullptr;
+     }
 
     void push_front(Node<ElementType>* node)
     {
@@ -40,7 +69,7 @@ class List
         if (node == nullptr)
             return nullptr;
 
-        while (! head.compare_exchange_weak(node, node->next(),
+        while (! head.compare_exchange_weak(node, node->next,
                                           std::memory_order_release,
                                           std::memory_order_relaxed))
             ; // empty body
@@ -64,12 +93,11 @@ template <class ElementType>
 class Iterator
 {
 public:
-    Iterator(SafePool<ElementType>& sp, Node<ElementType>* n)
+    Iterator(SafePool<ElementType>& sp, Node<ElementType>* n, bool startFromAdditions = false)
         : pool(sp)
         , node(n)
         , prev(nullptr)
-        , skipIncrement(false)
-        , processingAdditions(false)
+        , processingAdditions(startFromAdditions)
     {}
 
     bool operator!= (const Iterator<ElementType>& other)
@@ -77,16 +105,22 @@ public:
         return node != other.node;
     }
 
+    Iterator<ElementType>& operator*()
+    {
+        return *this;
+    }
+
+    ElementType* operator->()
+    {
+        errorif(node == nullptr, "trying to access nullptr element");
+        return node->getElement();
+    }
+
     Iterator& operator++()
     {
         // processing actives
         if (! processingAdditions)
         {
-            if (skipIncrement) // flag is set if current element was removed
-            {
-                skipIncrement = false;
-                return *this;
-            }
 
             // active list empty, continue to additions
             if (node->next == nullptr)
@@ -97,6 +131,11 @@ public:
             {
                 prev = node;
                 node = node->next;
+
+                std::cout << "PREV:\t";
+                prev->print();
+                std::cout << "CURR:\t";
+                node->print();
             }
             return *this;
         }
@@ -108,22 +147,37 @@ public:
 
             // if not added depleted
             if (node != nullptr)
-                pool.active.push_front(*node);
+                pool.active.push_front(node);
 
             return *this;
         }
     }
 
-    void popCurrent()
+    Node<ElementType>* popCurrent()
     {
+        std::cout << "POP CURRENT\n";
+        // if not first
         if (prev != nullptr)
         {
+            auto* popped = node;
+
             prev->next = node->next;
-            return node;
+
+            std::cout << "removing: ";
+            popped->print();
+
+            node = prev;
+
+            std::cout << "node now: ";
+            node->print();
+
+            return popped;
         }
         else
         {
-            pool.active.pop_front();
+            auto* n = pool.active.pop_front();
+            node = pool.active.first();
+            return n;
         }
     }
 
@@ -132,7 +186,6 @@ public:
 
 private:
     SafePool<ElementType>& pool;
-    bool skipIncrement;
     bool processingAdditions;
 };
 
@@ -143,9 +196,7 @@ class SafePool
 {
 public:
 
-    using ElementPtr = ElementType*;
-
-    SafePool()
+    SafePool() : numElements(0)
     {
     }
 
@@ -153,18 +204,20 @@ public:
     {
         errorif(numElements != 0, "reserve called twice, resizing not yet implemented");
         numElements = n;
-        elements = operator new (sizeof(ElementType) * n);
 
         for (auto i=0; i<numElements; ++i)
         {
-            Node<ElementPtr>* node = new Node<ElementPtr> (getRawElementWithIndex(i));
+            Node<ElementType>* node = new Node<ElementType> ();
             inactive.push_front(node);
         }
     }
 
     Iterator<ElementType> begin()
     {
-        return Iterator<ElementType> (*this, active.front());
+        if (! active.empty())
+            return Iterator<ElementType> (*this, active.first());
+
+        return Iterator<ElementType> (*this, added.first(), true);
     }
 
     Iterator<ElementType> end()
@@ -180,7 +233,7 @@ public:
         if (node != nullptr)
         {
             // call ctor before adding to list
-            auto* e = new (&node->element) ElementType(args...);
+            auto* e = new (node->getElement()) ElementType(args...);
             added.push_front(node);
             return e;
         }
@@ -191,21 +244,16 @@ public:
     {
         auto* n = it.popCurrent();
         errorif(n == nullptr, "shouldn't try to remove nullptr node");
-        inactive.push_front(*n);
+        inactive.push_front(n);
     }
 
 private:
 
-    ElementType* getRawElementWithIndex(size_t i)
-    {
-        //return reinterpret_cast<ElementType*> (&elements[i * sizeof(ElementType)]);
-        return (reinterpret_cast<ElementType*> (elements) + i);
-    }
+    friend class Iterator<ElementType>;
 
-    void* elements = nullptr;
+    List<ElementType> active;
+    List<ElementType> added;
+    List<ElementType> inactive;
+
     size_t numElements;
-
-    List<ElementPtr> active;
-    List<ElementPtr> added;
-    List<ElementPtr> inactive;
 };

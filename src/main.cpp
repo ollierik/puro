@@ -75,6 +75,11 @@ public:
     Element() = delete;
     Element(int v) : value(v) {}
 
+    void print()
+    {
+        std::cout << value << std::endl;
+    }
+
     int value;
 };
 
@@ -86,6 +91,32 @@ int main()
 
     for (int i=0; i<n; i++)
         pool.add(i*10);
+
+    std::cout << "After init\n";
+
+    for (auto e : pool)
+    {
+        e->print();
+    }
+
+    std::cout << std::endl;
+
+    for (auto e : pool)
+    {
+        std::cout << "########\n";
+        if (e->value == 50)
+        {
+            pool.remove(e);
+        }
+    }
+
+    std::cout << "\nAfter removal\n";
+
+    for (auto e : pool)
+    {
+        std::cout << "########\n";
+        e->print();
+    }
 
     return 0;
 }

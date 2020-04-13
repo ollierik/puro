@@ -10,7 +10,8 @@ struct Node
     /** Not guaranteed to be constructed */
     ElementType* getElement()
     {
-        return reinterpret_cast<ElementType*> (element);
+        //return reinterpret_cast<ElementType*> (element);
+        return &element;
     }
 
     void print()
@@ -28,22 +29,37 @@ struct Node
 private:
 
     // workaround to skip the need for a default ctor
-    void* element[sizeof(ElementType)];
+    //void* element[sizeof(ElementType)];
+    ElementType element;
 };
  
 template <typename ElementType>
 class List
 {
- public:
+public:
 
-     List() : head(nullptr)
-     {
-     }
+    List() : head(nullptr)
+    {
+    }
 
-     bool empty() const
-     {
-         return head.load() == nullptr;
-     }
+    bool empty() const
+    {
+        return head.load() == nullptr;
+    }
+
+    /** Non-threadsafe */
+    static void insert(Node<ElementType>* node, Node<ElementType>* insertedAfter)
+    {
+        node->next = insertedAfter->next;
+        insertedAfter->next = node;
+    }
+
+    /** Non-threadsafe */
+    static void remove(Node<ElementType>* node, Node<ElementType>* prev)
+    {
+        prev->next = node->next;
+        node->next = nullptr;
+    }
 
     void push_front(Node<ElementType>* node)
     {
@@ -97,16 +113,11 @@ template <class ElementType>
 class Iterator
 {
 public:
-    Iterator(SafePool<ElementType>& sp, Node<ElementType>* n, bool startFromAdditions = false)
+    Iterator(SafePool<ElementType>& sp, Node<ElementType>* n)
         : pool(sp)
         , node(n)
         , prev(nullptr)
-        , processingAdditions(startFromAdditions)
     {
-        if (processingAdditions)
-        {
-            popAndGetNextAdded();
-        }
     }
 
     bool operator!= (const Iterator<ElementType>& other)
@@ -127,49 +138,70 @@ public:
 
     Iterator<ElementType>& operator++()
     {
-        //printIter();
-        // processing actives
-        if (processingAdditions)
+
+        // if no actives, try to get an addition
+        if (node == nullptr)
         {
-            popAndGetNextAdded();
+            auto* n = pool.added.pop_front();
+            pool.active.push_front(n);
+            node = n;
+            prev = nullptr;
         }
-        getNextActive();
+        // if we're at the end of list, start going through the additions
+        // move additions to the end of the active list
+        else if (node->next == nullptr)
+        {
+            if (! pool.added.empty())
+            {
+                auto* n = pool.added.pop_front();
+                List<ElementType>::insert(n, node);
+            }
+
+            prev = node;
+            node = node->next;
+        }
+        else
+        {
+            prev = node;
+            node = node->next;
+        }
+
+
         return *this;
     }
 
     Node<ElementType>* popCurrent()
     {
-        //std::cout << "POP CURRENT\n";
-        // if not first
-        if (prev != nullptr)
+        // if first
+        if (prev == nullptr)
         {
-            auto* popped = node;
-
-            prev->next = node->next;
-
-            std::cout << "REMOVING: ";
-            popped->print();
-
-            node = prev;
-
+            auto* popped = pool.active.pop_front();
+            node = pool.active.first();
             return popped;
         }
         else
         {
-            auto* n = pool.active.pop_front();
-            node = pool.active.first();
-            return n;
+            auto* popped = node;
+
+            List<ElementType>::remove(node, prev);
+
+            node = prev;
+
+            return popped;
         }
     }
 
     void printIter()
     {
         std::cout << "prev, current, next:" << std::endl;;
-        if (prev != nullptr)
-        prev->print();
-        node->print();
-        if (node->next != nullptr)
-            node->next->print();
+        if (prev != nullptr) prev->print();
+        else std::cout << "nullptr" << std::endl;
+
+        if (node) node->print();
+        else std::cout << "nullptr" << std::endl;
+
+        if (node && node->next != nullptr) node->next->print();
+        else std::cout << "nullptr" << std::endl;
 
         std::cout << "####################" << std::endl;;
     }
@@ -179,32 +211,7 @@ public:
 
 private:
 
-
-    void getNextActive()
-    {
-        // active list empty, continue to additions
-        if (node->next == nullptr)
-        {
-            processingAdditions = true;
-        }
-        else
-        {
-            prev = node;
-            node = node->next;
-        }
-    }
-
-    void popAndGetNextAdded()
-    {
-        // remove from added-list, add to active list
-        node = pool.added.pop_front();
-        prev = nullptr;
-
-        pool.active.push_front(node);
-    }
-
     SafePool<ElementType>& pool;
-    bool processingAdditions;
 };
 
 
@@ -234,7 +241,9 @@ public:
     {
         if (active.empty())
         {
-            return Iterator<ElementType> (*this, added.first(), true);
+            auto it = Iterator<ElementType> (*this, active.first());
+            ++it;
+            return it;
         }
 
         return Iterator<ElementType> (*this, active.first());
@@ -265,16 +274,13 @@ public:
         auto* n = it.popCurrent();
         errorif(n == nullptr, "shouldn't try to remove nullptr node");
         inactive.push_front(n);
-        //it.printIter();
     }
 
 private:
 
     friend class Iterator<ElementType>;
 
-    int currentActiveIndex = 0;
-    List<ElementType>* currentActive;
-    List<ElementType> active[2];
+    List<ElementType> active;
     List<ElementType> added;
     List<ElementType> inactive;
 

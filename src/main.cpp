@@ -72,7 +72,7 @@ class Element
 {
 public:
 
-    Element() = delete;
+    Element() : value(-1) {}
     Element(int v) : value(v) {}
 
     void print()
@@ -90,15 +90,28 @@ int main()
     pool.reserve(8);
 
     for (int i=0; i<n; i++)
-        pool.add(i*10);
+        pool.add((n-1-i)*10);
 
     std::cout << "After init\n";
 
-    std::cout << "Iterate additions, remove 50:\n";
+    std::cout << "Iterate additions" << std::endl;
+    //for (auto it = pool.begin(); it != pool.end(); ++it)
+    for (auto it : pool)
+    {
+        if (it->value == 10)
+        {
+            pool.remove(it);
+        }
+        else
+        {
+            it->print();
+        }
+    }
+
+    /*
     for (auto e : pool)
     {
-        /*
-        if (e->value == 50)
+        if (e->value == 10)
         {
             pool.remove(e);
         }
@@ -106,9 +119,8 @@ int main()
         {
             e->print();
         }
-        */
-        e->print();
     }
+    */
 
     /*
     std::cout << "Iterate all, print" << std::endl;

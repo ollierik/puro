@@ -11,6 +11,7 @@ public:
     {
     }
 
+    /** Process and accumulate the output from all added sound objects.*/
     void addNextOutput(const Buffer<FloatType>& outputBuffer, ProcessorContextType& context)
     {
         if (depleted())
@@ -29,15 +30,15 @@ public:
         if (offset > 0)
             buffer.trimBegin(offset);
 
-        // restrict range if grain should terminate this block
+        // restrict range if the sound object should terminate this block
         if (remaining < buffer.size())
             buffer.trimLength(remaining);
 
         const int numSamplesRequested = buffer.size();
         processor.next(buffer, context);
 
-        // if grain changed the numSamples, one of the sources was depleted
-        if (buffer.size()!= numSamplesRequested)
+        // if processor changed the numSamples, one of the sources was depleted
+        if (buffer.size() != numSamplesRequested)
         {
             remaining = 0;
             return;
@@ -57,7 +58,7 @@ private:
     int remaining;
 };
 
-template <typename FloatType, class SoundObjectType, class ProcessorType, class ProcessorContextType, class PoolType>
+template <typename FloatType, class SoundObjectType, class ProcessorType, class ProcessorContextType>
 class SoundObjectEngine
 {
 public:
@@ -77,15 +78,8 @@ public:
     template <typename... ProcessorArgs>
     SoundObjectType* addSound(int offsetFromBlockStart, int lengthInSamples, ProcessorArgs... processorArgs)
     {
-        SoundObjectType* s = pool.allocate();
-        if (s != nullptr)
-        {
-            new (s) SoundObjectType (offsetFromBlockStart, lengthInSamples, ProcessorType(processorArgs...));
-
-            return s;
-        }
-
-        return nullptr;
+        SoundObjectType* s = pool.add(offsetFromBlockStart, lengthInSamples, ProcessorType(processorArgs...));
+        return s;
     }
 
     template <typename... ProcessorArgs>
@@ -94,19 +88,16 @@ public:
                                     int lengthInSamples,
                                     ProcessorArgs... processorArgs)
     {
-        auto* s = addSound(offsetFromBlockStart, lengthInSamples, processorArgs);
-
+        SoundObjectType* s = addSound(offsetFromBlockStart, lengthInSamples, processorArgs...);
         if (s != nullptr)
         {
-            s->addNextOutpupt(output, context);
-            return s;
+            s->addNextOutput(output, context);
         }
-
-        return nullptr;
+        return s;
     }
 
     ProcessorContextType context;
-    PoolType pool;
+    SafePool<SoundObjectType> pool;
 };
 
 

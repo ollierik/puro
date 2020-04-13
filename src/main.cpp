@@ -1,5 +1,4 @@
 #include "PuroHeader.h"
-#if 0
 
 // TODO
 // - Random deviation parameters for granulator
@@ -15,20 +14,19 @@ int main()
     std::vector<float> right (n, 0.0f);
 
     using Envelope = SineEnvelope<float>;
-    //using AudioSource = NoiseSource<float>;
     using AudioSource = AudioBufferSource<float>;
 
     using Context = EnvelopeProcessorContext<float>;
     using Grain = EnvelopeProcessor<float, Context, AudioSource, Envelope>;
     using Sound = SoundObject<float, Grain, Context>;
-    using Pool = DynamicPool<Sound, 4>;
 
-    //using Engine = EngineTemplate<float, Grain, Pool, AudioObj, Context>;
-    using Engine = SoundObjectEngine<float, Sound, Grain, Context, Pool>;
+    using Engine = SoundObjectEngine<float, Sound, Grain, Context>;
     using Controller = BufferedGranularController<float, Engine, Sound, AudioSource, Envelope>;
 
     Engine engine;
     Controller controller (engine);
+
+    engine.pool.reserve(8);
 
     std::vector<float> fileVector;
 
@@ -49,8 +47,8 @@ int main()
     {
         Buffer<float> buffer ( { &left[i], &right[i] }, numChannels, blockSize);
 
-        controller.advance(blockSize);
         engine.addNextOutput(buffer);
+        controller.advance(buffer);
     }
 
 
@@ -59,90 +57,6 @@ int main()
     for (int i=0; i<n; i++)
     {
         std::cout << i << ":\t" << left[i] << "\t" << right[i] << std::endl;
-    }
-
-    return 0;
-}
-#endif
-
-#include "SafePool.hpp"
-
-
-class Element
-{
-public:
-
-    //Element() : value(-1) {}
-    Element() = delete;
-    Element(int v) : value(v) {}
-
-    void print()
-    {
-        std::cout << value << std::endl;
-    }
-
-    int value;
-};
-
-int main()
-{
-    const int n = 8;
-    SafePool<Element> pool;
-    pool.reserve(8);
-    pool.reserve(16);
-
-    for (int i=0; i<n; i++)
-        pool.add((n-1-i)*10);
-
-    std::cout << "After init\n";
-
-    std::cout << "Iterate additions, remove 10" << std::endl;
-
-    for (auto& it : pool)
-    {
-        if (it->value == 10)
-        {
-            pool.remove(it);
-        }
-        else
-        {
-            it->print();
-        }
-    }
-
-    std::cout << "Iterate active" << std::endl;
-    for (auto& it : pool)
-    {
-        it->print();
-    }
-
-    std::cout << "Iterate active, remove 30" << std::endl;
-    for (auto& it : pool)
-    {
-        if (it->value == 30)
-        {
-            pool.remove(it);
-        }
-        else
-        {
-            it->print();
-        }
-    }
-
-    std::cout << "Iterate active" << std::endl;
-    for (auto& it : pool)
-    {
-        it->print();
-    }
-
-    std::cout << "Add 100" << std::endl;
-
-    pool.add(100);
-
-    std::cout << "Iterate active and added" << std::endl;
-    for (auto& it : pool)
-    {
-        it->print();
     }
 
     return 0;

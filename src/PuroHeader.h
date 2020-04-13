@@ -14,6 +14,7 @@
 #include "Buffer.hpp"
 #include "Sources.hpp"
 #include "Processors.hpp"
-#include "Pool.hpp"
+//#include "Pool.hpp"
+#include "SafePool.hpp"
 #include "Engine.hpp"
 #include "Controller.hpp"

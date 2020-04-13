@@ -2,8 +2,13 @@
 
 #include <atomic>
 
-namespace {
 
+/** A partially thread-safe pool object that contains and owns objects.
+    Adding elements via add() function is thread-safe. Removing should only be performed by the consumer thread. */
+template <class ElementType>
+class SafePool
+{
+    /** Singly-linked node that is contained in a List */
     template <typename ElementType>
     class Node
     {
@@ -34,15 +39,14 @@ namespace {
         void* element[sizeof(ElementType)];
     };
 
+    /** List containing Nodes, has an atomic head */
     template <typename ElementType>
     class List
     {
     public:
-
         List() : head(nullptr)
         {
         }
-
         /** Check if the list is empty */
         bool empty() const { return head.load() == nullptr; }
 
@@ -101,11 +105,7 @@ namespace {
         std::atomic<Node<ElementType>*> head;
     };
 
-
-    template <class ElementType>
-    class SafePool;
-
-
+    /** Iterator to access pool contents with range-based loop */
     template <class ElementType>
     class Iterator
     {
@@ -154,6 +154,9 @@ namespace {
 
         Iterator<ElementType>& operator++()
         {
+            if (node == nullptr)
+                return *this;
+
             // if we're at the end of list, start going through the additions
             // move additions to the end of the active list
             if (node->next == nullptr)
@@ -221,95 +224,90 @@ namespace {
         SafePool<ElementType>& pool;
     };
 
+    /** Actual SafePool template class implementation */
+public:
 
-
-    template <class ElementType>
-    class SafePool
+    SafePool()
+        : numAllocated(0)
+        , numElements(0)
     {
-    public:
+    }
 
-        SafePool()
-            : numAllocated(0)
-            , numElements(0)
+    /** Increases the size of the container, if n > capacity() */
+    void reserve(size_t n)
+    {
+        size_t currentCapacity = numAllocated.load();
+        if (n < currentCapacity)
+            return;
+
+        numAllocated.compare_exchange_strong(currentCapacity, n,
+            std::memory_order_release,
+            std::memory_order_relaxed);
+
+        auto delta = n - currentCapacity;
+
+        for (auto i = 0; i < delta; ++i)
         {
+            Node<ElementType>* node = new Node<ElementType> ();
+            inactive.push_front(node);
+        }
+    }
+
+    Iterator<ElementType> begin()
+    {
+        if (active.empty())
+        {
+            return Iterator<ElementType> (*this, active.first(), true);
         }
 
-        /** Increases the size of the container, if n > capacity() */
-        void reserve(size_t n)
+        return Iterator<ElementType> (*this, active.first());
+    }
+
+    Iterator<ElementType> end()
+    {
+        return Iterator<ElementType> (*this, nullptr);
+    }
+
+    size_t capacity() const
+    {
+        return numAllocated.load();
+    }
+
+    size_t size() const
+    {
+        return numElements.load();
+    }
+
+    template <typename... Args>
+    ElementType* add(Args... args)
+    {
+        Node<ElementType>* node = inactive.pop_front();
+
+        if (node != nullptr)
         {
-            size_t currentCapacity = numAllocated.load();
-            if (n < currentCapacity)
-                return;
-
-            numAllocated.compare_exchange_strong(currentCapacity, n,
-                std::memory_order_release,
-                std::memory_order_relaxed);
-
-            auto delta = n - currentCapacity;
-
-            for (auto i = 0; i < delta; ++i)
-            {
-                Node<ElementType>* node = new Node<ElementType> ();
-                inactive.push_front(node);
-            }
+            // call ctor before adding to list
+            ElementType* e = new (node->getElement()) ElementType(args...);
+            added.push_front(node);
+            return e;
         }
+        return nullptr;
+    }
 
-        Iterator<ElementType> begin()
-        {
-            if (active.empty())
-            {
-                return Iterator<ElementType> (*this, active.first(), true);
-            }
+    void remove(Iterator<ElementType>& it)
+    {
+        auto* n = it.popCurrent();
+        errorif(n == nullptr, "shouldn't try to remove nullptr node");
+        inactive.push_front(n);
+    }
 
-            return Iterator<ElementType> (*this, active.first());
-        }
+private:
 
-        Iterator<ElementType> end()
-        {
-            return Iterator<ElementType> (*this, nullptr);
-        }
+    friend class Iterator<ElementType>;
 
-        size_t capacity() const
-        {
-            return numAllocated.load();
-        }
+    List<ElementType> active;
+    List<ElementType> added;
+    List<ElementType> inactive;
 
-        size_t size() const
-        {
-            return numElements.load();
-        }
-
-        template <typename... Args>
-        ElementType* add(Args... args)
-        {
-            Node<ElementType>* node = inactive.pop_front();
-
-            if (node != nullptr)
-            {
-                // call ctor before adding to list
-                auto* e = new (node->getElement()) ElementType(args...);
-                added.push_front(node);
-                return e;
-            }
-            return nullptr;
-        }
-
-        void remove(Iterator<ElementType>& it)
-        {
-            auto* n = it.popCurrent();
-            errorif(n == nullptr, "shouldn't try to remove nullptr node");
-            inactive.push_front(n);
-        }
-
-    private:
-
-        friend class Iterator<ElementType>;
-
-        List<ElementType> active;
-        List<ElementType> added;
-        List<ElementType> inactive;
-
-        std::atomic<size_t> numAllocated;
-        std::atomic<size_t> numElements;
-    };
+    std::atomic<size_t> numAllocated;
+    std::atomic<size_t> numElements;
 };

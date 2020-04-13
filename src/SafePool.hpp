@@ -86,8 +86,12 @@ private:
     std::atomic<Node<ElementType>*> head;
 };
 
+
+
 template <class ElementType>
 class SafePool;
+
+
 
 template <class ElementType>
 class Iterator
@@ -98,7 +102,12 @@ public:
         , node(n)
         , prev(nullptr)
         , processingAdditions(startFromAdditions)
-    {}
+    {
+        if (processingAdditions)
+        {
+            popAndGetNextAdded();
+        }
+    }
 
     bool operator!= (const Iterator<ElementType>& other)
     {
@@ -116,46 +125,21 @@ public:
         return node->getElement();
     }
 
-    Iterator& operator++()
+    Iterator<ElementType>& operator++()
     {
+        //printIter();
         // processing actives
-        if (! processingAdditions)
+        if (processingAdditions)
         {
-
-            // active list empty, continue to additions
-            if (node->next == nullptr)
-            {
-                processingAdditions = true;
-            }
-            else
-            {
-                prev = node;
-                node = node->next;
-
-                std::cout << "PREV:\t";
-                prev->print();
-                std::cout << "CURR:\t";
-                node->print();
-            }
-            return *this;
+            popAndGetNextAdded();
         }
-        // processing additions
-        else
-        {
-            // remove from added-list, add to active list
-            node = pool.added.pop_front();
-
-            // if not added depleted
-            if (node != nullptr)
-                pool.active.push_front(node);
-
-            return *this;
-        }
+        getNextActive();
+        return *this;
     }
 
     Node<ElementType>* popCurrent()
     {
-        std::cout << "POP CURRENT\n";
+        //std::cout << "POP CURRENT\n";
         // if not first
         if (prev != nullptr)
         {
@@ -163,13 +147,10 @@ public:
 
             prev->next = node->next;
 
-            std::cout << "removing: ";
+            std::cout << "REMOVING: ";
             popped->print();
 
             node = prev;
-
-            std::cout << "node now: ";
-            node->print();
 
             return popped;
         }
@@ -181,10 +162,47 @@ public:
         }
     }
 
+    void printIter()
+    {
+        std::cout << "prev, current, next:" << std::endl;;
+        if (prev != nullptr)
+        prev->print();
+        node->print();
+        if (node->next != nullptr)
+            node->next->print();
+
+        std::cout << "####################" << std::endl;;
+    }
+
     Node<ElementType>* node;
     Node<ElementType>* prev; // only the iterator is doubly linked
 
 private:
+
+
+    void getNextActive()
+    {
+        // active list empty, continue to additions
+        if (node->next == nullptr)
+        {
+            processingAdditions = true;
+        }
+        else
+        {
+            prev = node;
+            node = node->next;
+        }
+    }
+
+    void popAndGetNextAdded()
+    {
+        // remove from added-list, add to active list
+        node = pool.added.pop_front();
+        prev = nullptr;
+
+        pool.active.push_front(node);
+    }
+
     SafePool<ElementType>& pool;
     bool processingAdditions;
 };
@@ -214,10 +232,12 @@ public:
 
     Iterator<ElementType> begin()
     {
-        if (! active.empty())
-            return Iterator<ElementType> (*this, active.first());
+        if (active.empty())
+        {
+            return Iterator<ElementType> (*this, added.first(), true);
+        }
 
-        return Iterator<ElementType> (*this, added.first(), true);
+        return Iterator<ElementType> (*this, active.first());
     }
 
     Iterator<ElementType> end()
@@ -245,13 +265,16 @@ public:
         auto* n = it.popCurrent();
         errorif(n == nullptr, "shouldn't try to remove nullptr node");
         inactive.push_front(n);
+        //it.printIter();
     }
 
 private:
 
     friend class Iterator<ElementType>;
 
-    List<ElementType> active;
+    int currentActiveIndex = 0;
+    List<ElementType>* currentActive;
+    List<ElementType> active[2];
     List<ElementType> added;
     List<ElementType> inactive;
 

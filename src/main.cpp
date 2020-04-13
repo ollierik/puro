@@ -72,7 +72,8 @@ class Element
 {
 public:
 
-    Element() : value(-1) {}
+    //Element() : value(-1) {}
+    Element() = delete;
     Element(int v) : value(v) {}
 
     void print()
@@ -88,6 +89,7 @@ int main()
     const int n = 8;
     SafePool<Element> pool;
     pool.reserve(8);
+    pool.reserve(16);
 
     for (int i=0; i<n; i++)
         pool.add((n-1-i)*10);
@@ -142,53 +144,6 @@ int main()
     {
         it->print();
     }
-
-    /*
-    for (auto e : pool)
-    {
-        if (e->value == 10)
-        {
-            pool.remove(e);
-        }
-        else
-        {
-            e->print();
-        }
-    }
-    */
-
-    /*
-    std::cout << "Iterate all, print" << std::endl;
-
-    for (auto e : pool)
-    {
-        e->print();
-    }
-
-    std::cout << "Iterate all, remove 30:" << std::endl;
-
-    for (auto e : pool)
-    {
-        if (e->value == 30)
-        {
-            pool.remove(e);
-        }
-        else
-        {
-            e->print();
-        }
-    }
-    */
-    /*
-
-    std::cout << "\nAfter removal\n";
-
-    for (auto e : pool)
-    {
-        std::cout << "########\n";
-        e->print();
-    }
-    */
 
     return 0;
 }

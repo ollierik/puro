@@ -85,7 +85,7 @@ public:
 
 int main()
 {
-    const int n = 4;
+    const int n = 8;
     SafePool<Element> pool;
     pool.reserve(8);
 
@@ -94,9 +94,9 @@ int main()
 
     std::cout << "After init\n";
 
-    std::cout << "Iterate additions" << std::endl;
-    //for (auto it = pool.begin(); it != pool.end(); ++it)
-    for (auto it : pool)
+    std::cout << "Iterate additions, remove 10" << std::endl;
+
+    for (auto& it : pool)
     {
         if (it->value == 10)
         {
@@ -106,6 +106,41 @@ int main()
         {
             it->print();
         }
+    }
+
+    std::cout << "Iterate active" << std::endl;
+    for (auto& it : pool)
+    {
+        it->print();
+    }
+
+    std::cout << "Iterate active, remove 30" << std::endl;
+    for (auto& it : pool)
+    {
+        if (it->value == 30)
+        {
+            pool.remove(it);
+        }
+        else
+        {
+            it->print();
+        }
+    }
+
+    std::cout << "Iterate active" << std::endl;
+    for (auto& it : pool)
+    {
+        it->print();
+    }
+
+    std::cout << "Add 100" << std::endl;
+
+    pool.add(100);
+
+    std::cout << "Iterate active and added" << std::endl;
+    for (auto& it : pool)
+    {
+        it->print();
     }
 
     /*

@@ -112,6 +112,12 @@ struct SourceOperations
     {
         source.next(dst, Type::replace);
     }
+    
+    template <typename FloatType, class SourceType>
+    static void add(Buffer<FloatType>& dst, Buffer<FloatType>& src, SourceType& source)
+    {
+        source.next(dst, src, Type::add);
+    }
 
     template <typename FloatType>
     static void multiplyAdd(Buffer<FloatType>& dst, const Buffer<FloatType>& src1, const Buffer<FloatType>& src2)

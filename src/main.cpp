@@ -16,8 +16,8 @@ int main()
     using Envelope = SineEnvelope<float>;
     using AudioSource = AudioBufferSource<float>;
 
-    using Context = EnvelopeProcessorContext<float>;
-    using Grain = EnvelopeProcessor<float, Context, AudioSource, Envelope>;
+    using Context = GenericProcessorContext<float>;
+    using Grain = GenericProcessor<float, Context, AudioSource, Envelope>;
     using Sound = SoundObject<float, Grain, Context>;
 
     using Engine = SoundObjectEngine<float, Sound, Grain, Context>;

@@ -223,3 +223,19 @@ private:
     Buffer<FloatType>& sourceBuffer;
 };
 
+/////////////////////////////////////////////
+// Interpolators
+/////////////////////////////////////////////
+
+template <typename FloatType>
+class LinearInterpolator
+{
+    LinearInterpolator(FloatType rate) : rate(rate) {}
+
+    static void next(Buffer<FloatType>& dst, Buffer<FloatType>& src, SourceOperations::Type opType)
+    {
+
+    }
+
+    const FloatType rate;
+};

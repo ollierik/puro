@@ -113,11 +113,30 @@ template <class ElementType>
 class Iterator
 {
 public:
-    Iterator(SafePool<ElementType>& sp, Node<ElementType>* n)
+    Iterator(SafePool<ElementType>& sp, Node<ElementType>* n, bool startFromAdditions=false)
         : pool(sp)
         , node(n)
         , prev(nullptr)
     {
+        if (startFromAdditions)
+        {
+            auto* popped = pool.added.pop_front();
+            pool.active.push_front(popped);
+            node = popped;
+            prev = nullptr;
+        }
+    }
+
+    Iterator (const Iterator& other) 
+        : pool(other.pool)
+        , node(other.node)
+        , prev(other.prev)
+    {
+        /** You are most likely using while (auto ...)
+            This will screw up the iteration.
+            Use while (auto& ...) instead.
+            The copy constructor should be omited as per C++ RVO specs. */
+        errorif(true, "Direct access to iterator copy constructor");
     }
 
     bool operator!= (const Iterator<ElementType>& other)
@@ -140,6 +159,7 @@ public:
     {
 
         // if no actives, try to get an addition
+        /*
         if (node == nullptr)
         {
             auto* n = pool.added.pop_front();
@@ -147,9 +167,10 @@ public:
             node = n;
             prev = nullptr;
         }
+        */
         // if we're at the end of list, start going through the additions
         // move additions to the end of the active list
-        else if (node->next == nullptr)
+        if (node->next == nullptr)
         {
             if (! pool.added.empty())
             {
@@ -241,9 +262,7 @@ public:
     {
         if (active.empty())
         {
-            auto it = Iterator<ElementType> (*this, active.first());
-            ++it;
-            return it;
+            return Iterator<ElementType> (*this, active.first(), true);
         }
 
         return Iterator<ElementType> (*this, active.first());

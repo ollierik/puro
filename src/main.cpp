@@ -13,15 +13,18 @@ int main()
     std::vector<float> left (n, 0.0f);
     std::vector<float> right (n, 0.0f);
 
-    using Envelope = SineEnvelope<float>;
+    //using Envelope = SineEnvelope<float>;
     using AudioSource = AudioBufferSource<float>;
+    using Envelope = ConstSource<float>;
+    //using AudioSource = ConstSource<float>;
+    using Interpolator = LinearInterpolator<float>;
 
-    using Context = GenericProcessorContext<float>;
-    using Grain = GenericProcessor<float, Context, AudioSource, Envelope>;
+    using Context = InterpolatingProcessorContext<float>;
+    using Grain = InterpolatingProcessor<float, Context, AudioSource, Envelope, Interpolator>;
     using Sound = SoundObject<float, Grain, Context>;
 
     using Engine = SoundObjectEngine<float, Sound, Grain, Context>;
-    using Controller = BufferedGranularController<float, Engine, Sound, AudioSource, Envelope>;
+    using Controller = BufferedGranularController<float, Engine, Sound, AudioSource, Envelope, Interpolator>;
 
     Engine engine;
     Controller controller (engine);
@@ -34,11 +37,18 @@ int main()
 
     for (int i=0; i<fileBuffer.size(); ++i)
     {
+        /*
         const float r1 = ((float)std::rand() / (float)RAND_MAX) * 2 -1;
         fileBuffer.channel(0)[i] = r1;
 
         const float r2 = ((float)std::rand() / (float)RAND_MAX) * 2 -1;
         fileBuffer.channel(1)[i] = r2;
+        */
+        //fileBuffer.channel(0)[i] = (float)(i % 2);
+        //fileBuffer.channel(1)[i] = (float)(i % 2);
+
+        fileBuffer.channel(0)[i] = (float)(1);
+        fileBuffer.channel(1)[i] = (float)(1);
     }
 
     controller.setAudioBuffer(fileBuffer);

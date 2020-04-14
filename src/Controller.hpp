@@ -1,17 +1,18 @@
 #pragma once
 
 /** Controls parameters and creates grains */
-template <typename FloatType, class EngineType, class SoundObjectType, class AudioSourceType, class EnvelopeType>
+template <typename Float, class Engine, class SoundObject,
+    class AudioSource, class Envelope, class Interpolator>
 class GranularController
 {
 public:
 
-    GranularController(EngineType& e) : engine(e), counter(interval)
+    GranularController(Engine& e) : engine(e), counter(interval)
     {
     }
 
     /** Called from tick, separated for convenience */
-    void advance(Buffer<FloatType>& output)
+    void advance(Buffer<Float>& output)
     {
         const int numSamples = output.size();
         int samplesRemaining = numSamples;
@@ -39,17 +40,17 @@ public:
         }
     }
 
-    virtual bool createAndRunGrain(Buffer<FloatType>& output, int offset) = 0;
+    virtual bool createAndRunGrain(Buffer<Float>& output, int offset) = 0;
         /*
     {
-        SoundObjectType* s = engine.addSound(offset, duration, AudioSourceType(), EnvelopeType(duration));
+        SoundObject* s = engine.addSound(offset, duration, AudioSource(), Envelope(duration));
         return s  == nullptr;
     }
     */
 
 protected:
 
-    EngineType& engine;
+    Engine& engine;
 
     int interval = 20;
     int duration = 10;
@@ -57,25 +58,29 @@ protected:
 };
 
 /** Controls parameters and creates grains */
-template <typename FloatType, class EngineType, class SoundObjectType, class AudioSourceType, class EnvelopeType>
-class BufferedGranularController : public GranularController<FloatType, EngineType, SoundObjectType, AudioSourceType, EnvelopeType>
+template <typename Float, class Engine, class SoundObject,
+    class AudioSource, class Envelope, class Interpolator>
+class BufferedGranularController : public GranularController<Float, Engine, SoundObject, AudioSource, Envelope, Interpolator>
 {
 public:
 
-    using BaseClass = GranularController<FloatType, EngineType, SoundObjectType, AudioSourceType, EnvelopeType>;
+    using BaseClass = GranularController<Float, Engine, SoundObject, AudioSource, Envelope, Interpolator>;
 
-    BufferedGranularController(EngineType& e) : BaseClass(e) {}
+    BufferedGranularController(Engine& e) : BaseClass(e) {}
 
-    bool createAndRunGrain(Buffer<FloatType>& output, int offset) override
+    bool createAndRunGrain(Buffer<Float>& output, int offset) override
     {
         errorif(audioBuffer == nullptr, "audio buffer not set");
-        SoundObjectType* s = this->engine.addAndRunSound(output, offset, this->duration,
-                                                        AudioSourceType(*audioBuffer, bufferIndex),
-                                                        EnvelopeType(this->duration));
+        SoundObject* s = this->engine.addAndRunSound(output, offset, this->duration,
+                                                        AudioSource(*audioBuffer, bufferIndex),
+                                                        //Envelope(this->duration),
+                                                        //AudioSource(), Envelope(),
+                                                        Envelope(),
+                                                        Interpolator(2.0));
         return s == nullptr;
     }
 
-    void setAudioBuffer(Buffer<FloatType>& buffer)
+    void setAudioBuffer(Buffer<Float>& buffer)
     {
         audioBuffer = &buffer;
     }
@@ -87,7 +92,7 @@ public:
 
 private:
 
-    Buffer<FloatType>* audioBuffer;
+    Buffer<Float>* audioBuffer;
     int bufferIndex = 0;
 };
 

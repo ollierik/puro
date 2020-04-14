@@ -16,12 +16,19 @@ struct Math
             dst[i] += src1[i] * src2[i];
     };
 
-    /** Multiply src buffer with value and set to dst */
     template <typename FloatType>
-    static void multiplySet(FloatType* dst, const FloatType* src, const FloatType value, const int n)
+    static void multiply(FloatType* dst, const FloatType* src1, const FloatType* src2, const int n)
     {
         for (int i = 0; i < n; ++i)
-            dst[i] += src[i] * value;
+            dst[i] = src1[i] * src2[i];
+    };
+
+    /** Multiply src buffer with value and set to dst */
+    template <typename FloatType>
+    static void multiply(FloatType* dst, const FloatType* src, const FloatType value, const int n)
+    {
+        for (int i = 0; i < n; ++i)
+            dst[i] = src[i] * value;
     }
 
     /** In-place sin */

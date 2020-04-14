@@ -56,38 +56,35 @@ class InterpolatingProcessor
 {
 public:
 
-    InterpolatingProcessor(FloatType playbackSpeed, AudioSourceType audioSource, EnvelopeType envelope)
-        : rate (1 / playbackSpeed)
-        , audioSource(audioSource)
+    InterpolatingProcessor(AudioSourceType audioSource, EnvelopeType envelope, InterpolatorType interpolator)
+        : audioSource(audioSource)
         , envelopeSource(envelope)
+        , interpolator(interpolator)
     {
     }
 
     void next(Buffer<FloatType>& output, ContextType& context)
     {
-        Buffer<FloatType> audioBuffer (output, context.tempAudioBuffer);
+        const int numInputNeeded = interpolator.getNeededInputLength(output.size());
+
+        Buffer<FloatType> audioBuffer (output.getNumChannels(), numInputNeeded, context.tempAudioBuffer);
         SourceOperations::replace(audioBuffer, audioSource);
 
         Buffer<FloatType> envelopeBuffer (audioBuffer, context.tempEnvelopeBuffer);
         SourceOperations::replace(envelopeBuffer, envelopeSource);
 
+        Buffer<FloatType> interpBuffer (audioBuffer, context.tempInterpBuffer);
+
+        // copy to the padded interpolation buffer
+        SourceOperations::multiply(interpBuffer, audioBuffer, envelopeBuffer);
+
+        SourceOperations::add(output, interpBuffer, interpolator);
+
         // ensure the same size of buffers
-        output.trimLengthToMatch(envelopeBuffer);
-
-
-        // TODO rounding
-        int lengthForRate = output.size() * rate;
-        Buffer<FloatType> interpBuffer (output.getNumChannels(), lengthForRate, context.tempInterpBuffer);
-
-        // copy to interpolation buffer
-        SourceOperations::multiplyAdd(interpBuffer, audioBuffer, envelopeBuffer);
-
-        SourceOperations::add(output, interpBuffer, audioSource);
+        //output.trimLengthToMatch(envelopeBuffer);
     }
 
 private:
-
-    const float rate; // 1 / speed
 
     AudioSourceType audioSource;
     EnvelopeType envelopeSource;

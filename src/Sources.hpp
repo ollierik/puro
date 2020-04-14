@@ -11,11 +11,11 @@ public:
 
     void next(Buffer<FloatType>& buffer, SourceOperations::Type opType)
     {
-        for (int ch=0; ch < buffer.numChannels; ++ch)
+        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
         {
-            FloatType* dst = buffer.channels[ch];
+            FloatType* dst = buffer.channel(ch);
             
-            for (int i=0; i<buffer.numSamples; ++i)
+            for (int i=0; i<buffer.size(); ++i)
             {
                 if (opType == SourceOperations::Type::add) dst[i] += 1.0;
                 else dst[i] = 1.0;
@@ -230,12 +230,83 @@ private:
 template <typename FloatType>
 class LinearInterpolator
 {
-    LinearInterpolator(FloatType rate) : rate(rate) {}
+public:
+    LinearInterpolator(FloatType rate)
+        : rate(rate)
+        , remainder(0)
+    {}
 
-    static void next(Buffer<FloatType>& dst, Buffer<FloatType>& src, SourceOperations::Type opType)
+    int getNeededInputLength(int numSamples)
     {
+        if (rate == 1)
+            return numSamples;
+        else if (rate > 1)
+            return static_cast<int>(std::ceil(numSamples * rate + remainder));
+        else
+            return 1; // TODO implement this
+    }
 
+    void next(Buffer<FloatType>& dst, Buffer<FloatType>& src, SourceOperations::Type opType)
+    {
+        errorif(dst.getNumChannels() != src.getNumChannels(), "number of channels don't match");
+
+        for (int ch=0; ch<src.getNumChannels(); ++ch)
+        {
+            FloatType* input = src.channel(ch);
+            FloatType* output = dst.channel(ch);
+
+            FloatType f = remainder;
+
+            int i = 0;
+            if (remainder != 0)
+            {
+                const FloatType carry[] = { carryover[ch], input[0] };
+                while (f < 1)
+                {
+                    output[i] = interpolateValue(&carry[0], f);
+                    f += rate;
+                    ++i;
+                }
+            }
+            
+            int inputIndex = static_cast<int> (f);
+            while (inputIndex < src.size()-1)
+            {
+                const FloatType q = f - static_cast<FloatType> (inputIndex);
+                output[i] = interpolateValue(&input[inputIndex], q); 
+            
+                f += rate;
+                inputIndex = static_cast<int> (f);
+                ++i;
+            }
+
+            if (ch == src.getNumChannels() - 1)
+            {
+                errorif(i > dst.size(), "something went wrong");
+
+                if (i < dst.size())
+                {
+                    dst.trimLength(i);
+                }
+
+                carryover[ch] = input[src.size()-1];
+                remainder = f - std::floor(f);
+            }
+        }
     }
 
     const FloatType rate;
+
+private:
+
+
+    FloatType interpolateValue(const FloatType* xs, FloatType q)
+    {
+        const FloatType x0 = xs[0];
+        const FloatType x1 = xs[1];
+        return (1-q) * x0 + q * x1;
+    }
+
+    FloatType remainder;
+    FloatType carryover[PURO_BUFFER_MAX_CHANNELS];
 };

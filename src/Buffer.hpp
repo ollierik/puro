@@ -16,9 +16,12 @@ public:
         : numChannels(numChannels) , numSamples(numSamples)
     {}
 
+
     Buffer (const std::array<FloatType*, PURO_BUFFER_MAX_CHANNELS>& channels, int numChannels, int numSamples)
         : channels(channels) , numChannels(numChannels), numSamples(numSamples)
     {}
+
+    Buffer (const Buffer<FloatType>& other) = default;
 
     /** Create a buffer with given shape, with channels fitted into the provided vector.
         If vector can't fit the created buffer, it will be resized. */
@@ -63,6 +66,13 @@ public:
     int size() { return numSamples; };
 
     const std::pair<int, int> shape() const { return { numChannels, numSamples }; };
+
+    Buffer<FloatType> withPaddedBegin(int pad)
+    {
+        Buffer<FloatType> buf (*this);
+        buf.trimBegin(pad);
+        return buf;
+    }
 
     void trimBegin(int offset)
     {
@@ -127,14 +137,19 @@ struct SourceOperations
 
         for (int ch=0; ch<dst.getNumChannels(); ++ch)
         {
-            /*
-            auto* d = dst.getChannel(ch);
-            const auto* s1 = src1.getConstChannel(ch);
-            const auto* s2 = src2.getConstChannel(ch);
-            Math::multiplyAdd<FloatType>(d, s1, s2, dst.size());
-            */
             Math::multiplyAdd<FloatType>(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.size());
-            //Math::multiplyAdd<FloatType>(dst.getChannel(ch), src1.getConstChannel(ch), src2.getConstChannel(ch), dst.size());
+        }
+    }
+
+    template <typename FloatType>
+    static void multiply(Buffer<FloatType>& dst, const Buffer<FloatType>& src1, const Buffer<FloatType>& src2)
+    {
+        errorif(! (dst.shape() == src1.shape()), "dst and src1 buffer dimensions don't match");
+        errorif(! (dst.shape() == src2.shape()), "dst and src2 buffer dimensions don't match");
+
+        for (int ch=0; ch<dst.getNumChannels(); ++ch)
+        {
+            Math::multiply<FloatType>(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.size());
         }
     }
 };

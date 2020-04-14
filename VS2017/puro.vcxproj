@@ -25,7 +25,7 @@
     <ClInclude Include="..\src\Processors.hpp" />
     <ClInclude Include="..\src\Math.hpp" />
     <ClInclude Include="..\src\Parameter.hpp" />
-    <ClInclude Include="..\src\Pool.hpp" />
+    <ClInclude Include="..\src\SimplePool.hpp" />
     <ClInclude Include="..\src\Controller.hpp" />
     <ClInclude Include="..\src\PuroHeader.h" />
     <ClInclude Include="..\src\SafePool.hpp" />

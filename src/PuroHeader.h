@@ -13,7 +13,6 @@
 #include "Math.hpp"
 #include "Buffer.hpp"
 #include "Sources.hpp"
-#include "Interpolators.hpp"
 #include "Processors.hpp"
 #include "SafePool.hpp"
 #include "Engine.hpp"

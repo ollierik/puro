@@ -45,9 +45,9 @@ private:
 template <typename FloatType>
 struct InterpolatingProcessorContext
 {
-    std::vector<FloatType> tempInterpBuffer;
-    std::vector<FloatType> tempAudioBuffer;
-    std::vector<FloatType> tempEnvelopeBuffer;
+    std::vector<FloatType> tempWorkVector;
+    std::vector<FloatType> tempAudioVector;
+    std::vector<FloatType> tempEnvelopeVector;
 };
 
 
@@ -65,23 +65,17 @@ public:
 
     void next(Buffer<FloatType>& output, ContextType& context)
     {
-        const int numInputNeeded = interpolator.getNeededInputLength(output.size());
+        Buffer<FloatType> audioBuffer (output, context.tempAudioVector);
 
-        Buffer<FloatType> audioBuffer (output.getNumChannels(), numInputNeeded, context.tempAudioBuffer);
-        SourceOperations::replace(audioBuffer, audioSource);
+        interpolator.next(audioBuffer, audioSource, context.tempWorkVector, SourceOperations::Type::replace);
 
-        Buffer<FloatType> envelopeBuffer (audioBuffer, context.tempEnvelopeBuffer);
+        Buffer<FloatType> envelopeBuffer (audioBuffer, context.tempEnvelopeVector);
         SourceOperations::replace(envelopeBuffer, envelopeSource);
 
-        Buffer<FloatType> interpBuffer (audioBuffer, context.tempInterpBuffer);
-
-        // copy to the padded interpolation buffer
-        SourceOperations::multiply(interpBuffer, audioBuffer, envelopeBuffer);
-
-        SourceOperations::add(output, interpBuffer, interpolator);
-
         // ensure the same size of buffers
-        //output.trimLengthToMatch(envelopeBuffer);
+
+        output.trimLengthToMatch(envelopeBuffer);
+        SourceOperations::multiplyAdd(output, audioBuffer, envelopeBuffer);
     }
 
 private:

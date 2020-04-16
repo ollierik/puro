@@ -67,13 +67,6 @@ public:
 
     const std::pair<int, int> shape() const { return { numChannels, numSamples }; };
 
-    Buffer<FloatType> withPaddedBegin(int pad)
-    {
-        Buffer<FloatType> buf (*this);
-        buf.trimBegin(pad);
-        return buf;
-    }
-
     void trimBegin(int offset)
     {
         errorif(offset < 0 || offset > numSamples, "offset out of bounds");
@@ -89,6 +82,16 @@ public:
         errorif(newLength < 0 || newLength > numSamples, "new length out of bounds");
 
         numSamples = newLength;
+    }
+
+    /** Use at your own risk! No guarantees are made that the memory that we point to is allocated.
+        Should only be used to undo a previous trim. */
+    void expandBegin(int offset)
+    {
+        numSamples += offset;
+
+        for (int ch=0; ch<numChannels; ++ch)
+            channels[ch] = &channels[ch][-offset];
     }
 
     void trimLengthToMatch(Buffer<FloatType>& other)

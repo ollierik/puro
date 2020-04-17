@@ -289,16 +289,17 @@ public:
 
             FloatType pos = continueAt - static_cast<FloatType> (inputPosition);
 
-            for (int outputIndex = 0; outputIndex < dst.size(); outputIndex)
+            for (int outputIndex = 0; outputIndex < dst.size(); ++outputIndex)
             {
                 const int inputIndex = static_cast<int> (pos);
                 const FloatType q = pos - static_cast<FloatType> (inputIndex);
+                std::cout << ch << " " << pos <<  "\n";
 
-                output[outputIndex] += interpolateValue(&input[inputIndex], q);
+                output[outputIndex] = interpolateValue(&input[inputIndex], q);
                 pos += rate;
             }
 
-            if (ch == dst.getNumChannels() - 1)
+            if (ch == (dst.getNumChannels() - 1))
             {
                 continueAt = pos + inputPosition;
                 inputPosition += numInputSamples;

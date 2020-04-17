@@ -76,7 +76,7 @@ public:
                                                         //Envelope(this->duration),
                                                         //AudioSource(), Envelope(),
                                                         Envelope(),
-                                                        Interpolator(2.0));
+                                                        Interpolator(1.0));
         return s == nullptr;
     }
 

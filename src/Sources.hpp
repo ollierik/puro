@@ -231,122 +231,126 @@ template <typename FloatType>
 class LinearInterpolator
 {
 public:
-    LinearInterpolator(FloatType rate)
-        : rate(rate)
-        , remainer(0)
+    LinearInterpolator(FloatType rate) : rate(rate)
     {}
+
     template <class AudioSource>
     void next(Buffer<FloatType>& dst, AudioSource& source, std::vector<FloatType> tempVector, SourceOperations::Type opType)
     {
-        /**
-        - Find out how many samples are needed as input to fill the given samples of output
-        - Setup a masked buffer
-        - Get samples from source
+        /*
+        - Find the index of last sample we need
+        - Find how many input samples are needed to reach it
+
+        - Request samples from source
             - If number of samples received is less than what we wanted
             -> Find how many samples can be produced
                 -> Resize buffer to flag this
-        - Copy existing carryover to the beginning of the buffer
-        - Find out the index k of a output sample that doesn't require info about the carryover
-        - Loop to fill the output
-        - Store carryover for next run
-        */ 
+        - If needed, copy carryover
+        - Loop
+        */
 
-        const int numNeeded = getNumInputSamplesNeeded(dst.size()) - numCarryover;
+        const int numToRequest = getNumSamplesToRequest(dst.size());
+        const int numExpected = numToRequest + numCarryover;
 
-        Buffer<FloatType> tempBuffer (dst.getNumChannels(), numNeeded, tempVector);
+        Buffer<FloatType> tempBuffer (dst.getNumChannels(), numExpected, tempVector);
 
-        // trim to mask the space that carryover samples are copied to
-        tempBuffer.trimBegin(numCarryover);
-        source.next(tempBuffer, SourceOperations::Type::replace);
-        tempBuffer.expandBegin(numCarryover);
-
-        if (tempBuffer.size() < numNeeded)
+        if (numCarryover > 0)
         {
-            const int numSamplesToProvide = getNumInputSamplesNeeded(tempBuffer.size());
+            // trim to mask the space that carryover samples are copied to
+            tempBuffer.trimBegin(numCarryover);
+            source.next(tempBuffer, SourceOperations::Type::replace);
+            tempBuffer.expandBegin(numCarryover);
+        }
+        else
+        {
+            source.next(tempBuffer, SourceOperations::Type::replace);
+        }
+
+        if (tempBuffer.size() < numExpected)
+        {
+            const int numSamplesToProvide = getNumSamplesToProvide(tempBuffer.size());
             dst.trimLength(numSamplesToProvide);
+        }
+
+        // restore carryover from state if needed
+        if (numCarryover > 0)
+        {
+            for (int ch=0; ch < dst.getNumChannels(); ++ch)
+                for (int i=0; i<numCarryover; ++i)
+                    restoreCarryoverSample(tempBuffer, ch, i);
         }
 
         const int numInputSamples = tempBuffer.size();
 
-        for (int ch=0; ch<dst.getNumChannels(); ++ch)
+        for (int ch=0; ch < dst.getNumChannels(); ++ch)
         {
             FloatType* input = tempBuffer.channel(ch);
             FloatType* output = dst.channel(ch);
 
-            // recall carryover
-            for (int i=0; i<numCarryover; i++)
+            FloatType pos = continueAt - static_cast<FloatType> (inputPosition);
+
+            for (int outputIndex = 0; outputIndex < dst.size(); outputIndex)
             {
-                input[i] = carryover[ch * maxCarryover + i];
-            }
-
-            FloatType f = remainer;
-
-            int i = 0;
-
-            for (int outputIndex=0; outputIndex < dst.size(); ++i)
-            {
-                const int inputIndex = static_cast<int> (f);
-                const FloatType q = f - static_cast<int> (inputIndex);
+                const int inputIndex = static_cast<int> (pos);
+                const FloatType q = pos - static_cast<FloatType> (inputIndex);
 
                 output[outputIndex] += interpolateValue(&input[inputIndex], q);
-            
-                f += rate;
-            }
-            
-            // store carryover
-            const int numToStore = maxCarryover < numInputSamples ? maxCarryover : numInputSamples;
-
-            for (int ci = 0, ii = numInputSamples - numToStore; ii < numInputSamples; ++ii, ++ci)
-            {
-                carryover[ch * maxCarryover + ci] = input[ii];
+                pos += rate;
             }
 
             if (ch == dst.getNumChannels() - 1)
             {
-                numCarryover = tempBuffer.size() < 2 ? tempBuffer.size() : 2;
-                remainer = f - std::floor(f);
+                continueAt = pos + inputPosition;
+                inputPosition += numInputSamples;
             }
         }
+
+        updateCarryover(tempBuffer);
+
     }
 
     const FloatType rate;
 
 private:
 
-    int getNumInputSamplesNeeded(int outputSamples)
+    int getNumSamplesToRequest(int numOutput)
     {
-    }
-    int getNumOutputSamplesFromInputLength(int inputSamples)
-    {
-    }
-    int getNumSamplesFromCarryover()
-    {
-        const int initLength = std::floor((2 - remainer)/rate);
+        const int highest = static_cast<int> (std::ceil(continueAt + (numOutput-1) * rate));
+        const int diff = highest - inputPosition;
+        return diff;
     }
 
-
-    /*
-    int getNeededInputLength(int numSamples)
+    int getNumSamplesToProvide(int numInput)
     {
-        if (rate > 1)
-        {
-            return static_cast<int>(std::ceil(numSamples * rate + remainer));
-        }
-        else if (rate < 1)
-        {
-            if (initialRun)
-            {
-                return static_cast<int> (remainer + numSamples * rate) + 2;
-            }
-            else
-            {
-                return static_cast<int> (remainer + numSamples * rate);
-            }
-        }
-        return 1;
+        const FloatType range = static_cast<FloatType>(numInput + inputPosition) - (continueAt - rate);
+        const int n = static_cast<int> (std::ceil(range / rate));
+        return n;
     }
-    */
 
+    void updateCarryover(Buffer<FloatType>& inputBuffer)
+    {
+        const int lowestNeeded = static_cast<int> (std::floor(continueAt));
+        const int diff = inputPosition - lowestNeeded + (maxCarryover-1);
+        numCarryover = diff > maxCarryover ? maxCarryover : diff;
+
+        for (int ch=0; ch<inputBuffer.getNumChannels(); ++ch)
+            for (int i = 0; i < numCarryover; i++)
+                storeCarryoverSample(inputBuffer, ch, i);
+
+    }
+
+    void restoreCarryoverSample(Buffer<FloatType>& inputBuffer, int ch, int i)
+    {
+        const FloatType sample = carryover[ch * maxCarryover + i];
+        inputBuffer.channel(ch)[i] = sample;
+    }
+
+    void storeCarryoverSample(Buffer<FloatType>& inputBuffer, int ch, int i)
+    {
+        const auto first = inputBuffer.size() - numCarryover;
+        const FloatType sample = inputBuffer.channel(ch)[first + i];
+        carryover[ch * maxCarryover + i] = sample;
+    }
 
     FloatType interpolateValue(const FloatType* xs, const FloatType q)
     {
@@ -355,8 +359,10 @@ private:
         return (1-q) * x0 + q * x1;
     }
 
+    int inputPosition = -1;
+    FloatType continueAt = 0;
     int numCarryover = 0;
-    FloatType remainer = 0; // (0, 1]
+
     static constexpr int maxCarryover = 2;
     FloatType carryover[maxCarryover * PURO_BUFFER_MAX_CHANNELS];
 };

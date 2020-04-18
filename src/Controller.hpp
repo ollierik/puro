@@ -7,7 +7,7 @@ class GranularController
 {
 public:
 
-    GranularController(Engine& e) : engine(e), counter(interval)
+    GranularController(Engine& e) : engine(e), counter(-5)
     {
     }
 
@@ -41,12 +41,6 @@ public:
     }
 
     virtual bool createAndRunGrain(Buffer<Float>& output, int offset) = 0;
-        /*
-    {
-        SoundObject* s = engine.addSound(offset, duration, AudioSource(), Envelope(duration));
-        return s  == nullptr;
-    }
-    */
 
 protected:
 
@@ -76,7 +70,7 @@ public:
                                                         //Envelope(this->duration),
                                                         //AudioSource(), Envelope(),
                                                         Envelope(),
-                                                        Interpolator(1.0));
+                                                        Interpolator(2.5));
         return s == nullptr;
     }
 

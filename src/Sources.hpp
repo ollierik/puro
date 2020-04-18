@@ -282,26 +282,44 @@ public:
 
         const int numInputSamples = tempBuffer.size();
 
+        std::cout << "####################################" << std::endl;
+
         for (int ch=0; ch < dst.getNumChannels(); ++ch)
         {
             FloatType* input = tempBuffer.channel(ch);
             FloatType* output = dst.channel(ch);
 
-            FloatType pos = continueAt - static_cast<FloatType> (inputPosition);
+            // DEBUG
+            std::cout << "CHANNEL " << ch << std::endl;
+            for (int i=0; i<tempBuffer.size(); ++i)
+            {
+                std::cout << input[i] << " ";
+            }
+            std::cout << "\n";
+
+
+            FloatType f = continueAt;
 
             for (int outputIndex = 0; outputIndex < dst.size(); ++outputIndex)
             {
-                const int inputIndex = static_cast<int> (pos);
-                const FloatType q = pos - static_cast<FloatType> (inputIndex);
-                std::cout << ch << " " << pos <<  "\n";
+                const FloatType q = f - std::floor(f);
+
+                const int inputIndex = std::floor(f) - (inputPosition + 1) + numCarryover;
+
+                std::cout << "f: " << f;
+                std::cout << "\t inputPosition: " << inputPosition;
+                std::cout << "\t numCarryover: " << numCarryover;
+                std::cout <<"\t inputIndex:" << inputIndex;
+
+                std::cout << "\n";
 
                 output[outputIndex] = interpolateValue(&input[inputIndex], q);
-                pos += rate;
+                f += rate;
             }
 
             if (ch == (dst.getNumChannels() - 1))
             {
-                continueAt = pos + inputPosition;
+                continueAt = f;
                 inputPosition += numInputSamples;
             }
         }
@@ -332,7 +350,8 @@ private:
     {
         const int lowestNeeded = static_cast<int> (std::floor(continueAt));
         const int diff = inputPosition - lowestNeeded + (maxCarryover-1);
-        numCarryover = diff > maxCarryover ? maxCarryover : diff;
+        //numCarryover = diff > maxCarryover ? maxCarryover : diff;
+        numCarryover = Math::clamp(diff, 0, maxCarryover);
 
         for (int ch=0; ch<inputBuffer.getNumChannels(); ++ch)
             for (int i = 0; i < numCarryover; i++)

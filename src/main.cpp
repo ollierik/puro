@@ -6,7 +6,7 @@
 
 int main()
 {
-    const int n = 256;
+    const int n = 200;
     const int blockSize = 32;
     const int numChannels = 2;
 
@@ -47,8 +47,8 @@ int main()
         //fileBuffer.channel(0)[i] = (float)(i % 2);
         //fileBuffer.channel(1)[i] = (float)(i % 2);
 
-        fileBuffer.channel(0)[i] = (float)(1);
-        fileBuffer.channel(1)[i] = (float)(1);
+        fileBuffer.channel(0)[i] = (float)(i*10 + 10);
+        fileBuffer.channel(1)[i] = (float)(i*10 + 10);
     }
 
     controller.setAudioBuffer(fileBuffer);

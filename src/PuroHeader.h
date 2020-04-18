@@ -8,6 +8,7 @@
 #include <cmath>
 #include <functional>
 #include <utility>
+#include <algorithm>
 
 #include "Definitions.hpp"
 #include "Math.hpp"

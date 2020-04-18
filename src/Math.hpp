@@ -2,9 +2,16 @@
 
 /** Maths routines for buffers. Used to allow flexibility later on by implementing vector math libs such as IPP */
 struct Math
+
 {
+    template <typename Type>
+    static constexpr const Type clamp(const Type& value, const Type& lo, const Type& hi)
+    {
+        return (value > hi ? hi : (value < lo ? lo : value));
+    }
+
     template <typename FloatType>
-    static FloatType pi()
+    static constexpr FloatType pi()
     {
         return static_cast<FloatType> (3.14159265358979323846);
     }

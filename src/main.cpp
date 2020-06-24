@@ -1,63 +1,75 @@
-#include "PuroHeader.h"
+#include <vector>
+#include "buffer.h"
+#include "pool.h"
+#include <iostream>
 
-// TODO
-// - Random deviation parameters for granulator
-// - ints to size_ts where appropriate
+struct Grain
+{
+    int x;
+};
+
+struct Context
+{
+    std::vector<float> temp1;
+    std::vector<float> temp2;
+};
+
+
+template <typename F, typename E, typename C>
+bool process_grain(const Buffer<F>& buffer, E& grain, C& context)
+{
+    std::cout << grain.x << std::endl;
+
+    /*
+	Buffer local = crop_buffer(buffer, grain.offset, grain.remaining);
+	
+	Buffer temp1 (context.temp1, local.chs, local.n);    
+	fill_interpolated(temp1, grain.source, grain.rate);
+
+	Buffer temp2 = Buffer(context.temp2, temp1.chs, temp1.n);
+	fill(temp2, grain.envelope);
+
+	trim_buffer(local, temp2.n);
+
+	multiply_add(buffer, temp1, temp2);
+
+	advance_offset_and_remaining(grain);
+	return (buffer.n != local.n);
+    */
+    return grain.x == 4;
+}
 
 int main()
 {
-    const int n = 256;
+    std::vector<float> vec(64, 0.0f);
+    Buffer<float> buffer {1, 32, vec.data()};
+
+    Context context;
+
     const int blockSize = 32;
-    const int numChannels = 2;
 
-    std::vector<float> left (n, 0.0f);
-    std::vector<float> right (n, 0.0f);
-
-    using Envelope = SineEnvelope<float>;
-    using AudioSource = AudioBufferSource<float>;
-
-    using Context = EnvelopeProcessorContext<float>;
-    using Grain = EnvelopeProcessor<float, Context, AudioSource, Envelope>;
-    using Sound = SoundObject<float, Grain, Context>;
-
-    using Engine = SoundObjectEngine<float, Sound, Grain, Context>;
-    using Controller = BufferedGranularController<float, Engine, Sound, AudioSource, Envelope>;
-
-    Engine engine;
-    Controller controller (engine);
-
-    engine.pool.reserve(8);
-
-    std::vector<float> fileVector;
-
-    Buffer<float> fileBuffer (2, 1024, fileVector);
-
-    for (int i=0; i<fileBuffer.size(); ++i)
+    Pool<Grain> pool;
+    for (int i=0; i<8; i++)
     {
-        const float r1 = ((float)std::rand() / (float)RAND_MAX) * 2 -1;
-        fileBuffer.channel(0)[i] = r1;
-
-        const float r2 = ((float)std::rand() / (float)RAND_MAX) * 2 -1;
-        fileBuffer.channel(1)[i] = r2;
+        pool.push(Grain{i});
     }
 
-    controller.setAudioBuffer(fileBuffer);
-
-    for (int i = 0; i < n - blockSize; i += blockSize)
+    for (auto&& it : pool)
     {
-        Buffer<float> buffer ( { &left[i], &right[i] }, numChannels, blockSize);
-
-        engine.addNextOutput(buffer);
-        controller.advance(buffer);
+        if (process_grain(buffer, it.get(), context))
+        {
+            pool.pop(it);
+        }
     }
 
-
-    std::cout << "\n    OUTPUT\n----------\n";
-
-    for (int i=0; i<n; i++)
+    Grain* added = nullptr;
+    int n = blockSize;
+    while (scheduler.tick(n))
     {
-        std::cout << i << ":\t" << left[i] << "\t" << right[i] << std::endl;
+        auto& g = pool.push(Grain{10});
+        process_grain(buffer, g, context);
     }
 
     return 0;
 }
+

@@ -19,20 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\Buffer.hpp" />
-    <ClInclude Include="..\src\Definitions.hpp" />
-    <ClInclude Include="..\src\Engine.hpp" />
-    <ClInclude Include="..\src\Processors.hpp" />
-    <ClInclude Include="..\src\Math.hpp" />
-    <ClInclude Include="..\src\Parameter.hpp" />
-    <ClInclude Include="..\src\Pool.hpp" />
-    <ClInclude Include="..\src\Controller.hpp" />
-    <ClInclude Include="..\src\PuroHeader.h" />
-    <ClInclude Include="..\src\SafePool.hpp" />
-    <ClInclude Include="..\src\Sources.hpp" />
+    <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
+    <ClInclude Include="..\src\buffer.h" />
+    <ClInclude Include="..\src\pool.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

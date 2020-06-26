@@ -19,17 +19,23 @@ struct Pool
     };
 
 
-    T& push(T&& element)
+    T* push(T&& element)
     {
-        elements.push_back(element);
-        return elements[size()-1];
+        if (elements.size() < elements.capacity())
+        {
+            elements.push_back(element);
+            return &elements[size() - 1];
+        }
+
+        return nullptr;
     }
 
-    void pop(Iterator it)
+    void pop(const Iterator& it)
     {
         if (size() > 1 && it.index < size()-1)
         {
-            elements[it.index] = elements[size()-1];
+            memcpy(&elements[it.index], &elements[size()-1], sizeof(T));
+            //elements[it.index] = memcpy((elements.back());
             elements.pop_back();
         }
     }

@@ -1,11 +1,45 @@
 #include <vector>
-#include "buffer.h"
-#include "pool.h"
 #include <iostream>
+
+#include "defs.hpp"
+#include "math.hpp"
+#include "pool.hpp"
+#include "buffer.hpp"
+#include "sources.hpp"
+#include "engine.hpp"
+
+struct Scheduler
+{
+    int tick(int numSamples)
+    {
+        counter += numSamples;
+
+        if (counter <= interval)
+        {
+            return 0;
+        }
+
+        numSamples = counter - interval;
+        counter = 0;
+
+        return numSamples;
+    }
+
+    int interval = 20;
+    int counter = 0;
+};
 
 struct Grain
 {
-    int x;
+    Grain(int offset, int length)
+        : ranges(offset, length)
+        , envelope(length)
+        , source()
+    {}
+
+    engine::Ranges ranges;
+    HannEnvelope<float> envelope;
+    ConstSource<float> source;
 };
 
 struct Context
@@ -14,61 +48,71 @@ struct Context
     std::vector<float> temp2;
 };
 
-
-template <typename F, typename E, typename C>
-bool process_grain(const Buffer<F>& buffer, E& grain, C& context)
+template <typename BufferType, typename ElementType, typename ContextType>
+bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& context)
 {
-    std::cout << grain.x << std::endl;
-
-    /*
-	Buffer local = crop_buffer(buffer, grain.offset, grain.remaining);
+	BufferType output = engine::ranges_crop_buffer(grain.ranges, buffer);
 	
-	Buffer temp1 (context.temp1, local.chs, local.n);    
-	fill_interpolated(temp1, grain.source, grain.rate);
+	BufferType temp1 (output, context.temp1);
+    ops::buffer_fill_from_source(temp1, grain.source);
 
-	Buffer temp2 = Buffer(context.temp2, temp1.chs, temp1.n);
-	fill(temp2, grain.envelope);
+	BufferType temp2 (temp1, context.temp2);
 
-	trim_buffer(local, temp2.n);
+    ops::buffer_fill_from_source(temp2, grain.envelope);
 
-	multiply_add(buffer, temp1, temp2);
+    output.trimLengthToMatch(temp2);
 
-	advance_offset_and_remaining(grain);
-	return (buffer.n != local.n);
-    */
-    return grain.x == 4;
+    ops::buffer_multiply_add(output, temp1, temp2);
+
+    engine::ranges_advance(grain.ranges, buffer.size());
+
+    return (grain.ranges.remaining <= 0);
 }
 
 int main()
 {
-    std::vector<float> vec(64, 0.0f);
-    Buffer<float> buffer {1, 32, vec.data()};
+    std::vector<float> vec;
+    Buffer<float> output (1, 2048, vec);
 
     Context context;
+
+    Scheduler scheduler;
 
     const int blockSize = 32;
 
     Pool<Grain> pool;
-    for (int i=0; i<8; i++)
-    {
-        pool.push(Grain{i});
-    }
+    pool.elements.reserve(4);
 
-    for (auto&& it : pool)
+    for (int i=0; i<output.size(); i+=blockSize)
     {
-        if (process_grain(buffer, it.get(), context))
+        Buffer<float> buffer (1, blockSize, &vec[i]);
+
+        for (auto&& it : pool)
         {
-            pool.pop(it);
+            if (process_grain(buffer, it.get(), context))
+            {
+                pool.pop(it);
+            }
+        }
+
+        Grain* added = nullptr;
+        int n = blockSize;
+        while (n = scheduler.tick(n))
+        {
+            std::cout << "add" << std::endl;
+            auto* g = pool.push(Grain(blockSize - n, 10));
+
+            if (g != nullptr)
+                process_grain(buffer, *g, context);
         }
     }
 
-    Grain* added = nullptr;
-    int n = blockSize;
-    while (scheduler.tick(n))
+    for (int i=0; i<vec.size(); i++)
     {
-        auto& g = pool.push(Grain{10});
-        process_grain(buffer, g, context);
+        std::cout << i << ": " << vec[i] << std::endl;
+    
     }
+
 
     return 0;
 }

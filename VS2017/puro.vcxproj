@@ -22,8 +22,12 @@
     <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\buffer.h" />
-    <ClInclude Include="..\src\pool.h" />
+    <ClInclude Include="..\src\buffer.hpp" />
+    <ClInclude Include="..\src\defs.hpp" />
+    <ClInclude Include="..\src\engine.hpp" />
+    <ClInclude Include="..\src\math.hpp" />
+    <ClInclude Include="..\src\pool.hpp" />
+    <ClInclude Include="..\src\sources.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

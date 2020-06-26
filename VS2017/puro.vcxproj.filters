@@ -15,10 +15,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\buffer.h">
+    <ClInclude Include="..\src\buffer.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\pool.h">
+    <ClInclude Include="..\src\defs.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\pool.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\sources.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\engine.hpp">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

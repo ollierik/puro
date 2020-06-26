@@ -12,6 +12,8 @@ struct Pool
 
         T& get() { return pool.elements[index]; }
 
+        bool isValid() { return index >= 0; }
+
         bool operator!= (const Iterator& other) { return index != other.index; }
         Iterator& operator*() { return *this; }
         T* operator->() { return &pool[index]; }
@@ -19,15 +21,15 @@ struct Pool
     };
 
 
-    T* push(T&& element)
+    Iterator push(T&& element)
     {
         if (elements.size() < elements.capacity())
         {
             elements.push_back(element);
-            return &elements[size() - 1];
+            return Iterator(*this, (int)size()-1);
         }
 
-        return nullptr;
+        return Iterator(*this, -1);
     }
 
     void pop(const Iterator& it)
@@ -36,8 +38,9 @@ struct Pool
         {
             memcpy(&elements[it.index], &elements[size()-1], sizeof(T));
             //elements[it.index] = memcpy((elements.back());
-            elements.pop_back();
         }
+
+        elements.pop_back();
     }
 
     Iterator begin() { return Iterator(*this, (int)size()-1); }

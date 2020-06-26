@@ -111,8 +111,9 @@ class HannEnvelope
 {
 public:
 
-    HannEnvelope(int lengthInSamples)
-        : increment(2 * math::pi<FloatType>() / static_cast<FloatType>(lengthInSamples-1))
+    HannEnvelope(int lengthInSamples, bool isSymmetric=true)
+        : increment(2 * math::pi<FloatType>()
+                    / static_cast<FloatType>(lengthInSamples + (isSymmetric ? 1 : 0)))
         , position(increment)
     {
     }

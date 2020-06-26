@@ -12,13 +12,19 @@ namespace engine
 
     void ranges_advance(Ranges& ranges, int numSamplesRequested)
     {
-        if (offset > 0)
+        if (ranges.offset >= numSamplesRequested)
         {
-            remaining 
-
+            ranges.offset -= numSamplesRequested;
+            return;
         }
+        else if (ranges.offset < numSamplesRequested && ranges.offset > 0)
+        {
+            ranges.remaining -= numSamplesRequested - ranges.offset;
+            ranges.offset = 0;
+            return;
+        }
+        
         ranges.remaining -= numSamplesRequested;
-        ranges.offset = ranges.offset > 0 ? ranges.offset - numSamplesRequested : 0;
     }
 
     template <typename BufferType>

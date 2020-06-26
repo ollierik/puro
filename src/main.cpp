@@ -33,12 +33,13 @@ struct Grain
 {
     Grain(int offset, int length)
         : ranges(offset, length)
-        , envelope(length)
+        , envelope(length, false)
         , source()
     {}
 
     engine::Ranges ranges;
     HannEnvelope<float> envelope;
+    //ConstSource<float> envelope;
     ConstSource<float> source;
 };
 
@@ -72,7 +73,7 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
 int main()
 {
     std::vector<float> vec;
-    Buffer<float> output (1, 2048, vec);
+    Buffer<float> output (1, 256, vec);
 
     Context context;
 
@@ -100,10 +101,13 @@ int main()
         while (n = scheduler.tick(n))
         {
             std::cout << "add" << std::endl;
-            auto* g = pool.push(Grain(blockSize - n, 10));
+            auto it = pool.push(Grain(blockSize - n, 10));
 
-            if (g != nullptr)
-                process_grain(buffer, *g, context);
+            if (it.isValid())
+            {
+                if (process_grain(buffer, it.get(), context))
+                    pool.pop(it);
+            }
         }
     }
 

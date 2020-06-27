@@ -9,7 +9,8 @@ class ConstSource
 {
 public:
 
-    void next(ops::Type opType, Buffer<FloatType>& buffer)
+    template <typename BufferType>
+    void next(ops::Type opType, BufferType buffer)
     {
         for (int ch=0; ch < buffer.getNumChannels(); ++ch)
         {
@@ -24,6 +25,7 @@ public:
     }
 };
 
+/*
 template <typename FloatType>
 class NoiseSource
 {
@@ -47,7 +49,7 @@ public:
 };
 
 /////////////////////////////////////////////
-// Audio sources
+// Envelope sources
 /////////////////////////////////////////////
 
 template <class FloatType>
@@ -103,6 +105,7 @@ private:
     const FloatType increment;
     FloatType position;
 };
+*/
 
 
 
@@ -119,7 +122,8 @@ public:
     }
 
 
-    void next(const ops::Type opType, Buffer<FloatType>& buffer)
+    template <typename BufferType>
+    void next(const ops::Type opType, BufferType& buffer)
     {
         // do sample-wise
         if (opType == ops::Type::add)
@@ -168,6 +172,7 @@ private:
 
 
 
+/*
 template <typename FloatType>
 class AudioBufferSource
 {
@@ -229,3 +234,4 @@ private:
     Buffer<FloatType>& sourceBuffer;
 };
 
+*/

@@ -1,3 +1,4 @@
+
 #include <vector>
 #include <iostream>
 
@@ -73,7 +74,7 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
 int main()
 {
     std::vector<float> vec;
-    Buffer<float> output (1, 256, vec);
+    Buffer<float, 1> output (256, vec);
 
     Context context;
 
@@ -86,7 +87,7 @@ int main()
 
     for (int i=0; i<output.size(); i+=blockSize)
     {
-        Buffer<float> buffer (1, blockSize, &vec[i]);
+        Buffer<float, 1> buffer (blockSize, &vec[i]);
 
         for (auto&& it : pool)
         {
@@ -121,3 +122,42 @@ int main()
     return 0;
 }
 
+
+
+#if 0
+
+#include <iostream>
+
+template <typename T, int N>
+struct Holder
+{
+    typedef T value_type;
+    T x;
+};
+
+template <typename T>
+T process(T x)
+{
+    return x + 1;
+}
+
+template <typename HolderType>
+int function(HolderType holder)
+{
+    return process<typename HolderType::value_type> (holder.x);
+}
+
+int main()
+{
+    Holder<int, 1> h{ 10 };
+
+    int result = function(h);
+    std::cout << result << std::endl;
+}
+
+template< class THolder >
+void SomeMethod( THolder const& holder ) {
+     typename THolder::value_type v = holder.m_val;
+}
+
+#endif

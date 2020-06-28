@@ -279,7 +279,7 @@ public:
     }
 
     template <typename... Args>
-    ElementType* add(Args... args)
+    ElementType* push(Element)
     {
         Node<ElementType>* node = inactive.pop_front();
 
@@ -293,7 +293,7 @@ public:
         return nullptr;
     }
 
-    void remove(Iterator<ElementType>& it)
+    void pop(Iterator& it)
     {
         auto* n = it.popCurrent();
         errorif(n == nullptr, "shouldn't try to remove nullptr node");
@@ -305,7 +305,6 @@ private:
     friend class Iterator<ElementType>;
 
     List<ElementType> active;
-    List<ElementType> added;
     List<ElementType> inactive;
 
     std::atomic<size_t> numAllocated;

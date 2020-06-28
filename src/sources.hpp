@@ -10,7 +10,7 @@ class ConstSource
 public:
 
     template <typename BufferType>
-    void next(ops::Type opType, BufferType buffer)
+    BufferType next(const bops::Type opType, BufferType buffer)
     {
         for (int ch=0; ch < buffer.getNumChannels(); ++ch)
         {
@@ -18,33 +18,38 @@ public:
             
             for (int i=0; i<buffer.size(); ++i)
             {
-                if (opType == ops::Type::add) dst[i] += 1.0;
+                if (opType == bops::Type::add) dst[i] += 1.0;
                 else dst[i] = 1.0;
             }
         }
+
+        return buffer;
     }
 };
 
-/*
 template <typename FloatType>
 class NoiseSource
 {
 public:
-    void next(Buffer<FloatType>& buffer, ops::Type opType)
+
+    template <typename BufferType>
+    BufferType next(const bops::Type opType, BufferType buffer)
     {
         for (int ch=0; ch < buffer.numChannels; ++ch)
         {
-            FloatType* dst = buffer.channels[ch];
+            FloatType* dst = buffer.channel(ch);
             
             for (int i=0; i<buffer.numSamples; ++i)
             {
                 const FloatType coef = static_cast<FloatType> (1) / static_cast<FloatType> (RAND_MAX/2);
                 const FloatType r = static_cast<FloatType> (std::rand()) * coef - 1;
 
-                if (opType == ops::Type::add) dst[i] += r;
+                if (opType == bops::Type::add) dst[i] += r;
                 else dst[i] = r;
             }
         }
+
+        return buffer;
     }
 };
 
@@ -63,23 +68,25 @@ public:
     {
     }
 
-    void next(Buffer<FloatType>& buffer, ops::Type opType)
+    template <typename BufferType>
+    BufferType next(const bops::Type opType, BufferType buffer)
     {
         // do sample-wise
-        if (opType == ops::Type::add)
+        if (opType == bops::Type::add)
         {
             for (int i=0; i<buffer.size(); ++i)
             {
+                const FloatType sample = sin(position);
+
                 for (int ch=0; ch < buffer.getNumChannels(); ++ch)
                 {
-                    const FloatType sample = sin(position);
                     buffer.channel(ch)[i] = sample;
                 }
 
                 position += increment;
             }
         }
-        else
+        else // bops::Type::replace
         {
             // do vectorised
             FloatType* env = buffer.channel(0);
@@ -90,14 +97,17 @@ public:
                 position += increment;
             }
 
-            Math::sin(env, buffer.size());
+            math::sin(env, buffer.size());
 
+            // copy to other channels
             for (int ch=1; ch < buffer.getNumChannels(); ++ch)
             {
                 FloatType* dst = buffer.channel(ch);
-                Math::copy(dst, env, buffer.size());
+                math::copy(dst, env, buffer.size());
             }
         }
+
+        return buffer;
     }
 
 private:
@@ -105,8 +115,6 @@ private:
     const FloatType increment;
     FloatType position;
 };
-*/
-
 
 
 template <class FloatType>
@@ -121,12 +129,11 @@ public:
     {
     }
 
-
     template <typename BufferType>
-    void next(const ops::Type opType, BufferType& buffer)
+    BufferType next(const bops::Type opType, BufferType buffer)
     {
         // do sample-wise
-        if (opType == ops::Type::add)
+        if (opType == bops::Type::add)
         {
             const auto startingPos = position;
 
@@ -162,6 +169,8 @@ public:
                 math::copy(dst, env, buffer.size());
             }
         }
+
+        return buffer;
     }
 
 private:

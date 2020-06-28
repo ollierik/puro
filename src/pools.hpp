@@ -1,14 +1,16 @@
 #pragma once
-#include <vector>
 
+/** Memory aligned pool based on a vector. To avoid cache misses, elements are stored in a consecutive order,
+    and moved around upon popping. Works best for Elements with small size and trivial copy operation.
+*/
 template <typename T>
-struct Pool
+struct AlignedPool
 {
     struct Iterator
     {
-        Iterator(Pool<T>& p, int i) : pool(p), index(i) {}
+        Iterator(AlignedPool<T>& p, int i) : pool(p), index(i) {}
         int index;
-        Pool<T>& pool;
+        AlignedPool<T>& pool;
 
         T& get() { return pool.elements[index]; }
 
@@ -37,7 +39,6 @@ struct Pool
         if (size() > 1 && it.index < size()-1)
         {
             memcpy(&elements[it.index], &elements[size()-1], sizeof(T));
-            //elements[it.index] = memcpy((elements.back());
         }
 
         elements.pop_back();

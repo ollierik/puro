@@ -10,11 +10,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\src\buffer.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -24,14 +19,37 @@
     <ClInclude Include="..\src\math.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\pool.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\sources.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\engine.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\puro.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\pools.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\safepool.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\01_simple_example.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\03_threadsafe_example.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\scheduler.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\02_granular_example.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

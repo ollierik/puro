@@ -22,11 +22,17 @@
     <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\01_simple_example.hpp" />
+    <ClInclude Include="..\src\02_granular_example.hpp" />
+    <ClInclude Include="..\src\03_threadsafe_example.hpp" />
     <ClInclude Include="..\src\buffer.hpp" />
     <ClInclude Include="..\src\defs.hpp" />
     <ClInclude Include="..\src\engine.hpp" />
     <ClInclude Include="..\src\math.hpp" />
-    <ClInclude Include="..\src\pool.hpp" />
+    <ClInclude Include="..\src\pools.hpp" />
+    <ClInclude Include="..\src\puro.hpp" />
+    <ClInclude Include="..\src\safepool.hpp" />
+    <ClInclude Include="..\src\scheduler.hpp" />
     <ClInclude Include="..\src\sources.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

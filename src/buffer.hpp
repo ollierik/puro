@@ -160,7 +160,7 @@ BufferType wrap_vector(std::vector<FloatType>& vector, int numSamples)
     const int totLength = BufferType::num_channels * numSamples;
 
     // resize if needed
-    if (vector.size() < totLength)
+    if ((int)vector.size() < totLength)
         vector.resize(totLength);
 
     return BufferType(numSamples, vector.data());
@@ -172,7 +172,7 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
     const int totLength = numChannels * numSamples;
 
     // resize if needed
-    if (vector.size() < totLength)
+    if ((int)vector.size() < totLength)
         vector.resize(totLength);
 
     return BufferType(numChannels, numSamples, vector.data());

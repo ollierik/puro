@@ -28,7 +28,7 @@ BufferType constant_fill(BufferType buffer, const ValueType value)
         math::set(&buffer(ch, 0), buffer.size(), value);
     }
 
-    return buffer;
+    return std::move(buffer);
 }
 
 /////////////////////////////////////////////
@@ -39,7 +39,7 @@ template <typename FloatType>
 struct RatioRange
 {
     FloatType position;
-    const FloatType increment;
+    FloatType increment;
 };
 
 template <typename FloatType>
@@ -49,8 +49,8 @@ RatioRange<FloatType> envelope_halfcos_create_range(int lengthInSamples)
     return {val, val};
 }
 
-template <typename BufferType, typename FloatType>
-BufferType envelope_halfcos_fill(BufferType buffer, RatioRange<FloatType> range)
+template <typename BufferType>
+std::tuple<BufferType, RatioRange<float>> envelope_halfcos_fill(BufferType buffer, RatioRange<float> range)
 {
     for (int i=0; i<buffer.size(); ++i)
     {
@@ -63,10 +63,10 @@ BufferType envelope_halfcos_fill(BufferType buffer, RatioRange<FloatType> range)
     // copy to other channels
     for (int ch=1; ch < buffer.getNumChannels(); ++ch)
     {
-        math::copy(&buffer(ch, 0), &buffer(0, 0), buffer.size());
+        math::copy(buffer.channel(ch), buffer.channel(0) , buffer.size());
     }
 
-    return buffer;
+    return std::make_tuple<BufferType, RatioRange<float>> (std::move(buffer), std::move(range));
 }
 
 
@@ -80,7 +80,7 @@ RatioRange<FloatType> envelope_hann_create_range(int lengthInSamples, bool symme
 }
 
 template <typename BufferType, typename FloatType>
-BufferType envelope_hann_fill(BufferType buffer, RatioRange<FloatType> range)
+BufferType envelope_hann_fill(BufferType buffer, RatioRange<FloatType>& range)
 {
     for (int i = 0; i < buffer.size(); ++i)
     {

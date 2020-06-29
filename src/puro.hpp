@@ -11,6 +11,7 @@
 #include <functional>
 #include <utility>
 #include <atomic>
+#include <tuple>
 
 #include "defs.hpp"
 #include "math.hpp"
@@ -19,4 +20,5 @@
 #include "engine.hpp"
 #include "scheduler.hpp"
 #include "sources.hpp"
+#include "safepool.hpp"
 

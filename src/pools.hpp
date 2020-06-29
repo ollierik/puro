@@ -36,7 +36,7 @@ struct AlignedPool
 
     void pop(const Iterator& it)
     {
-        if (size() > 1 && it.index < size()-1)
+        if ((int)size() > 1 && it.index < (int)size()-1)
         {
             memcpy(&elements[it.index], &elements[size()-1], sizeof(T));
         }

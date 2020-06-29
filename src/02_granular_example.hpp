@@ -31,7 +31,7 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
     audioBuffer = puro::noise_fill(audioBuffer);
 
     BufferType envelopeBuffer = puro::wrap_vector<BufferType> (context.temp2, audioBuffer.size());
-    envelopeBuffer = puro::envelope_halfcos_fill(envelopeBuffer, grain.envelopeRange);
+    std::tie(envelopeBuffer, grain.envelopeRange) = puro::envelope_halfcos_fill(envelopeBuffer, grain.envelopeRange);
 
     output = puro::trimmed_length(output, envelopeBuffer.size());
     output = puro::multiply_add(output, audioBuffer, envelopeBuffer);
@@ -57,7 +57,6 @@ int main()
     std::vector<float> audioFileData;
     auto audioFileBuffer = puro::fit_vector_into_dynamic_buffer<puro::DynamicBuffer<float>> (audioFileData, 2, 2000);
     {
-        //bops::filled_from_source(audioFileBuffer, noise);
         puro::noise_fill(audioFileBuffer);
     }
 

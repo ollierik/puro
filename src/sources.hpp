@@ -1,186 +1,105 @@
 #pragma once
 
-/////////////////////////////////////////////
-// Audio sources
-/////////////////////////////////////////////
+namespace puro {
 
-class ConstSource
+template <typename BufferType>
+BufferType noise_fill(BufferType buffer)
 {
-public:
+    using FloatType = typename BufferType::value_type;
 
-    template <typename BufferType>
-    BufferType next(const bops::Type opType, BufferType buffer)
+    for (int ch=0; ch < buffer.getNumChannels(); ++ch)
     {
-        using FloatType = typename BufferType::value_type;
-
-        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
+        for (int i=0; i < buffer.numSamples; ++i)
         {
-            FloatType* dst = buffer.channel(ch);
-            
-            for (int i=0; i<buffer.size(); ++i)
-            {
-                if (opType == bops::Type::add) dst[i] += 1.0;
-                else dst[i] = 1.0;
-            }
+            const FloatType coef = static_cast<FloatType> (1) / static_cast<FloatType> (RAND_MAX/2);
+            const FloatType r = static_cast<FloatType> (std::rand()) * coef - 1;
+
+            buffer(ch, i) = r;
         }
-
-        return buffer;
     }
-};
+    return buffer;
+}
 
-//template <typename FloatType>
-class NoiseSource
+template <typename BufferType, typename ValueType>
+BufferType constant_fill(BufferType buffer, const ValueType value)
 {
-public:
-
-    template <typename BufferType>
-    BufferType next(const bops::Type opType, BufferType buffer)
+    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
     {
-        using FloatType = typename BufferType::value_type;
-
-        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
-        {
-            FloatType* dst = buffer.channel(ch);
-            
-            for (int i=0; i<buffer.numSamples; ++i)
-            {
-                const FloatType coef = static_cast<FloatType> (1) / static_cast<FloatType> (RAND_MAX/2);
-                const FloatType r = static_cast<FloatType> (std::rand()) * coef - 1;
-
-                if (opType == bops::Type::add) dst[i] += r;
-                else dst[i] = r;
-            }
-        }
-
-        return buffer;
+        math::set(&buffer(ch, 0), buffer.size(), value);
     }
-};
+
+    return buffer;
+}
 
 /////////////////////////////////////////////
 // Envelope sources
 /////////////////////////////////////////////
 
-template <class FloatType>
-class SineEnvelope
+template <typename FloatType>
+struct RatioRange
 {
-public:
-
-    SineEnvelope(int lengthInSamples)
-        : increment(math::pi<FloatType>() / static_cast<FloatType>(lengthInSamples-1))
-        , position(increment)
-    {
-    }
-
-    template <typename BufferType>
-    BufferType next(const bops::Type opType, BufferType buffer)
-    {
-        // do sample-wise
-        if (opType == bops::Type::add)
-        {
-            for (int i=0; i<buffer.size(); ++i)
-            {
-                const FloatType sample = sin(position);
-
-                for (int ch=0; ch < buffer.getNumChannels(); ++ch)
-                {
-                    buffer.channel(ch)[i] = sample;
-                }
-
-                position += increment;
-            }
-        }
-        else // bops::Type::replace
-        {
-            // do vectorised
-            FloatType* env = buffer.channel(0);
-
-            for (int i=0; i<buffer.size(); ++i)
-            {
-                env[i] = position;
-                position += increment;
-            }
-
-            math::sin(env, buffer.size());
-
-            // copy to other channels
-            for (int ch=1; ch < buffer.getNumChannels(); ++ch)
-            {
-                FloatType* dst = buffer.channel(ch);
-                math::copy(dst, env, buffer.size());
-            }
-        }
-
-        return buffer;
-    }
-
-private:
-
-    const FloatType increment;
     FloatType position;
+    const FloatType increment;
 };
 
-
-template <class FloatType>
-class HannEnvelope
+template <typename FloatType>
+RatioRange<FloatType> envelope_halfcos_create_range(int lengthInSamples)
 {
-public:
+    const FloatType val = math::pi<FloatType>() / static_cast<FloatType>(lengthInSamples-1);
+    return {val, val};
+}
 
-    HannEnvelope(int lengthInSamples, bool isSymmetric=true)
-        : increment(2 * math::pi<FloatType>()
-                    / static_cast<FloatType>(lengthInSamples + (isSymmetric ? 1 : 0)))
-        , position(increment)
+template <typename BufferType, typename FloatType>
+BufferType envelope_halfcos_fill(BufferType buffer, RatioRange<FloatType> range)
+{
+    for (int i=0; i<buffer.size(); ++i)
     {
+        buffer(0, i) = range.position;
+        range.position += range.increment;
     }
 
-    template <typename BufferType>
-    BufferType next(const bops::Type opType, BufferType buffer)
+    math::sin(&buffer(0, 0), buffer.size());
+
+    // copy to other channels
+    for (int ch=1; ch < buffer.getNumChannels(); ++ch)
     {
-        // do sample-wise
-        if (opType == bops::Type::add)
-        {
-            const auto startingPos = position;
-
-            for (int ch=0; ch < buffer.getNumChannels(); ++ch)
-            {
-                position = startingPos;
-                FloatType* channel = buffer.channel(ch);
-
-                for (int i=0; i<buffer.size(); ++i)
-                {
-                    const FloatType sample = (1 - cos(position)) / 2;
-                    channel[i] = sample;
-
-                    position += increment;
-                }
-            }
-        }
-        else
-        {
-            // do vectorised
-            FloatType* env = buffer.channel(0);
-
-            for (int i=0; i<buffer.size(); ++i)
-            {
-                const FloatType sample = (1 - cos(position)) / 2;
-                env[i] = sample;
-                position += increment;
-            }
-
-            for (int ch=1; ch < buffer.getNumChannels(); ++ch)
-            {
-                FloatType* dst = buffer.channel(ch);
-                math::copy(dst, env, buffer.size());
-            }
-        }
-
-        return buffer;
+        math::copy(&buffer(ch, 0), &buffer(0, 0), buffer.size());
     }
 
-    const FloatType increment;
-    FloatType position;
-};
+    return buffer;
+}
 
 
+template <typename FloatType>
+RatioRange<FloatType> envelope_hann_create_range(int lengthInSamples, bool symmetric=true)
+{
+    const FloatType div = static_cast<FloatType>(lengthInSamples) + (symmetric ? 1 : 0);
+    const FloatType val = 2*math::pi<FloatType>() / div;
+
+    return {val, val};
+}
+
+template <typename BufferType, typename FloatType>
+BufferType envelope_hann_fill(BufferType buffer, RatioRange<FloatType> range)
+{
+    for (int i = 0; i < buffer.size(); ++i)
+    {
+        const FloatType sample = (1 - cos(range.position)) / 2;
+        buffer(0, i) = sample;
+        range.position += range.increment;
+    }
+
+    for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
+    {
+        FloatType* dst = buffer.channel(ch);
+        math::copy(dst, &buffer(ch, 0), buffer.size());
+    }
+
+    return buffer;
+}
+
+
+/*
 template <typename SourceBufferType>
 class BufferSource
 {
@@ -244,4 +163,24 @@ public:
 
     SourceBufferType& sourceBuffer;
     int index;
+};
+
+
+
+template <typename BufferType>
+BufferType multiply_add(BufferType dst, const BufferType src1, const BufferType src2)
+{
+    errorif(!(dst.size() == src1.size()), "dst and src1 buffer lengths don't match");
+    errorif(!(dst.size() == src2.size()), "dst and src2 buffer lengths don't match");
+
+    for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+    {
+        math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.size());
+    }
+
+    return dst;
+}
+
+*/
+
 };

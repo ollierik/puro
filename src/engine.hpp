@@ -40,11 +40,11 @@ namespace engine
         BufferType cropped = buffer;
 
         if (ranges.offset > 0)
-            cropped = bops::trimmed_begin(cropped, ranges.offset);
+            cropped = puro::trimmed_begin(cropped, ranges.offset);
 
         // restrict range if the sound object should terminate this block
         if (ranges.remaining < cropped.size())
-            cropped = bops::trimmed_length(cropped, ranges.remaining);
+            cropped = puro::trimmed_length(cropped, ranges.remaining);
 
         return cropped;
     }

@@ -1,19 +1,18 @@
 #pragma once
+
 #include "puro.hpp"
 #include "parameter.hpp"
 #include <iomanip>
 
 struct Grain
 {
-    Grain(int offset, int length, DynamicBuffer<float>& sourceBuffer, int startIndex)
+    Grain(int offset, int length, puro::DynamicBuffer<float>& sourceBuffer, int startIndex)
         : ranges(offset, length)
-        , source(sourceBuffer, startIndex)
-        , envelope(length)
+        , envelopeRange(puro::envelope_halfcos_create_range<float>(length))
     {}
 
     engine::Ranges ranges;
-    BufferSource<DynamicBuffer<float>> source;
-    SineEnvelope<float> envelope;
+    puro::RatioRange<float> envelopeRange;
 };
 
 struct Context
@@ -28,14 +27,14 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
 	BufferType output = engine::ranges_crop_buffer(grain.ranges, buffer);
     const int numSamplesToWrite = output.size();
 	
-    BufferType audioBuffer = bops::fit_vector<BufferType>(context.temp1, output.size());
-    audioBuffer = bops::filled_from_source(audioBuffer, grain.source);
+    BufferType audioBuffer = puro::wrap_vector<BufferType> (context.temp1, output.size());
+    audioBuffer = puro::noise_fill(audioBuffer);
 
-    BufferType envelopeBuffer = bops::fit_vector<BufferType>(context.temp2, audioBuffer.size());
-    envelopeBuffer = bops::filled_from_source(envelopeBuffer, grain.envelope);
+    BufferType envelopeBuffer = puro::wrap_vector<BufferType> (context.temp2, audioBuffer.size());
+    envelopeBuffer = puro::envelope_halfcos_fill(envelopeBuffer, grain.envelopeRange);
 
-    output = bops::trimmed_length(output, envelopeBuffer.size());
-    output = bops::multiply_add(output, audioBuffer, envelopeBuffer);
+    output = puro::trimmed_length(output, envelopeBuffer.size());
+    output = puro::multiply_add(output, audioBuffer, envelopeBuffer);
 
     grain.ranges = engine::ranges_advance(grain.ranges, buffer.size());
 
@@ -44,9 +43,9 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
 
 int main()
 {
-    using BufferType = Buffer<float, 2>;
+    using BufferType = puro::Buffer<float, 2>;
     std::vector<float> vec;
-    BufferType output = bops::fit_vector<BufferType>(vec, 256);
+    BufferType output = puro::wrap_vector<BufferType>(vec, 256);
 
     Context context;
 
@@ -56,10 +55,10 @@ int main()
     pool.elements.reserve(16);
 
     std::vector<float> audioFileData;
-    auto audioFileBuffer = bops::fit_vector_into_dynamic_buffer<DynamicBuffer<float>> (audioFileData, 2, 2000);
+    auto audioFileBuffer = puro::fit_vector_into_dynamic_buffer<puro::DynamicBuffer<float>> (audioFileData, 2, 2000);
     {
-        NoiseSource noise;
-        bops::filled_from_source(audioFileBuffer, noise);
+        //bops::filled_from_source(audioFileBuffer, noise);
+        puro::noise_fill(audioFileBuffer);
     }
 
     GaussianParameter<float, int> intervalParameter(40, 0.001f);
@@ -70,7 +69,7 @@ int main()
 
     for (int i=0; i<output.size(); i+=blockSize)
     {
-        BufferType buffer = bops::slice(output, i, blockSize);
+        BufferType buffer = puro::slice(output, i, blockSize);
 
         for (auto&& it : pool)
         {

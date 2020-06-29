@@ -1,16 +1,18 @@
 #pragma once
 #include "puro.hpp"
+#include "parameter.hpp"
+#include <iomanip>
 
 struct Grain
 {
-    Grain(int offset, int length)
+    Grain(int offset, int length, DynamicBuffer<float>& sourceBuffer, int startIndex)
         : ranges(offset, length)
-        , source()
+        , source(sourceBuffer, startIndex)
         , envelope(length)
     {}
 
     engine::Ranges ranges;
-    NoiseSource<float> source;
+    BufferSource<DynamicBuffer<float>> source;
     SineEnvelope<float> envelope;
 };
 
@@ -42,7 +44,7 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
 
 int main()
 {
-    using BufferType = Buffer<float, 1>;
+    using BufferType = Buffer<float, 2>;
     std::vector<float> vec;
     BufferType output = bops::fit_vector<BufferType>(vec, 256);
 
@@ -53,11 +55,22 @@ int main()
     AlignedPool<Grain> pool;
     pool.elements.reserve(16);
 
+    std::vector<float> audioFileData;
+    auto audioFileBuffer = bops::fit_vector_into_dynamic_buffer<DynamicBuffer<float>> (audioFileData, 2, 2000);
+    {
+        NoiseSource noise;
+        bops::filled_from_source(audioFileBuffer, noise);
+    }
+
+    GaussianParameter<float, int> intervalParameter(40, 0.001f);
+    GaussianParameter<float, int> durationParameter(10, 0.001f);
+    GaussianParameter<float, int> materialOffsetParameter(1000, 3);
+
     const int blockSize = 32;
 
     for (int i=0; i<output.size(); i+=blockSize)
     {
-        Buffer<float, 1> buffer (blockSize, &vec[i]);
+        BufferType buffer = bops::slice(output, i, blockSize);
 
         for (auto&& it : pool)
         {
@@ -70,8 +83,12 @@ int main()
         int n = blockSize;
         while (n = scheduler.tick(n))
         {
-            scheduler.interval = Parameter
-            auto it = pool.push(Grain(blockSize - n, 10));
+            const int interval = intervalParameter.get();
+            const int duration = std::max(durationParameter.get(), 5);
+            const int materialOffset = std::max(materialOffsetParameter.get(), 0);
+
+            scheduler.interval = interval;
+            auto it = pool.push(Grain(blockSize - n, duration, audioFileBuffer, materialOffset));
 
             if (it.isValid())
             {
@@ -81,9 +98,10 @@ int main()
         }
     }
 
-    for (int i=0; i<vec.size(); i++)
+    for (int i=0; i < output.size(); i++)
     {
-        std::cout << i << ": " << vec[i] << std::endl;
+        std::cout << std::setprecision(4) << std::fixed;
+        std::cout << i << ":\t" << output(0, i) << "\t" << output(1, i) << std::endl;;
     }
 
     return 0;

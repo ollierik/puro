@@ -4,7 +4,6 @@
 // Audio sources
 /////////////////////////////////////////////
 
-template <typename FloatType>
 class ConstSource
 {
 public:
@@ -12,6 +11,8 @@ public:
     template <typename BufferType>
     BufferType next(const bops::Type opType, BufferType buffer)
     {
+        using FloatType = typename BufferType::value_type;
+
         for (int ch=0; ch < buffer.getNumChannels(); ++ch)
         {
             FloatType* dst = buffer.channel(ch);
@@ -27,7 +28,7 @@ public:
     }
 };
 
-template <typename FloatType>
+//template <typename FloatType>
 class NoiseSource
 {
 public:
@@ -35,7 +36,9 @@ public:
     template <typename BufferType>
     BufferType next(const bops::Type opType, BufferType buffer)
     {
-        for (int ch=0; ch < buffer.numChannels; ++ch)
+        using FloatType = typename BufferType::value_type;
+
+        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
         {
             FloatType* dst = buffer.channel(ch);
             
@@ -173,42 +176,42 @@ public:
         return buffer;
     }
 
-private:
-
     const FloatType increment;
     FloatType position;
 };
 
 
-
-/*
-template <typename FloatType>
-class AudioBufferSource
+template <typename SourceBufferType>
+class BufferSource
 {
 public:
-    AudioBufferSource(Buffer<FloatType>& fileBuffer, int startIndex)
-        : sourceBuffer(fileBuffer)
+
+    BufferSource(SourceBufferType& buffer, int startIndex)
+        : sourceBuffer(buffer)
         , index(startIndex)
     {
     }
 
-    void next(Buffer<FloatType>& buffer, ops::Type opType)
+    template <typename BufferType>
+    BufferType next(bops::Type opType, BufferType buffer)
     {
+        using FloatType = typename BufferType::value_type;
+
         // buffer will run out, trim it
-        if (sourceBuffer.size()< index + buffer.size())
+        if (sourceBuffer.size() < index + buffer.size())
         {
-            buffer.trimLength(sourceBuffer.size() - index);
+            buffer = bops::trimmed_length(buffer, sourceBuffer.size() - index);
         }
 
         // identical channel config
         if (buffer.getNumChannels() == sourceBuffer.getNumChannels())
         {
-            for (int ch=0; ch<buffer.getNumChannels(); ++ch)
+            for (int ch=0; ch < buffer.getNumChannels(); ++ch)
             {
                 FloatType* dst = buffer.channel(ch);
-                FloatType* src = &sourceBuffer.channel(ch)[index];
+                FloatType* src = &sourceBuffer(ch, index);
 
-                if (opType == ops::Type::add)
+                if (opType == bops::Type::add)
                     math::add<FloatType>(dst, src, buffer.size());
                 else
                     math::copy<FloatType>(dst, src, buffer.size());
@@ -218,16 +221,16 @@ public:
         // mono source, use for all channels
         else if (sourceBuffer.getNumChannels() == 1)
         {
-            FloatType* src = &sourceBuffer.channel(0)[index];
+            FloatType* src = &sourceBuffer(0, index);
 
             for (int ch=0; ch<buffer.getNumChannels(); ++ch)
             {
                 FloatType* dst = buffer.channel(ch);
 
-                if (opType == ops::Type::add)
-                    Math::add(dst, src, buffer.size());
+                if (opType == bops::Type::add)
+                    math::add(dst, src, buffer.size());
                 else
-                    Math::copy(dst, src, buffer.size());
+                    math::copy(dst, src, buffer.size());
             }
             index += buffer.size();
         }
@@ -236,11 +239,9 @@ public:
             errorif(true, "channel config combination not implemented");
         }
 
+        return buffer;
     }
 
-private:
+    SourceBufferType& sourceBuffer;
     int index;
-    Buffer<FloatType>& sourceBuffer;
 };
-
-*/

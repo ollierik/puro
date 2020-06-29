@@ -29,6 +29,7 @@
     <ClInclude Include="..\src\defs.hpp" />
     <ClInclude Include="..\src\engine.hpp" />
     <ClInclude Include="..\src\math.hpp" />
+    <ClInclude Include="..\src\parameter.hpp" />
     <ClInclude Include="..\src\pools.hpp" />
     <ClInclude Include="..\src\puro.hpp" />
     <ClInclude Include="..\src\safepool.hpp" />

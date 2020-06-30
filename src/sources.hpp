@@ -3,24 +3,12 @@
 namespace puro {
 
 
-/*
-template <typename T, T increment>
-class ConstSequence
-{
-public:
-    typedef T value_type;
-    static constexpr int increment = increment;
-
-    Sequence(T val) : value(val) {}
-
-    T value;
-};
-*/
-
 template <int increment = 1>
 struct IndexSequence
 {
     IndexSequence(int val) : value(val) {}
+
+    static constexpr int increment = increment;
 
     IndexSequence operator++() // prefix
     {
@@ -42,7 +30,6 @@ struct IndexSequence
     }
 
     operator int() { return value; }
-
     int value;
 };
 
@@ -216,11 +203,25 @@ std::tuple <BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType so
 }
 
 
-int num_samples_available_for_interp(int length, float position, const float rate, const int interp_order)
+template <typename FloatType>
+int num_samples_available_for_interp(int length, FloatType position, const FloatType rate, const int interp_order)
 {
-
+    return (int)std::ceil((static_cast<FloatType>(length-interp_order) - position)/rate);
 }
 
+template <typename BufferType, typename SeqType>
+BufferType buffer_crop_for_interp(BufferType buffer, int samplesAvailable, SeqType seq, const int interpOrder)
+{
+    const int numAvailable = num_samples_available_for_interp(samplesAvailable, seq.value, seq.increment, interpOrder);
+
+    if (numAvailable < buffer.size())
+        buffer = puro::trimmed_length(buffer, numAvailable);
+
+    return buffer;
+}
+
+/** Assumes that the source buffer can provide all the required samples, i.e. doesn't do bound checking.
+    Buffer should be cropped for example with buffer_crop_for_interp before-hand. */
 template <typename BufferType, typename SrcBufferType, typename SeqType>
 std::tuple <BufferType, SeqType> buffer_interp1_fill(BufferType buffer, SrcBufferType source, SeqType seq)
 {

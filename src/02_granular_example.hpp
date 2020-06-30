@@ -9,7 +9,7 @@ struct Grain
     Grain(int offset, int length, puro::DynamicBuffer<float>& sourceBuffer, int startIndex)
         : ranges(offset, length)
         , audioSrc(sourceBuffer)
-        , audioSeq((float)startIndex, 0.5f)
+        , audioSeq((float)startIndex, 1.5f)
         , envlSeq(puro::envl_halfcos_create_seq<float>(length))
     {}
 
@@ -35,7 +35,7 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
     const int numSamplesToWrite = output.size();
 	
     auto audio = puro::wrap_vector<BufferType> (context.temp1, output.size());
-    //std::tie(audio, grain.audioSeq) = puro::buffer_fill(audio, grain.audioSrc, grain.audioSeq);
+    audio = puro::buffer_crop_for_interp(audio, grain.audioSrc.size(), grain.audioSeq, 1);
     std::tie(audio, grain.audioSeq) = puro::buffer_interp1_fill(audio, grain.audioSrc, grain.audioSeq);
 
     BufferType envelope = puro::wrap_vector<BufferType> (context.temp2, audio.size());

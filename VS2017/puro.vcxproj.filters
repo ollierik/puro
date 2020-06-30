@@ -49,6 +49,9 @@
     <ClInclude Include="..\src\parameter.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\benchmark.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">

@@ -25,6 +25,7 @@
     <ClInclude Include="..\src\01_simple_example.hpp" />
     <ClInclude Include="..\src\02_granular_example.hpp" />
     <ClInclude Include="..\src\03_threadsafe_example.hpp" />
+    <ClInclude Include="..\src\benchmark.hpp" />
     <ClInclude Include="..\src\buffer.hpp" />
     <ClInclude Include="..\src\defs.hpp" />
     <ClInclude Include="..\src\engine.hpp" />

@@ -17,7 +17,7 @@ struct Buffer
     // getters
     bool isInvalid() const { return numSamples <= 0; }
     int size() const { return numSamples; };
-    int getNumChannels() const { return num_channels; } // some more advanced class may want to redefine this
+    constexpr int getNumChannels() const { return num_channels; } // some more advanced class may want to redefine this
 
     FloatType& operator() (int ch, int i)
     {
@@ -178,18 +178,43 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
     return BufferType(numChannels, numSamples, vector.data());
 }
 
-template <typename BufferType>
-BufferType multiply_add(BufferType dst, const BufferType src1, const BufferType src2)
+template <typename BufferType, typename MultBufferType>
+BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferType src2)
 {
     errorif(!(dst.size() == src1.size()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.size() == src2.size()), "dst and src2 buffer lengths don't match");
 
-    for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+    // identical channel configs
+    if (src1.getNumChannels() == src2.getNumChannels())
     {
-        math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.size());
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.size());
+        }
     }
+    // src2 is a mono buffer
+    else if (src1.getNumChannels() > 1 && src2.getNumChannels() == 1)
+    {
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.size());
+        }
+    }
+    else
+    {
+        errorif(true, "channel config not implemented");
+    }
+       
     return dst;
 }
 
+template <typename BufferType>
+void buffer_clear(BufferType buffer)
+{
+    for (int ch=0; ch<buffer.getNumChannels(); ++ch)
+    {
+        math::set<typename BufferType::value_type>(buffer.channel(ch), 0, buffer.size());
+    }
+}
 
 } // namespace puro

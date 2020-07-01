@@ -16,12 +16,19 @@ namespace math
             dst[i] += src1[i] * src2[i];
     };
 
+    template <typename FloatType>
+    void multiply_add(FloatType* dst, const FloatType* src, const FloatType value, const int n)
+    {
+        for (int i = 0; i < n; ++i)
+            dst[i] += src[i] * value;
+    };
+
     /** Multiply src buffer with value and set to dst */
     template <typename FloatType>
     void multiply_set(FloatType* dst, const FloatType* src, const FloatType value, const int n)
     {
         for (int i = 0; i < n; ++i)
-            dst[i] += src[i] * value;
+            dst[i] = src[i] * value;
     }
 
     /** In-place sin */
@@ -56,9 +63,9 @@ namespace math
             dst[i] += src[i];
     }
 
-    /** Set to constant */
+    /** Add constant */
     template <typename FloatType>
-    void add(FloatType* buf, const int n, FloatType value)
+    void add(FloatType* buf, FloatType value, const int n)
     {
         for (int i=0; i<n; ++i)
             buf[i] += value;
@@ -66,7 +73,7 @@ namespace math
 
     /** Set to constant */
     template <typename FloatType>
-    void set(FloatType* buf, const int n, FloatType value)
+    void set(FloatType* buf, FloatType value, const int n)
     {
         for (int i=0; i<n; ++i)
             buf[i] = value;

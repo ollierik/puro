@@ -5,63 +5,63 @@
 struct Grain
 {
     Grain(int offset, int length)
-        : ranges(offset, length)
+        : range(offset, length)
     {}
 
-    engine::Ranges ranges;
-    ConstSource<float> source;
-    ConstSource<float> envelope;
+    puro::Range range;
 };
 
 // Temporary (hopefully) pre-allocated audio buffers for processing
 struct Context
 {
-    std::vector<float> temp1;
-    std::vector<float> temp2;
+    std::vector<float> vec1;
+    std::vector<float> vec2;
 };
 
 template <typename BufferType, typename ElementType, typename ContextType>
 bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& context)
 {
     // Create an write buffer via cropping the input buffer
-    // grain.ranges contain information about the per-block offset needed, and for the remaining duration of the grain
-	BufferType output = engine::ranges_crop_buffer(grain.ranges, buffer);
+    // grain.range contain information about the per-block offset needed, and for the remaining duration of the grain
+	BufferType output = puro::range_crop_buffer(grain.range, buffer);
     const int numSamplesToWrite = output.size();
 	
-    // Use the temporary vector temp1 provided by the context, wrap it to a Buffer
-    BufferType audioBuffer = bops::fit_vector<BufferType>(context.temp1, output.size());
+    // Use the temporary vector vec1 provided by the context, wrap it to a Buffer
+    BufferType audioBuffer = puro::wrap_vector<BufferType>(context.vec1, output.size());
 
-    // Fill buffer contents from the grain.source
-    // The source could decide to trim the buffer if it for example encountered the end of audio file
-    audioBuffer = bops::filled_from_source(audioBuffer, grain.source);
+    // Fill the audioBuffer with noise
+    puro::noise_fill(audioBuffer);
 
-    // Use the temporary vector temp2 provided by the context, wrap it to a Buffer
+    // Use the temporary vector vec2 provided by the context, wrap it to a Buffer
     // We're requesting as many samples as we got to the audioBuffer
-    BufferType envelopeBuffer = bops::fit_vector<BufferType>(context.temp2, audioBuffer.size());
+    BufferType envelopeBuffer = puro::wrap_vector<BufferType>(context.vec2, audioBuffer.size());
 
-    // Fill buffer contents from the grain.envelope
-    envelopeBuffer = bops::filled_from_source(envelopeBuffer, grain.envelope);
+    // Fill envelopeBuffer with constant ones
+    // Obviously this could be skipped, as it will result with multiplication with one,
+    // but it is presented here for clarity
+    puro::constant_fill(envelopeBuffer, 1);
 
     // Trim the length of the output buffer in case we have less material to work with than what was requested
-    output = bops::trimmed_length(output, envelopeBuffer.size());
+    // Since we've filled the audio buffer with noise, this is redundant, but presented here for clarity
+    output = puro::trimmed_length(output, envelopeBuffer.size());
 
     // Multiply audioBuffer and envelopeBuffer and add the results to output
     // These are done on per-vector basis for SIMD acceleration
-    output = bops::multiply_add(output, audioBuffer, envelopeBuffer);
+    output = puro::multiply_add(output, audioBuffer, envelopeBuffer);
 
     // Advance the grain.ranges with the block size
-    grain.ranges = engine::ranges_advance(grain.ranges, buffer.size());
+    grain.range = puro::range_advance(grain.range, buffer.size());
 
     // Return true if grain has been depleted either by running out of material or duration
-    return (grain.ranges.remaining <= 0) || (output.size() != numSamplesToWrite);
+    return (grain.range.remaining <= 0) || (output.size() != numSamplesToWrite);
 }
 
 int main()
 {
     // Place-holder audio output buffer for writing
-    using BufferType = Buffer<float, 1>;
+    using BufferType = puro::Buffer<float, 1>;
     std::vector<float> vec;
-    BufferType output = bops::fit_vector<BufferType>(vec, 256);
+    BufferType output = puro::wrap_vector<BufferType>(vec, 256);
 
     // Context to provide temporary allocated memory to grain ouput
     Context context;
@@ -79,7 +79,7 @@ int main()
     for (int i=0; i<output.size(); i+=blockSize)
     {
         // Buffer that we should fill every block with output
-        Buffer<float, 1> buffer (blockSize, &vec[i]);
+        BufferType buffer (blockSize, &vec[i]);
 
         // Iterate through all grains in the pool
         for (auto&& it : pool)
@@ -93,11 +93,11 @@ int main()
         }
 
         // Add new grains based on the scheduler operation
-        int n = blockSize; // n marks how many samples we have for the block
+        int n = blockSize; // n marks how many samples we have left for the block
         while (n = scheduler.tick(n))
         {
             // Add the new grain with alignment offset and a duration of 40
-            auto it = pool.push(Grain(blockSize - n, 40));
+            auto it = pool.push(Grain(blockSize - n, 10));
 
             if (it.isValid())
             {
@@ -109,9 +109,9 @@ int main()
     }
 
     // Print the output samples
-    for (int i=0; i<vec.size(); i++)
+    for (auto i=0; i<output.size(); ++i)
     {
-        std::cout << i << ": " << vec[i] << std::endl;
+        std::cout << i << ": " << output(0, i) << std::endl;
     }
 
     return 0;

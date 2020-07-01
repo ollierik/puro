@@ -59,11 +59,70 @@ struct Sequence
 };
 
 
+
+template <typename FloatType, int numChannels>
+struct PanCoeffs
+{
+    constexpr int getNumChannels() { return numChannels; };
+    std::array<FloatType, numChannels*numChannels> coeffs;
+
+    FloatType operator() (int fromCh, int toCh)
+    {
+        return coeffs[numChannels * fromCh + toCh];
+    }
+};
+
+/** Pan range [-1, 1], where -1 is hard left and 1 is hard right. */
+template <typename FloatType>
+PanCoeffs<FloatType, 2> pan_create_stereo(FloatType pan)
+{
+    // [ 0->0, 0->1, 1->0, 1->1 ]
+    if (pan <= 0)
+    {
+        const FloatType ltol = 1;
+        const FloatType ltor = 0;
+        const FloatType rtol = -pan;
+        const FloatType rtor = (1 + pan);
+        return PanCoeffs<FloatType, 2> { ltol, ltor, rtol, rtor };
+    }
+    else
+    {
+        const FloatType ltol = 1 - pan;
+        const FloatType ltor = pan;
+        const FloatType rtol = 0;
+        const FloatType rtor = 1;
+        return PanCoeffs<FloatType, 2> { ltol, ltor, rtol, rtor };
+    }
+}
+
+template <typename BufferType, typename PanType>
+void pan_apply(BufferType dst, BufferType src, PanType coeffs)
+{
+    errorif(src.getNumChannels() != coeffs.getNumChannels(), "channel configs between src and coeffs don't match");
+    errorif(dst.getNumChannels() != coeffs.getNumChannels(), "channel configs between dst and coeffs don't match");
+
+    const auto numChannels = coeffs.getNumChannels();
+    using FloatType = typename BufferType::value_type;
+
+    puro::buffer_clear(dst);
+
+    // TODO optimise for special cases coef == 0 and coef == 1
+
+    for (int fromCh = 0; fromCh < numChannels; ++fromCh)
+    {
+        for (int toCh=0; toCh < numChannels; ++toCh)
+        {
+            const auto coef = coeffs(fromCh, toCh);
+            math::multiply_add(dst.channel(toCh), src.channel(fromCh), coef, dst.size());
+        }
+    }
+}
+
 ///======================================================================================
 
 
 template <typename BufferType>
-BufferType noise_fill(BufferType buffer)
+void noise_fill(BufferType buffer)
 {
     using FloatType = typename BufferType::value_type;
 
@@ -77,22 +136,19 @@ BufferType noise_fill(BufferType buffer)
             buffer(ch, i) = r;
         }
     }
-    return buffer;
 }
 
-template <typename BufferType, typename ValueType>
-BufferType constant_fill(BufferType buffer, const ValueType value)
+template <typename BufferType>
+void constant_fill(BufferType buffer, typename BufferType::value_type value)
 {
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
     {
-        math::set(buffer.channel(ch), buffer.size(), value);
+        math::set(buffer.channel(ch), value, buffer.size());
     }
-
-    return buffer;
 }
 
 template <typename BufferType, typename ValueType>
-BufferType linspace_fill(BufferType buffer, ValueType start, const ValueType increment)
+void linspace_fill(BufferType buffer, ValueType start, const ValueType increment)
 {
     for (int i=0; i<buffer.size(); ++i)
     {
@@ -104,8 +160,6 @@ BufferType linspace_fill(BufferType buffer, ValueType start, const ValueType inc
     {
         math::copy(buffer.channel(ch), buffer.channel(0), buffer.size());
     }
-
-    return buffer;
 }
 
 /////////////////////////////////////////////
@@ -120,7 +174,7 @@ Sequence<FloatType> envl_halfcos_create_seq(int lengthInSamples)
 }
 
 template <typename BufferType, typename SeqType>
-std::tuple<BufferType, Sequence<float>> envl_halfcos_fill(BufferType buffer, SeqType seq)
+SeqType envl_halfcos_fill(BufferType buffer, SeqType seq)
 {
     for (int i = 0; i < buffer.size(); ++i)
     {
@@ -135,7 +189,7 @@ std::tuple<BufferType, Sequence<float>> envl_halfcos_fill(BufferType buffer, Seq
         math::copy(buffer.channel(ch), buffer.channel(0), buffer.size());
     }
 
-    return std::make_tuple<BufferType, Sequence<float>> (std::move(buffer), std::move(seq));
+    return seq;
 }
 
 template <typename FloatType>
@@ -148,7 +202,7 @@ Sequence<FloatType> envl_hann_create_seq(int lengthInSamples, bool symmetric = t
 }
 
 template <typename BufferType, typename SeqType>
-std::tuple<BufferType, SeqType> envl_hann_fill(BufferType buffer, SeqType seq)
+SeqType envl_hann_fill(BufferType buffer, SeqType seq)
 {
     for (int i = 0; i < buffer.size(); ++i)
     {
@@ -161,7 +215,7 @@ std::tuple<BufferType, SeqType> envl_hann_fill(BufferType buffer, SeqType seq)
         math::copy(buffer.channel(ch), &buffer.channel(ch), buffer.size());
     }
 
-    return std::make_tuple(std::move(buffer), std::move(seq));
+    return seq;
 }
 
 

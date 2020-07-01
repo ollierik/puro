@@ -6,23 +6,25 @@
 
 struct Grain
 {
-    Grain(int offset, int length, puro::DynamicBuffer<float>& sourceBuffer, int startIndex)
+    Grain(int offset, int length, puro::DynamicBuffer<float>& sourceBuffer, int startIndex, float panning)
         : range(offset, length)
         , audioSrc(sourceBuffer)
         , audioSeq((float)startIndex, 1.0f)
         , envlSeq(puro::envl_halfcos_create_seq<float>(length))
+        , panCoeffs(puro::pan_create_stereo(panning))
     {}
 
     puro::Range range;
     puro::DynamicBuffer<float>& audioSrc;
     puro::Sequence<float> audioSeq;
     puro::Sequence<float> envlSeq;
+    puro::PanCoeffs<float, 2> panCoeffs;
 };
 
 struct Context
 {
-    std::vector<float> temp1;
-    std::vector<float> temp2;
+    std::vector<float> vec1;
+    std::vector<float> vec2;
 };
 
 template <typename BufferType, typename ElementType, typename ContextType>
@@ -31,16 +33,20 @@ bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& co
 	BufferType output = puro::range_crop_buffer(grain.range, buffer);
     const int numSamplesToWrite = output.size();
 	
-    auto audio = puro::wrap_vector<BufferType> (context.temp1, output.size());
-    audio = puro::interp_crop_buffer(audio, grain.audioSrc.size(), grain.audioSeq, 1);
-    std::tie(audio, grain.audioSeq) = puro::buffer_interp1_fill(audio, grain.audioSrc, grain.audioSeq);
+    auto tmp1 = puro::wrap_vector<BufferType> (context.vec1, output.size());
+    tmp1 = puro::interp_crop_buffer(tmp1, grain.audioSrc.size(), grain.audioSeq, 1);
+    std::tie(tmp1, grain.audioSeq) = puro::buffer_interp1_fill(tmp1, grain.audioSrc, grain.audioSeq);
 
-    BufferType envelope = puro::wrap_vector<BufferType> (context.temp2, audio.size());
-    std::tie(envelope, grain.envlSeq) = puro::envl_halfcos_fill(envelope, grain.envlSeq);
-    //envelope = puro::constant_fill(envelope, 1.0f);
+    auto tmp2 = puro::wrap_vector<BufferType> (context.vec2, tmp1.size());
+
+    puro::pan_apply(tmp2, tmp1, grain.panCoeffs);
+
+    using MonoBufferType = puro::Buffer<typename BufferType::value_type, 1>;
+    MonoBufferType envelope = puro::wrap_vector<MonoBufferType> (context.vec1, tmp2.size());
+    grain.envlSeq = puro::envl_halfcos_fill(envelope, grain.envlSeq);
 
     output = puro::trimmed_length(output, envelope.size());
-    output = puro::multiply_add(output, audio, envelope);
+    puro::multiply_add(output, tmp2, envelope);
 
     grain.range = puro::range_advance(grain.range, buffer.size());
 
@@ -63,7 +69,8 @@ int main()
     std::vector<float> audioFileData;
     auto audioFileBuffer = puro::fit_vector_into_dynamic_buffer<puro::DynamicBuffer<float>> (audioFileData, 2, 2000);
 
-    audioFileBuffer = puro::linspace_fill(audioFileBuffer, 0.0f, 1.0f);
+    //puro::linspace_fill(audioFileBuffer, 0.0f, 1.0f);
+    puro::noise_fill(audioFileBuffer);
 
     //GaussianParameter<float, int> intervalParameter(40, 0.001f);
     //GaussianParameter<float, int> durationParameter(10, 0.001f);
@@ -92,9 +99,10 @@ int main()
             const int interval = 100;
             const int duration = 80;
             const int materialOffset = 1980;
+            const float panning = 0.9f;
 
             scheduler.interval = interval;
-            auto it = pool.push(Grain(blockSize - n, duration, audioFileBuffer, materialOffset));
+            auto it = pool.push(Grain(blockSize - n, duration, audioFileBuffer, materialOffset, panning));
 
             if (it.isValid())
             {

@@ -1,51 +1,49 @@
 #pragma once
 
-namespace engine
+namespace puro 
 {
-    struct Ranges
+    struct Range 
     {
-        Ranges(int offset, int length) : offset(offset), remaining(length) {}
+        Range(int offset, int length) : offset(offset), remaining(length) {}
         int offset;
         int remaining;
     };
 
-    Ranges ranges_advance(Ranges ranges, int numSamplesRequested)
+    Range range_advance(Range range, int numSamplesRequested)
     {
-        if (ranges.offset >= numSamplesRequested)
+        if (range.offset >= numSamplesRequested)
         {
-            ranges.offset -= numSamplesRequested;
+            range.offset -= numSamplesRequested;
         }
-        else if (ranges.offset < numSamplesRequested && ranges.offset > 0)
+        else if (range.offset < numSamplesRequested && range.offset > 0)
         {
-            ranges.remaining -= numSamplesRequested - ranges.offset;
-            ranges.offset = 0;
+            range.remaining -= numSamplesRequested - range.offset;
+            range.offset = 0;
         }
         else
         {
-            ranges.remaining -= numSamplesRequested;
+            range.remaining -= numSamplesRequested;
         }
         
-        return ranges;
+        return range;
     }
 
     template <typename BufferType>
-    BufferType ranges_crop_buffer(const Ranges ranges, const BufferType& buffer)
+    BufferType range_crop_buffer(Range range, BufferType buffer)
     {
         // no operations needed for this block
-        if (ranges.offset >= buffer.size())
+        if (range.offset >= buffer.size())
         {
             return BufferType();
         }
 
-        BufferType cropped = buffer;
-
-        if (ranges.offset > 0)
-            cropped = puro::trimmed_begin(cropped, ranges.offset);
+        if (range.offset > 0)
+            buffer = puro::trimmed_begin(buffer, range.offset);
 
         // restrict range if the sound object should terminate this block
-        if (ranges.remaining < cropped.size())
-            cropped = puro::trimmed_length(cropped, ranges.remaining);
+        if (range.remaining < buffer.size())
+            buffer = puro::trimmed_length(buffer, range.remaining);
 
-        return cropped;
+        return buffer;
     }
 }

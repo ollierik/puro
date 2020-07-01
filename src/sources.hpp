@@ -204,15 +204,15 @@ std::tuple <BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType so
 
 
 template <typename FloatType>
-int num_samples_available_for_interp(int length, FloatType position, const FloatType rate, const int interp_order)
+int interp_num_samples_available(int length, FloatType position, const FloatType rate, const int interp_order)
 {
     return (int)std::ceil((static_cast<FloatType>(length-interp_order) - position)/rate);
 }
 
 template <typename BufferType, typename SeqType>
-BufferType buffer_crop_for_interp(BufferType buffer, int samplesAvailable, SeqType seq, const int interpOrder)
+BufferType interp_crop_buffer(BufferType buffer, int samplesAvailable, SeqType seq, const int interpOrder)
 {
-    const int numAvailable = num_samples_available_for_interp(samplesAvailable, seq.value, seq.increment, interpOrder);
+    const int numAvailable = interp_num_samples_available(samplesAvailable, seq.value, seq.increment, interpOrder);
 
     if (numAvailable < buffer.size())
         buffer = puro::trimmed_length(buffer, numAvailable);

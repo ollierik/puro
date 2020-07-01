@@ -7,18 +7,15 @@
 struct Grain
 {
     Grain(int offset, int length, puro::DynamicBuffer<float>& sourceBuffer, int startIndex)
-        : ranges(offset, length)
+        : range(offset, length)
         , audioSrc(sourceBuffer)
-        , audioSeq((float)startIndex, 1.5f)
+        , audioSeq((float)startIndex, 1.0f)
         , envlSeq(puro::envl_halfcos_create_seq<float>(length))
     {}
 
-    engine::Ranges ranges;
-
+    puro::Range range;
     puro::DynamicBuffer<float>& audioSrc;
-    //puro::IndexSequence<> audioSeq;
     puro::Sequence<float> audioSeq;
-
     puro::Sequence<float> envlSeq;
 };
 
@@ -31,23 +28,23 @@ struct Context
 template <typename BufferType, typename ElementType, typename ContextType>
 bool process_grain(const BufferType& buffer, ElementType& grain, ContextType& context)
 {
-	BufferType output = engine::ranges_crop_buffer(grain.ranges, buffer);
+	BufferType output = puro::range_crop_buffer(grain.range, buffer);
     const int numSamplesToWrite = output.size();
 	
     auto audio = puro::wrap_vector<BufferType> (context.temp1, output.size());
-    audio = puro::buffer_crop_for_interp(audio, grain.audioSrc.size(), grain.audioSeq, 1);
+    audio = puro::interp_crop_buffer(audio, grain.audioSrc.size(), grain.audioSeq, 1);
     std::tie(audio, grain.audioSeq) = puro::buffer_interp1_fill(audio, grain.audioSrc, grain.audioSeq);
 
     BufferType envelope = puro::wrap_vector<BufferType> (context.temp2, audio.size());
-    //std::tie(envelope, grain.envlSeq) = puro::envl_halfcos_fill(envelope, grain.envlSeq);
-    envelope = puro::constant_fill(envelope, 1.0f);
+    std::tie(envelope, grain.envlSeq) = puro::envl_halfcos_fill(envelope, grain.envlSeq);
+    //envelope = puro::constant_fill(envelope, 1.0f);
 
     output = puro::trimmed_length(output, envelope.size());
     output = puro::multiply_add(output, audio, envelope);
 
-    grain.ranges = engine::ranges_advance(grain.ranges, buffer.size());
+    grain.range = puro::range_advance(grain.range, buffer.size());
 
-    return (grain.ranges.remaining <= 0) || (output.size() != numSamplesToWrite);
+    return (grain.range.remaining <= 0) || (output.size() != numSamplesToWrite);
 }
 
 int main()

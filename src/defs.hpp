@@ -10,6 +10,10 @@
     #define PURO_DEBUG 1
 #endif
 
+#if PURO_MSVC
+    #define NOMINMAX
+#endif
+
 // TODO currently works with Windows only
 
 #if PURO_MSVC

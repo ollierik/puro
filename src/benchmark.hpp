@@ -13,85 +13,146 @@
 
 #include "puro.hpp"
 
-struct Grain
-{
-    Grain(int offset, int length, int startIndex)
-        : ranges(offset, length)
-        , envelopeRange(puro::envelope_halfcos_create_range<float>(length))
-    {}
-
-    engine::Ranges ranges;
-    puro::RatioRange<float> envelopeRange;
-};
-
 #define POOL_SIZE 128
 
-static void BM_AlignedPool(benchmark::State& state)
+static void benchmark_gaussian_cached(benchmark::State& state)
 {
-    AlignedPool<Grain> pool;
-    pool.elements.reserve(POOL_SIZE);
+    std::mt19937 gen;
+    std::normal_distribution<float> dist;
+
+    float sum = 0;
 
     for (auto _ : state)
     {
-        for (int i = 0; i < POOL_SIZE; ++i)
-        {
-            pool.push(Grain(i, i, i));
-        }
-
-        for (auto&& it : pool)
-        {
-            pool.pop(it);
-        }
+        const float random = dist(gen);
+        sum += random;
     }
 }
 
-static void BM_NodeStack(benchmark::State& state)
+static void benchmark_mersenne(benchmark::State& state)
 {
-    SafeStack<Grain> inactive;
-    NodeStack<Grain> active;
-    SafeStack<Grain> added;
-    NodeStack<Grain> removed;
+    std::mt19937 gen;
+    std::uniform_int_distribution<int> dist (-1000, 1000);
 
-    for (int i=0; i<POOL_SIZE; i++)
-    {
-        inactive.push_front(new Node<Grain>());
-    }
+    float sum = 0;
+    for (auto _ : state)
+        sum += dist(gen);
+}
 
+static void benchmark_lin(benchmark::State& state)
+{
+    std::minstd_rand gen;
+    std::uniform_int_distribution<short> dist (std::numeric_limits<short>::min(), std::numeric_limits<short>::max());
+
+    float sum = 0;
+    for (auto _ : state)
+        sum += dist(gen);
+}
+
+static void benchmark_subst(benchmark::State& state)
+{
+    std::ranlux24 gen;
+    std::uniform_int_distribution<int> dist (-1000, 1000);
+
+    float sum = 0;
+    for (auto _ : state)
+        sum += dist(gen);
+}
+
+static void benchmark_centlimit(benchmark::State& state)
+{
+    std::mt19937 gen;
+    std::uniform_real_distribution<float> dist (-1, 1);
+
+    float sum = 0;
     for (auto _ : state)
     {
-        for (int i = 0; i < POOL_SIZE/4; ++i)
-        {
-            for (int j = 0; j < 4; ++j)
-            {
-                auto* node = inactive.pop_front();
-                if (node != nullptr)
-                {
-                    auto& e = node->getElement();
-                    e = Grain(i, i, i);
-                    added.push_front(node);
-                }
-            }
-
-            active.push_multiple(added.pop_all());
-        }
-
-        int counter = 0;
-        for (auto&& it : active)
-        {
-            removed.push_front(active.pop(it));
-            if (++counter == 4)
-            {
-                inactive.push_multiple(removed.pop_all());
-                counter = 0;
-            }
-        }
+        const float r = dist(gen) + dist(gen) + dist(gen);
+        sum += r;
     }
+}
 
+static void benchmark_centlimit_int(benchmark::State& state)
+{
+    const int max = std::numeric_limits<int>::max() / 3;
+    const float fdiv = 1.0f / (float)std::numeric_limits<int>::max();
+    std::mt19937 gen;
+    std::uniform_int_distribution<int> dist (-max, max);
+
+    float sum = 0;
+    for (auto _ : state)
+    {
+        const int r = dist(gen) + dist(gen) + dist(gen);
+        const float f = (float)r * fdiv;
+        sum += f;
+    }
+}
+
+static void benchmark_centlimit_short(benchmark::State& state)
+{
+    constexpr int smin = std::numeric_limits<short>::min();
+    constexpr int smax = std::numeric_limits<short>::max();
+    constexpr float fdiv = 1.0f / (3.0f * static_cast<float>(smax));
+
+    std::mt19937 gen;
+
+    float sum = 0;
+    for (auto _ : state)
+    {
+        const std::uniform_int_distribution<short> dist (smin, smax);
+        const int r = dist(gen) + dist(gen) + dist(gen);
+        const float f = (float)r * fdiv;
+        sum += f;
+    }
+}
+
+static void benchmark_centlimit_short_intcast(benchmark::State& state)
+{
+    constexpr int smin = std::numeric_limits<short>::min();
+    constexpr int smax = std::numeric_limits<short>::max();
+    constexpr float fdiv = 1.0f / (3.0f * static_cast<float>(smax));
+
+    std::mt19937 gen;
+
+    float sum = 0;
+    for (auto _ : state)
+    {
+        const std::uniform_int_distribution<short> dist (smin, smax);
+        const float f = static_cast<float>(static_cast<int>(dist(gen)) + static_cast<int>(dist(gen)) + static_cast<int>(dist(gen))) * fdiv;
+        sum += f;
+    }
+}
+
+static void benchmark_centlimit_short_floatcast(benchmark::State& state)
+{
+    constexpr int smin = std::numeric_limits<short>::min();
+    constexpr int smax = std::numeric_limits<short>::max();
+    constexpr float fdiv = 1.0f / (3.0f * static_cast<float>(smax));
+
+    std::mt19937 gen;
+
+    float sum = 0;
+    for (auto _ : state)
+    {
+        const std::uniform_int_distribution<short> dist (smin, smax);
+        const float f = (static_cast<float>(dist(gen)) + static_cast<float>(dist(gen)) + static_cast<float>(dist(gen))) * fdiv;
+        sum += f;
+    }
 }
 
 
-//BENCHMARK(BM_PuroFull);
-BENCHMARK(BM_AlignedPool);
-BENCHMARK(BM_NodeStack);
+/*
+BENCHMARK(benchmark_mersenne);
+BENCHMARK(benchmark_lin);
+BENCHMARK(benchmark_subst);
+
+BENCHMARK(benchmark_centlimit);
+BENCHMARK(benchmark_centlimit_int);
+*/
+BENCHMARK(benchmark_centlimit_short);
+BENCHMARK(benchmark_centlimit_short_intcast);
+BENCHMARK(benchmark_centlimit_short_floatcast);
+BENCHMARK(benchmark_centlimit_short_intcast);
+BENCHMARK(benchmark_centlimit_short_floatcast);
 
 BENCHMARK_MAIN();

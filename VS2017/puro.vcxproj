@@ -19,23 +19,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\01_simple_example.hpp" />
-    <ClInclude Include="..\src\02_granular_example.hpp" />
-    <ClInclude Include="..\src\03_threadsafe_example.hpp" />
+    <ClInclude Include="..\examples\01_simple_example.hpp" />
+    <ClInclude Include="..\examples\02_granular_example.hpp" />
+    <ClInclude Include="..\examples\03_threadsafe_example.hpp" />
     <ClInclude Include="..\src\benchmark.hpp" />
-    <ClInclude Include="..\src\buffer.hpp" />
+    <ClInclude Include="..\src\buffers.hpp" />
     <ClInclude Include="..\src\defs.hpp" />
-    <ClInclude Include="..\src\engine.hpp" />
+    <ClInclude Include="..\src\alignment.hpp" />
     <ClInclude Include="..\src\math.hpp" />
-    <ClInclude Include="..\src\parameter.hpp" />
+    <ClInclude Include="..\src\node_stacks.hpp" />
+    <ClInclude Include="..\src\operations.hpp" />
+    <ClInclude Include="..\src\panning.hpp" />
     <ClInclude Include="..\src\pools.hpp" />
     <ClInclude Include="..\src\puro.hpp" />
-    <ClInclude Include="..\src\safepool.hpp" />
-    <ClInclude Include="..\src\scheduler.hpp" />
-    <ClInclude Include="..\src\sources.hpp" />
+    <ClInclude Include="..\src\sequences.hpp" />
+    <ClInclude Include="..\src\utils.hpp" />
+    <ClInclude Include="..\tests\nodestack_tests.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

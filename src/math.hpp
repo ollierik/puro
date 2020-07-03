@@ -9,6 +9,30 @@ namespace math
         return static_cast<FloatType> (3.14159265358979323846);
     }
 
+    template <typename ValueType>
+    ValueType min(ValueType f1, ValueType f2)
+    {
+        return f1 < f2 ? f1 : f2;
+    }
+
+    template <typename ValueType>
+    ValueType max(ValueType f1, ValueType f2)
+    {
+        return f1 > f2 ? f1 : f2;
+    }
+
+    template <typename ValueType>
+    ValueType clip(ValueType val, ValueType minValue, ValueType maxValue)
+    {
+        return min(max(val, minValue), maxValue);
+    }
+
+    template <typename FloatType, typename ValueType=int>
+    ValueType round(FloatType value)
+    {
+        return static_cast<ValueType> (value + (FloatType)0.5);
+    }
+
     template <typename FloatType>
     void multiply_add(FloatType* dst, const FloatType* src1, const FloatType* src2, const int n)
     {

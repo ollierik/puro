@@ -3,6 +3,9 @@
 /** Memory aligned pool based on a vector. To avoid cache misses, elements are stored in a consecutive order,
     and moved around upon popping. Works best for Elements with small size and trivial copy operation.
 */
+
+namespace puro {
+
 template <typename T>
 struct AlignedPool
 {
@@ -28,7 +31,7 @@ struct AlignedPool
         if (elements.size() < elements.capacity())
         {
             elements.push_back(element);
-            return Iterator(*this, (int)size()-1);
+            return Iterator(*this, (int)size() - 1);
         }
 
         return Iterator(*this, -1);
@@ -36,15 +39,15 @@ struct AlignedPool
 
     void pop(const Iterator& it)
     {
-        if ((int)size() > 1 && it.index < (int)size()-1)
+        if ((int)size() > 1 && it.index < (int)size() - 1)
         {
-            memcpy(&elements[it.index], &elements[size()-1], sizeof(T));
+            memcpy(&elements[it.index], &elements[size() - 1], sizeof(T));
         }
 
         elements.pop_back();
     }
 
-    Iterator begin() { return Iterator(*this, (int)size()-1); }
+    Iterator begin() { return Iterator(*this, (int)size() - 1); }
     Iterator end() { return Iterator(*this, -1); }
 
     size_t size() { return elements.size(); }
@@ -52,4 +55,4 @@ struct AlignedPool
     std::vector<T> elements;
 };
 
-
+}

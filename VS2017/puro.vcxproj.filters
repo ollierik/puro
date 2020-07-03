@@ -1,16 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{434e1685-f4ab-42f3-b9d2-f4a97ef4006d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="examples">
+      <UniqueIdentifier>{74d2d606-9c7b-4456-8fd3-c60cfe2e9008}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{327320b8-2031-4bb1-9759-41a1be4acb07}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\buffer.hpp">
+    <ClInclude Include="..\src\benchmark.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\buffers.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\defs.hpp">
@@ -19,37 +24,40 @@
     <ClInclude Include="..\src\math.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\sources.hpp">
+    <ClInclude Include="..\src\node_stacks.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\engine.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\puro.hpp">
+    <ClInclude Include="..\src\operations.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\pools.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\safepool.hpp">
+    <ClInclude Include="..\src\puro.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\01_simple_example.hpp">
+    <ClInclude Include="..\src\utils.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\03_threadsafe_example.hpp">
+    <ClInclude Include="..\src\panning.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\scheduler.hpp">
+    <ClInclude Include="..\src\sequences.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\02_granular_example.hpp">
-      <Filter>src</Filter>
+    <ClInclude Include="..\examples\01_simple_example.hpp">
+      <Filter>examples</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\parameter.hpp">
-      <Filter>src</Filter>
+    <ClInclude Include="..\examples\02_granular_example.hpp">
+      <Filter>examples</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\benchmark.hpp">
+    <ClInclude Include="..\examples\03_threadsafe_example.hpp">
+      <Filter>examples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\nodestack_tests.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\alignment.hpp">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

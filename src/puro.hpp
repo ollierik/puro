@@ -1,24 +1,28 @@
 #pragma once
 
-#define NOMINMAX
-
-#include <iostream>
-#include <array>
-#include <vector>
-#include <memory>
-#include <cstdlib>
-#include <cmath>
-#include <functional>
-#include <utility>
-#include <atomic>
-#include <tuple>
-
 #include "defs.hpp"
+
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <cmath>
+#include <cstdlib>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <random>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
 #include "math.hpp"
 #include "pools.hpp"
-#include "buffer.hpp"
-#include "engine.hpp"
-#include "scheduler.hpp"
-#include "sources.hpp"
-#include "safepool.hpp"
+#include "node_stacks.hpp"
+#include "buffers.hpp"
+#include "sequences.hpp"
+#include "panning.hpp"
+#include "alignment.hpp"
+#include "utils.hpp"
+#include "operations.hpp"
 

@@ -16,7 +16,7 @@ struct Buffer
 
     // getters
     bool isInvalid() const { return numSamples <= 0; }
-    int size() const { return numSamples; };
+    int length() const { return numSamples; };
     constexpr int getNumChannels() const { return num_channels; } // some more advanced class may want to redefine this
 
     FloatType& operator() (int ch, int i)
@@ -77,7 +77,7 @@ struct DynamicBuffer
 
     // getters
     bool isInvalid() const { return numSamples <= 0 || numChannels <= 0; }
-    int size() const { return numSamples; };
+    int length() const { return numSamples; };
     int getNumChannels() const { return numChannels; } // some more advanced class may want to redefine this
 
     FloatType& operator() (int ch, int i)
@@ -133,9 +133,9 @@ BufferType trimmed_begin(BufferType buffer, int offset)
 template <typename BufferType>
 BufferType trimmed_length(BufferType buffer, int newLength)
 {
-    errorif(newLength < 0 || newLength > buffer.numSamples, "new length out of bounds");
+    errorif(newLength > buffer.numSamples, "new length out of bounds");
 
-    buffer.numSamples = newLength;
+    buffer.numSamples = math::max(newLength, 0);
     return buffer;
 }
 
@@ -181,15 +181,15 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
 template <typename BufferType, typename MultBufferType>
 BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferType src2)
 {
-    errorif(!(dst.size() == src1.size()), "dst and src1 buffer lengths don't match");
-    errorif(!(dst.size() == src2.size()), "dst and src2 buffer lengths don't match");
+    errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
+    errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
 
     // identical channel configs
     if (src1.getNumChannels() == src2.getNumChannels())
     {
         for (int ch = 0; ch < dst.getNumChannels(); ++ch)
         {
-            math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.size());
+            math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.length());
         }
     }
     // src2 is a mono buffer
@@ -197,7 +197,7 @@ BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferT
     {
         for (int ch = 0; ch < dst.getNumChannels(); ++ch)
         {
-            math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.size());
+            math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.length());
         }
     }
     else
@@ -213,7 +213,7 @@ void buffer_clear(BufferType buffer)
 {
     for (int ch=0; ch<buffer.getNumChannels(); ++ch)
     {
-        math::set<typename BufferType::value_type>(buffer.channel(ch), 0, buffer.size());
+        math::set<typename BufferType::value_type>(buffer.channel(ch), 0, buffer.length());
     }
 }
 

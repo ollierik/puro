@@ -11,6 +11,7 @@
 #endif
 #endif
 
+#define PURO_BUFFER_WRAP_VECTOR_RESIZING 0
 #include "rvo_benchmark_purolib.hpp"
 
 struct Grain
@@ -68,9 +69,11 @@ static void benchmark_rvo(benchmark::State& state)
 
     using BufferType = puro::Buffer<float, 2>;
     std::vector<float> vec;
-    BufferType buffer = puro::buffer_wrap_vector<BufferType>(vec, blockSize);
+    BufferType buffer = puro::buffer_wrap_vector<BufferType, float, true>(vec, blockSize);
 
     Context context;
+    context.vec1.resize(blockSize*4, 0);
+    context.vec2.resize(blockSize*4, 0);
 
     puro::Timer<int> timer (0);
 
@@ -78,7 +81,7 @@ static void benchmark_rvo(benchmark::State& state)
     pool.elements.reserve(16);
 
     std::vector<float> sourceData;
-    auto source = puro::buffer_wrap_vector<BufferType> (sourceData, blockSize);
+    auto source = puro::buffer_wrap_vector<BufferType, float, true> (sourceData, blockSize);
     puro::noise_fill(source);
 
     for (auto _ : state)
@@ -113,9 +116,8 @@ static void benchmark_rvo(benchmark::State& state)
                 }
             }
         }
-    } // BENCHMARK
+    }
 }
-
 
 BENCHMARK(benchmark_rvo)->Unit(benchmark::kMillisecond);
 

@@ -10,6 +10,9 @@
     <Filter Include="tests">
       <UniqueIdentifier>{327320b8-2031-4bb1-9759-41a1be4acb07}</UniqueIdentifier>
     </Filter>
+    <Filter Include="benchmark">
+      <UniqueIdentifier>{5e695fe8-8a48-4cc4-9257-ffb1aa7ac8b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\benchmark.hpp">
@@ -59,6 +62,12 @@
     </ClInclude>
     <ClInclude Include="..\src\alignment.hpp">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\benchmark\random_benchmark.hpp">
+      <Filter>benchmark</Filter>
+    </ClInclude>
+    <ClInclude Include="..\benchmark\rvo_benchmark.hpp">
+      <Filter>benchmark</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

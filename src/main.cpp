@@ -3,5 +3,5 @@
 //#include "../examples/03_threadsafe_example.hpp"
 //#include "../tests/nodestack_tests.h"
 
-#include "benchmark.hpp"
+#include "../benchmark/rvo_benchmark.hpp"
 

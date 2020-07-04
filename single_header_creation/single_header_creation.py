@@ -99,4 +99,4 @@ def create_single_file_header(input_file_path, output_path):
     print("Done, wrote to:", output_path)
 
 if __name__ == "__main__":
-    create_single_file_header("../src/main.cpp", "../src/export.cpp")
+    create_single_file_header("../src/puro.hpp", "../src/purolib.hpp")

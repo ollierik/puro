@@ -34,6 +34,13 @@ namespace math
     }
 
     template <typename FloatType>
+    void multiply_inplace(FloatType* dst, const FloatType* src, const int n)
+    {
+        for (int i = 0; i < n; ++i)
+            dst[i] *= src[i];
+    };
+
+    template <typename FloatType>
     void multiply_add(FloatType* dst, const FloatType* src1, const FloatType* src2, const int n)
     {
         for (int i = 0; i < n; ++i)

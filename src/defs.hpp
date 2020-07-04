@@ -31,4 +31,10 @@
     #define errorif(condition, msg) ((void)0)
 #endif
 
+
+#ifndef PURO_BUFFER_WRAP_VECTOR_RESIZING
+    #define PURO_BUFFER_WRAP_VECTOR_RESIZING 1
+#endif
+
+
  

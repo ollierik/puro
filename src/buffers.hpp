@@ -117,7 +117,7 @@ struct DynamicBuffer
 ////////////////////////////////
 
 template <typename BufferType>
-BufferType trimmed_begin(BufferType buffer, int offset)
+BufferType buffer_trim_begin(BufferType buffer, int offset)
 {
     errorif(offset < 0 || offset > buffer.numSamples, "offset out of bounds");
 
@@ -131,7 +131,7 @@ BufferType trimmed_begin(BufferType buffer, int offset)
 
 
 template <typename BufferType>
-BufferType trimmed_length(BufferType buffer, int newLength)
+BufferType buffer_trim_length(BufferType buffer, int newLength)
 {
     errorif(newLength > buffer.numSamples, "new length out of bounds");
 
@@ -140,7 +140,7 @@ BufferType trimmed_length(BufferType buffer, int newLength)
 }
 
 template <typename BufferType>
-BufferType slice(BufferType buffer, int offset, int length)
+BufferType buffer_slice(BufferType buffer, int offset, int length)
 {
     errorif(offset > buffer.numSamples, "slice offset greater than number of samples available");
     errorif(length < 0 || length > (offset + buffer.numSamples), "slice length out of bounds");
@@ -153,17 +153,31 @@ BufferType slice(BufferType buffer, int offset, int length)
 }
 
 /** Create a Buffer with the data laid out into the provided vector.
-    Resize the vector if needed. Number of channels is deducted from the template args. */
-template <typename BufferType, typename FloatType>
-BufferType wrap_vector(std::vector<FloatType>& vector, int numSamples)
+    The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
+template <typename BufferType, typename FloatType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
+BufferType buffer_wrap_vector(std::vector<FloatType>& vector, int numSamples)
 {
-    const int totLength = BufferType::num_channels * numSamples;
+    if (resizeIfNeeded)
+    {
+        const int totLength = BufferType::num_channels * numSamples;
 
-    // resize if needed
-    if ((int)vector.size() < totLength)
-        vector.resize(totLength);
+        if ((int)vector.size() < totLength)
+            vector.resize(totLength);
+    }
 
     return BufferType(numSamples, vector.data());
+}
+
+template <typename ToBufferType, typename FromBufferType>
+ToBufferType buffer_convert_to_type(FromBufferType src)
+{
+    ToBufferType dst (src.length());
+    for (int ch=0; ch < dst.getNumChannels(); ++ch)
+    {
+        errorif (ch >= src.getNumChannels(), "trying to convert from less channels to a larger one");
+        dst.channelPtrs[ch] = src.channelPtrs[ch];
+    }
+    return dst;
 }
 
 template <typename BufferType, typename FloatType>

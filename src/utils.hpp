@@ -33,7 +33,7 @@ public:
         : generator(std::random_device()()), centre(0), deviation(0), minimum(min), maximum(max)
     {}
 
-    Parameter(ValueType centre, ValueType deviation, ValueType min, ValueType max)
+    Parameter(FloatType centre, FloatType deviation, ValueType min, ValueType max)
         : generator(std::random_device()()), centre(centre), deviation(deviation), minimum(min), maximum(max)
     {}
 
@@ -50,7 +50,7 @@ public:
             const ValueType i = static_cast<ValueType> (math::round<FloatType, ValueType>(f));
             return math::clip<ValueType> (i, minimum, maximum);
         }
-        return math::clip<ValueType> (f, minimum, maximum);
+        return math::clip<ValueType> (static_cast<ValueType>(f), minimum, maximum);
     }
 
     std::mt19937 generator;
@@ -67,7 +67,7 @@ FloatType random_bspline2_fast(std::mt19937& gen, FloatType mean, FloatType dev)
 {
     constexpr int smin = std::numeric_limits<short>::min();
     constexpr int smax = std::numeric_limits<short>::max();
-    constexpr FloatType fdiv = 1.0 / (3.0 * static_cast<FloatType>(smax));
+    constexpr FloatType fdiv = static_cast<FloatType>(1.0 / (3.0 * static_cast<FloatType>(smax)));
 
     const std::uniform_int_distribution<short> dist (smin, smax);
 

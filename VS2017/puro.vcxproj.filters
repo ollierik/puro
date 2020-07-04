@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\benchmark.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\buffers.hpp">
       <Filter>src</Filter>
     </ClInclude>

@@ -3,7 +3,7 @@
 namespace puro {
 
 template <typename BufferType, typename MultBufferType>
-BufferType content_multiply_inplace(BufferType dst, const MultBufferType src)
+BufferType content_multiply_inplace(BufferType dst, const MultBufferType src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -28,7 +28,7 @@ BufferType content_multiply_inplace(BufferType dst, const MultBufferType src)
 }
 
 template <typename BufferType>
-void constant_fill(BufferType buffer, typename BufferType::value_type value)
+void constant_fill(BufferType buffer, typename BufferType::value_type value) noexcept
 {
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
     {
@@ -38,7 +38,7 @@ void constant_fill(BufferType buffer, typename BufferType::value_type value)
 
 
 template <typename BufferType>
-void noise_fill(BufferType buffer)
+void noise_fill(BufferType buffer) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -55,7 +55,7 @@ void noise_fill(BufferType buffer)
 }
 
 template <typename BufferType, typename ValueType>
-void linspace_fill(BufferType buffer, ValueType start, const ValueType increment)
+void linspace_fill(BufferType buffer, ValueType start, const ValueType increment) noexcept
 {
     for (int i=0; i<buffer.length(); ++i)
     {
@@ -74,14 +74,14 @@ void linspace_fill(BufferType buffer, ValueType start, const ValueType increment
 /////////////////////////////////////////////
 
 template <typename FloatType>
-Sequence<FloatType> content_envelope_halfcos_create_seq(int lengthInSamples)
+Sequence<FloatType> content_envelope_halfcos_create_seq(int lengthInSamples) noexcept
 {
     const FloatType val = math::pi<FloatType>() / static_cast<FloatType>(lengthInSamples + 1);
     return { val, val };
 }
 
 template <typename BufferType, typename SeqType>
-SeqType content_envelope_halfcos_fill(BufferType buffer, SeqType seq)
+SeqType content_envelope_halfcos_fill(BufferType buffer, SeqType seq) noexcept
 {
     for (int i = 0; i < buffer.length(); ++i)
     {
@@ -100,7 +100,7 @@ SeqType content_envelope_halfcos_fill(BufferType buffer, SeqType seq)
 }
 
 template <typename FloatType>
-Sequence<FloatType> envl_hann_create_seq(int lengthInSamples, bool symmetric = true)
+Sequence<FloatType> envl_hann_create_seq(int lengthInSamples, bool symmetric = true) noexcept
 {
     const FloatType div = static_cast<FloatType>(lengthInSamples) + (symmetric ? 1 : 0);
     const FloatType val = 2 * math::pi<FloatType>() / div;
@@ -109,7 +109,7 @@ Sequence<FloatType> envl_hann_create_seq(int lengthInSamples, bool symmetric = t
 }
 
 template <typename BufferType, typename SeqType>
-SeqType envl_hann_fill(BufferType buffer, SeqType seq)
+SeqType envl_hann_fill(BufferType buffer, SeqType seq) noexcept
 {
     for (int i = 0; i < buffer.length(); ++i)
     {
@@ -127,7 +127,7 @@ SeqType envl_hann_fill(BufferType buffer, SeqType seq)
 
 
 template <typename BufferType, typename SrcBufferType, typename SeqType>
-std::tuple <BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType source, SeqType seq)
+std::tuple <BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType source, SeqType seq) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -165,13 +165,13 @@ std::tuple <BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType so
 
 
 template <typename FloatType>
-int content_interpolation_num_samples_available(int length, FloatType position, const FloatType rate, const int interp_order)
+int content_interpolation_num_samples_available(int length, FloatType position, const FloatType rate, const int interp_order) noexcept
 {
     return (int)std::ceil((static_cast<FloatType>(length-interp_order) - position)/rate);
 }
 
 template <typename BufferType, typename SeqType>
-BufferType content_interpolation_crop_buffer(BufferType buffer, int samplesAvailable, SeqType seq, const int interpOrder)
+BufferType content_interpolation_crop_buffer(BufferType buffer, int samplesAvailable, SeqType seq, const int interpOrder) noexcept
 {
     const int numAvailable = content_interpolation_num_samples_available(samplesAvailable, seq.value, seq.increment, interpOrder);
 
@@ -184,7 +184,7 @@ BufferType content_interpolation_crop_buffer(BufferType buffer, int samplesAvail
 /** Assumes that the source buffer can provide all the required samples, i.e. doesn't do bound checking.
     Buffer should be cropped for example with buffer_crop_for_interp before-hand. */
 template <typename BufferType, typename SrcBufferType, typename SeqType>
-std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, SrcBufferType source, SeqType seq)
+std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, SrcBufferType source, SeqType seq) noexcept
 {
     using FloatType = typename BufferType::value_type;
 

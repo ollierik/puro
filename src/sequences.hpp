@@ -5,30 +5,31 @@ namespace puro {
 template <int increment = 1>
 struct IndexSequence
 {
-    IndexSequence(int val) : value(val) {}
+    IndexSequence(int val) noexcept : value(val) {}
 
     static constexpr int increment = increment;
 
-    IndexSequence operator++() // prefix
+    IndexSequence operator++() noexcept // prefix
     {
         value += increment;
         return value;
     };
 
-    IndexSequence operator++(int) // postfix
+    IndexSequence operator++(int) noexcept // postfix
     {
         IndexSequence temp (value, increment);
         value += increment;
         return temp;
     };
 
-    IndexSequence& operator+=(const int rhs)
+    IndexSequence& operator+=(const int rhs) noexcept
     {
         value += rhs;
         return *this;
     }
 
-    operator int() { return value; }
+    operator int() const noexcept { return value; }
+
     int value;
 };
 

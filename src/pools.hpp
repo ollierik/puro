@@ -15,18 +15,18 @@ struct AlignedPool
         int index;
         AlignedPool<T>& pool;
 
-        T& get() { return pool.elements[index]; }
+        T& get() noexcept { return pool.elements[index]; }
 
-        bool isValid() { return index >= 0; }
+        bool isValid() const noexcept { return index >= 0; }
 
-        bool operator!= (const Iterator& other) { return index != other.index; }
-        Iterator& operator*() { return *this; }
-        T* operator->() { return &pool[index]; }
-        Iterator& operator++() { --index; return *this; }
+        bool operator!= (const Iterator& other) noexcept { return index != other.index; }
+        Iterator& operator*() noexcept { return *this; }
+        T* operator->() noexcept { return &pool[index]; }
+        Iterator& operator++() noexcept { --index; return *this; }
     };
 
 
-    Iterator push(T&& element)
+    Iterator push(T&& element) noexcept
     {
         if (elements.size() < elements.capacity())
         {
@@ -37,7 +37,7 @@ struct AlignedPool
         return Iterator(*this, -1);
     }
 
-    void pop(const Iterator& it)
+    void pop(const Iterator& it) noexcept
     {
         if ((int)size() > 1 && it.index < (int)size() - 1)
         {
@@ -47,10 +47,10 @@ struct AlignedPool
         elements.pop_back();
     }
 
-    Iterator begin() { return Iterator(*this, (int)size() - 1); }
-    Iterator end() { return Iterator(*this, -1); }
+    Iterator begin() noexcept { return Iterator(*this, (int)size() - 1); }
+    Iterator end() noexcept { return Iterator(*this, -1); }
 
-    size_t size() { return elements.size(); }
+    size_t size() const noexcept { return elements.size(); }
 
     std::vector<T> elements;
 };

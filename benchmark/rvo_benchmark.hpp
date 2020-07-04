@@ -12,7 +12,8 @@
 #endif
 
 #define PURO_BUFFER_WRAP_VECTOR_RESIZING 0
-#include "rvo_benchmark_purolib.hpp"
+//#include "rvo_benchmark_purolib.hpp"
+#include "../src/puro.hpp"
 
 struct Grain
 {

@@ -15,18 +15,18 @@ struct Buffer
     static constexpr int num_channels = numberOfChannels;
 
     // getters
-    bool isInvalid() const { return numSamples <= 0; }
-    int length() const { return numSamples; };
-    constexpr int getNumChannels() const { return num_channels; } // some more advanced class may want to redefine this
+    bool isInvalid() const noexcept { return numSamples <= 0; }
+    int length() const noexcept { return numSamples; }
+    constexpr int getNumChannels() const noexcept { return num_channels; } // some more advanced class may want to redefine this
 
-    FloatType& operator() (int ch, int i)
+    FloatType& operator() (int ch, int i) noexcept
     {
         errorif(ch < 0 || ch >= num_channels, "channel out of range");
         errorif(i < 0 || i >= numSamples, "sample index out of range");
         return channelPtrs[ch][i];
     }
 
-    FloatType* channel(int ch) const
+    FloatType* channel(int ch) const noexcept
     {
         errorif(ch < 0 || ch >= num_channels, "channel out of range");
         return channelPtrs[ch];
@@ -36,13 +36,13 @@ struct Buffer
 
     Buffer() : numSamples(0) {} // invalid Buffer
 
-    Buffer (int numSamples)
+    Buffer (int numSamples) noexcept
         : numSamples(numSamples)
     {}
 
     /** Buffer from raw allocated memory.
         Provided data is expected to be able to hold (numSamples * numChannels) of data */
-    Buffer (int numSamples, FloatType* data)
+    Buffer (int numSamples, FloatType* data) noexcept
         : numSamples(numSamples)
     {
         for (int ch = 0; ch < num_channels; ++ch)
@@ -50,7 +50,7 @@ struct Buffer
     }
 
     /** Buffer from raw allocated memory. Provided array should contain the per-channel pointers. */
-    Buffer (int numSamples, std::array<FloatType, numberOfChannels> data)
+    Buffer (int numSamples, std::array<FloatType, numberOfChannels> data) noexcept
         : numSamples(numSamples)
     {
         for (int ch = 0; ch < data.size(); ++ch)
@@ -117,7 +117,7 @@ struct DynamicBuffer
 ////////////////////////////////
 
 template <typename BufferType>
-BufferType buffer_trim_begin(BufferType buffer, int offset)
+BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
 {
     errorif(offset < 0 || offset > buffer.numSamples, "offset out of bounds");
 
@@ -131,7 +131,7 @@ BufferType buffer_trim_begin(BufferType buffer, int offset)
 
 
 template <typename BufferType>
-BufferType buffer_trim_length(BufferType buffer, int newLength)
+BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
 {
     errorif(newLength > buffer.numSamples, "new length out of bounds");
 
@@ -140,7 +140,7 @@ BufferType buffer_trim_length(BufferType buffer, int newLength)
 }
 
 template <typename BufferType>
-BufferType buffer_slice(BufferType buffer, int offset, int length)
+BufferType buffer_slice(BufferType buffer, int offset, int length) noexcept
 {
     errorif(offset > buffer.numSamples, "slice offset greater than number of samples available");
     errorif(length < 0 || length > (offset + buffer.numSamples), "slice length out of bounds");
@@ -155,7 +155,7 @@ BufferType buffer_slice(BufferType buffer, int offset, int length)
 /** Create a Buffer with the data laid out into the provided vector.
     The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
 template <typename BufferType, typename FloatType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
-BufferType buffer_wrap_vector(std::vector<FloatType>& vector, int numSamples)
+BufferType buffer_wrap_vector(std::vector<FloatType>& vector, int numSamples) noexcept
 {
     if (resizeIfNeeded)
     {
@@ -169,7 +169,7 @@ BufferType buffer_wrap_vector(std::vector<FloatType>& vector, int numSamples)
 }
 
 template <typename ToBufferType, typename FromBufferType>
-ToBufferType buffer_convert_to_type(FromBufferType src)
+ToBufferType buffer_convert_to_type(FromBufferType src) noexcept
 {
     ToBufferType dst (src.length());
     for (int ch=0; ch < dst.getNumChannels(); ++ch)
@@ -181,7 +181,7 @@ ToBufferType buffer_convert_to_type(FromBufferType src)
 }
 
 template <typename BufferType, typename FloatType>
-BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int numChannels, int numSamples)
+BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int numChannels, int numSamples) noexcept
 {
     const int totLength = numChannels * numSamples;
 
@@ -193,7 +193,7 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
 }
 
 template <typename BufferType, typename MultBufferType>
-BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferType src2)
+BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferType src2) noexcept
 {
     errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
@@ -223,7 +223,7 @@ BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferT
 }
 
 template <typename BufferType>
-void buffer_clear(BufferType buffer)
+void buffer_clear(BufferType buffer) noexcept
 {
     for (int ch=0; ch<buffer.getNumChannels(); ++ch)
     {

@@ -11,10 +11,10 @@ namespace puro {
 template <typename FloatType, int numChannels>
 struct PanCoeffs
 {
-    constexpr int getNumChannels() { return numChannels; };
+    constexpr int getNumChannels() noexcept { return numChannels; };
     std::array<FloatType, numChannels*numChannels> coeffs;
 
-    FloatType operator() (int fromCh, int toCh)
+    FloatType operator() (int fromCh, int toCh) noexcept
     {
         return coeffs[numChannels * fromCh + toCh];
     }
@@ -23,7 +23,7 @@ struct PanCoeffs
 /** Pan range is [-1, 1], where -1 is hard left and 1 is hard right. */
     
 template <typename FloatType>
-PanCoeffs<FloatType, 2> pan_create_stereo(FloatType pan)
+PanCoeffs<FloatType, 2> pan_create_stereo(FloatType pan) noexcept
 {
     // [ leftToLeft, leftToRight, rightToLeft, rightToRight ]
     if (pan <= 0)
@@ -45,7 +45,7 @@ PanCoeffs<FloatType, 2> pan_create_stereo(FloatType pan)
 }
 
 template <typename BufferType, typename PanType>
-void content_pan_apply(BufferType dst, BufferType src, PanType coeffs)
+void content_pan_apply(BufferType dst, BufferType src, PanType coeffs) noexcept
 {
     errorif(src.getNumChannels() != coeffs.getNumChannels(), "channel configs between src and coeffs don't match");
     errorif(dst.getNumChannels() != coeffs.getNumChannels(), "channel configs between dst and coeffs don't match");
@@ -68,7 +68,7 @@ void content_pan_apply(BufferType dst, BufferType src, PanType coeffs)
 }
 
 template <typename BufferType, typename SourceBufferType, typename PanType>
-void content_pan_apply_and_add(BufferType dst, SourceBufferType src, PanType coeffs)
+void content_pan_apply_and_add(BufferType dst, SourceBufferType src, PanType coeffs) noexcept
 {
     using FloatType = typename BufferType::value_type;
 

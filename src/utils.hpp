@@ -5,9 +5,9 @@ namespace puro {
 template <typename ValueType>
 struct Timer
 {
-    Timer(ValueType interval) : interval(interval), counter(0) {}
+    Timer(ValueType interval) noexcept : interval(interval), counter(0) {}
 
-    ValueType advance(ValueType units)
+    ValueType advance(ValueType units) noexcept
     {
         counter += units;
 
@@ -29,15 +29,15 @@ template <typename ValueType, bool useRelativeDeviation, typename FloatType=floa
 struct Parameter
 {
 public:
-    Parameter(ValueType min, ValueType max)
+    Parameter(ValueType min, ValueType max) noexcept
         : generator(std::random_device()()), centre(0), deviation(0), minimum(min), maximum(max)
     {}
 
-    Parameter(FloatType centre, FloatType deviation, ValueType min, ValueType max)
+    Parameter(FloatType centre, FloatType deviation, ValueType min, ValueType max) noexcept
         : generator(std::random_device()()), centre(centre), deviation(deviation), minimum(min), maximum(max)
     {}
 
-    ValueType get()
+    ValueType get() const noexcept
     {
         FloatType f;
         if (useRelativeDeviation)
@@ -63,7 +63,7 @@ public:
 
 
 template <typename FloatType>
-FloatType random_bspline2_fast(std::mt19937& gen, FloatType mean, FloatType dev)
+FloatType random_bspline2_fast(std::mt19937& gen, FloatType mean, FloatType dev) noexcept
 {
     constexpr int smin = std::numeric_limits<short>::min();
     constexpr int smax = std::numeric_limits<short>::max();

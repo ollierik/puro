@@ -2,7 +2,6 @@
 
 namespace puro 
 {
-
     struct RelativeAlignment
     {
         RelativeAlignment(int offset, int length) : offset(offset), remaining(length) {}
@@ -11,7 +10,7 @@ namespace puro
     };
 
     template <typename BufferType, typename AlignmentType>
-    std::tuple<BufferType, AlignmentType> alignment_advance_and_crop_buffer(BufferType buffer, AlignmentType alignment)
+    std::tuple<BufferType, AlignmentType> alignment_advance_and_crop_buffer(BufferType buffer, AlignmentType alignment) noexcept
     {
         // no operations needed for this block
         if (alignment.offset >= buffer.length())

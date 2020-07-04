@@ -85,7 +85,8 @@ SeqType content_envelope_halfcos_fill(BufferType buffer, SeqType seq) noexcept
 {
     for (int i = 0; i < buffer.length(); ++i)
     {
-        buffer(0, i) = seq++;
+        buffer(0, i) = seq.value;
+        seq.value += seq.increment;
     }
 
     math::sin(&buffer(0, 0), buffer.length());
@@ -195,18 +196,21 @@ std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, 
     // identical channel config
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
     {
-        SeqType chSeq = seq;
+        //SeqType chSeq = seq;
+        auto position = seq.value;
+        const auto increment = seq.increment;
+
         for (int i = 0; i < buffer.length(); ++i)
         {
-            const FloatType pos = chSeq++;
-            const int index = static_cast<int> (pos);
-            const FloatType fract = pos - index;
+            const int index = static_cast<int> (position);
+            position += increment;
+            const FloatType fract = static_cast<FloatType>(position - index);
 
             buffer(ch, i) = source(ch, index) * (1 - fract) + source(ch, index + 1) * fract;
         }
 
-        if (ch == buffer.getNumChannels()- 1)
-            seq = chSeq;
+        if (ch == buffer.getNumChannels() - 1)
+            seq.value = position;
     }
 
     return std::make_tuple(std::move(buffer), std::move(seq));

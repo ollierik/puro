@@ -37,7 +37,7 @@ public:
         : generator(std::random_device()()), centre(centre), deviation(deviation), minimum(min), maximum(max)
     {}
 
-    ValueType get() const noexcept
+    ValueType get() noexcept
     {
         FloatType f;
         if (useRelativeDeviation)

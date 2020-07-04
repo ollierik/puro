@@ -2,6 +2,7 @@
 
 namespace puro {
 
+/*
 template <int increment = 1>
 struct IndexSequence
 {
@@ -9,54 +10,29 @@ struct IndexSequence
 
     static constexpr int increment = increment;
 
-    IndexSequence operator++() noexcept // prefix
-    {
-        value += increment;
-        return value;
-    };
-
-    IndexSequence operator++(int) noexcept // postfix
-    {
-        IndexSequence temp (value, increment);
-        value += increment;
-        return temp;
-    };
-
-    IndexSequence& operator+=(const int rhs) noexcept
-    {
-        value += rhs;
-        return *this;
-    }
-
-    operator int() const noexcept { return value; }
-
     int value;
 };
+*/
 
 
 
-template <typename T>
+template <typename FloatType>
 struct Sequence
 {
-    Sequence(T val, T inc) : value(val), increment(inc) {}
+    typedef FloatType value_type;
 
-    Sequence operator++() // prefix
-    {
-        value += increment;
-        return value;
-    };
+    Sequence(FloatType val, FloatType inc) : value(val), increment(inc) {}
 
-    Sequence operator++(int) // postfix
-    {
-        Sequence temp (value, increment);
-        value += increment;
-        return temp;
-    };
-
-    operator T() { return value; }
-
-    T value;
-    T increment;
+    FloatType value;
+    FloatType increment;
 };
+
+template <typename SequenceType>
+SequenceType sequence_increment(SequenceType seq)
+{
+    seq.value += seq.increment;
+    return seq;
+}
+
 
 } // namespace puro

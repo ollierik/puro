@@ -19,12 +19,14 @@ struct Buffer
     int length() const noexcept { return numSamples; }
     constexpr int getNumChannels() const noexcept { return num_channels; } // some more advanced class may want to redefine this
 
+    /*
     FloatType& operator() (int ch, int i) noexcept
     {
         errorif(ch < 0 || ch >= num_channels, "channel out of range");
         errorif(i < 0 || i >= numSamples, "sample index out of range");
         return channelPtrs[ch][i];
     }
+    */
 
     FloatType* channel(int ch) const noexcept
     {
@@ -80,12 +82,14 @@ struct DynamicBuffer
     int length() const { return numSamples; };
     int getNumChannels() const { return numChannels; } // some more advanced class may want to redefine this
 
+    /*
     FloatType& operator() (int ch, int i)
     {
         errorif(ch < 0 || ch >= numChannels, "channel out of range");
         errorif(i < 0 || i >= numSamples, "sample index out of range");
         return channelPtrs[ch][i];
     }
+    */
 
     FloatType* channel(int ch) const
     {

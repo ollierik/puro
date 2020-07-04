@@ -3,7 +3,7 @@
 namespace puro {
 
 template <typename BufferType, typename MultBufferType>
-BufferType content_multiply_inplace(BufferType dst, const MultBufferType src) noexcept
+void content_multiply_inplace(BufferType& dst, const MultBufferType& src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -23,12 +23,10 @@ BufferType content_multiply_inplace(BufferType dst, const MultBufferType src) no
             math::multiply_inplace(dst.channel(ch), src.channel(0), dst.length());
         }
     }
-       
-    return dst;
 }
 
 template <typename BufferType>
-void constant_fill(BufferType buffer, typename BufferType::value_type value) noexcept
+void constant_fill(BufferType& buffer, typename BufferType::value_type value) noexcept
 {
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
     {
@@ -38,7 +36,7 @@ void constant_fill(BufferType buffer, typename BufferType::value_type value) noe
 
 
 template <typename BufferType>
-void noise_fill(BufferType buffer) noexcept
+void noise_fill(BufferType& buffer) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -55,7 +53,7 @@ void noise_fill(BufferType buffer) noexcept
 }
 
 template <typename BufferType, typename ValueType>
-void linspace_fill(BufferType buffer, ValueType start, const ValueType increment) noexcept
+void linspace_fill(BufferType& buffer, ValueType start, const ValueType increment) noexcept
 {
     for (int i=0; i<buffer.length(); ++i)
     {
@@ -81,7 +79,7 @@ Sequence<FloatType> content_envelope_halfcos_create_seq(int lengthInSamples) noe
 }
 
 template <typename BufferType, typename SeqType>
-SeqType content_envelope_halfcos_fill(BufferType buffer, SeqType seq) noexcept
+void content_envelope_halfcos_fill(BufferType& buffer, SeqType& seq) noexcept
 {
     for (int i = 0; i < buffer.length(); ++i)
     {
@@ -95,8 +93,6 @@ SeqType content_envelope_halfcos_fill(BufferType buffer, SeqType seq) noexcept
     {
         math::copy(buffer.channel(ch), buffer.channel(0), buffer.length());
     }
-
-    return seq;
 }
 
 template <typename FloatType>
@@ -171,20 +167,18 @@ int content_interpolation_num_samples_available(int length, FloatType position, 
 }
 
 template <typename BufferType, typename SeqType>
-BufferType content_interpolation_crop_buffer(BufferType buffer, int samplesAvailable, SeqType seq, const int interpOrder) noexcept
+void content_interpolation_crop_buffer(BufferType& buffer, int samplesAvailable, SeqType seq, const int interpOrder) noexcept
 {
     const int numAvailable = content_interpolation_num_samples_available(samplesAvailable, seq.value, seq.increment, interpOrder);
 
     if (numAvailable < buffer.length())
-        buffer = puro::buffer_trim_length(buffer, numAvailable);
-
-    return buffer;
+        puro::buffer_trim_length(buffer, numAvailable);
 }
 
 /** Assumes that the source buffer can provide all the required samples, i.e. doesn't do bound checking.
     Buffer should be cropped for example with buffer_crop_for_interp before-hand. */
 template <typename BufferType, typename SrcBufferType, typename SeqType>
-std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, SrcBufferType source, SeqType seq) noexcept
+void content_interpolation1_fill(BufferType& buffer, SrcBufferType& source, SeqType& seq) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -208,8 +202,6 @@ std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, 
         if (ch == buffer.getNumChannels()- 1)
             seq = chSeq;
     }
-
-    return std::make_tuple(std::move(buffer), std::move(seq));
 }
 
 

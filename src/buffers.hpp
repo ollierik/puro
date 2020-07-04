@@ -117,7 +117,7 @@ struct DynamicBuffer
 ////////////////////////////////
 
 template <typename BufferType>
-BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
+void buffer_trim_begin(BufferType& buffer, int offset) noexcept
 {
     errorif(offset < 0 || offset > buffer.numSamples, "offset out of bounds");
 
@@ -125,22 +125,19 @@ BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
 
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
         buffer.channelPtrs[ch] = &buffer.channelPtrs[ch][offset];
-
-    return buffer;
 }
 
 
 template <typename BufferType>
-BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
+void buffer_trim_length(BufferType& buffer, int newLength) noexcept
 {
     errorif(newLength > buffer.numSamples, "new length out of bounds");
 
     buffer.numSamples = math::max(newLength, 0);
-    return buffer;
 }
 
 template <typename BufferType>
-BufferType buffer_slice(BufferType buffer, int offset, int length) noexcept
+void buffer_slice(BufferType& buffer, int offset, int length) noexcept
 {
     errorif(offset > buffer.numSamples, "slice offset greater than number of samples available");
     errorif(length < 0 || length > (offset + buffer.numSamples), "slice length out of bounds");
@@ -193,7 +190,7 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
 }
 
 template <typename BufferType, typename MultBufferType>
-BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferType src2) noexcept
+void multiply_add(BufferType& dst, const BufferType& src1, const MultBufferType& src2) noexcept
 {
     errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
@@ -223,7 +220,7 @@ BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferT
 }
 
 template <typename BufferType>
-void buffer_clear(BufferType buffer) noexcept
+void buffer_clear(BufferType& buffer) noexcept
 {
     for (int ch=0; ch<buffer.getNumChannels(); ++ch)
     {

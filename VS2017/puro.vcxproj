@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\benchmark\random_benchmark.hpp" />
+    <ClInclude Include="..\benchmark\ref_benchmark.hpp" />
     <ClInclude Include="..\benchmark\rvo_benchmark.hpp" />
     <ClInclude Include="..\examples\01_simple_example.hpp" />
     <ClInclude Include="..\examples\02_granular_example.hpp" />

@@ -66,6 +66,9 @@
     <ClInclude Include="..\benchmark\rvo_benchmark.hpp">
       <Filter>benchmark</Filter>
     </ClInclude>
+    <ClInclude Include="..\benchmark\ref_benchmark.hpp">
+      <Filter>benchmark</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">

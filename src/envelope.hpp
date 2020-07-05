@@ -6,7 +6,7 @@ namespace puro {
 template <typename PositionType>
 PositionType envelope_halfcos_get_increment(int lengthInSamples) noexcept
 {
-    const FloatType val = math::pi<FloatType>() / static_cast<FloatType>(lengthInSamples + 1);
+    const PositionType val = math::pi<PositionType>() / static_cast<PositionType>(lengthInSamples + 1);
     return val;
 }
 
@@ -42,10 +42,11 @@ PositionType envelope_hann_get_increment(int lengthInSamples, bool symmetric = t
 template <typename BufferType, typename SeqType>
 SeqType envelope_hann_fill(BufferType buffer, SeqType seq) noexcept
 {
+    auto dst = buffer.channel(0);
     for (int i = 0; i < buffer.length(); ++i)
     {
-        const auto sample = (1 - cos(seq++)) / 2;
-        buffer(0, i) = sample;
+        const auto sample = (1 - std::cos<typename BufferType::value_type>(seq++)) / 2;
+        dst[i] = sample;
     }
 
     for (int ch = 1; ch < buffer.getNumChannels(); ++ch)

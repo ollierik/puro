@@ -20,11 +20,21 @@ BufferType interp1_crop_buffer(BufferType buffer, int samplesAvailable, SeqType 
     return buffer;
 }
 
-template <typename PositionType>
-std::tuple<RelativeAlignment, PositionType> interp3_avoid_out_of_bounds_reads(RelativeAlignment alignment, PositionType readPos, const PositionType readInc, const int sourceLength) noexcept
+template <int interpolationOrder=3, typename PositionType>
+std::tuple<RelativeAlignment, PositionType> interp_avoid_out_of_bounds_reads(RelativeAlignment alignment, PositionType readPos, const PositionType readInc, const int sourceLength) noexcept
 {
-    const int prepad = 1;
-    const int postpad = 2;
+    int prepad;
+    int postpad;
+    if constexpr (interpolationOrder == 3)
+    {
+        prepad = 1;
+        postpad = 2;
+    }
+    else if constexpr (interpolationOrder == 1)
+    {
+        prepad = 0;
+        postpad = 1;
+    }
 
     int startReadIndex = static_cast<int> (readPos);
     int sourceLengthNeeded = static_cast<int> (readPos + alignment.remaining * readInc) + postpad;
@@ -46,8 +56,8 @@ std::tuple<RelativeAlignment, PositionType> interp3_avoid_out_of_bounds_reads(Re
 
 /** Assumes that the source buffer can provide all the required samples, i.e. doesn't do bound checking.
     Buffer should be cropped for example with interp_crop_buffer before-hand. */
-template <typename BufferType, typename SrcBufferType, typename SeqType>
-std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, SrcBufferType source, SeqType seq) noexcept
+template <typename BufferType, typename SourceBufferType, typename PositionType>
+PositionType interp1_fill(BufferType buffer, SourceBufferType source, const PositionType readPos, const PositionType increment) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -55,12 +65,13 @@ std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, 
         && (source.getNumChannels() != 1),
         "channel configuration not implemented");
 
+    auto position = readPos;
+
     // identical channel config
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
     {
         //SeqType chSeq = seq;
-        auto position = seq.value;
-        const auto increment = seq.increment;
+        auto position = readPos;
 
         auto dst = buffer.channel(ch);
         auto src = source.channel(ch);
@@ -73,14 +84,13 @@ std::tuple <BufferType, SeqType> content_interpolation1_fill(BufferType buffer, 
 
             dst[i] = src[index] * (1 - fract) + src[index + 1] * fract;
         }
-
-        if (ch == buffer.getNumChannels() - 1)
-            seq.value = position;
     }
 
-    return std::make_tuple(std::move(buffer), std::move(seq));
+    return position;
 }
 
+/** Assumes that the source buffer can provide all the required samples, i.e. doesn't do bound checking.
+    Buffer should be cropped for example with interp_crop_buffer before-hand. */
 template <typename BufferType, typename SourceBufferType, typename PositionType>
 PositionType interp3_fill(BufferType buffer, SourceBufferType source, const PositionType readPos, const PositionType increment) noexcept
 {
@@ -106,14 +116,10 @@ PositionType interp3_fill(BufferType buffer, SourceBufferType source, const Posi
             position += increment;
             const FloatType fract = static_cast<FloatType>(position - index);
 
-            const auto a = src[index - 1];
-            const auto b = src[index];
-            const auto c = src[index + 1];
-            const auto d = src[index + 2];
-            const auto cminusb = c - b;
-
-            // pure data
-            dst[i] = b + fract * (cminusb - 0.1666667 * (1.0 - fract) * ((d - a - 3.0 * cminusb) * fract + (d + 2.0*a - 3.0*b)));
+            const FloatType* x = &src[index-1];
+            dst[i] = x[1] + fract * (x[2]-x[1]- static_cast<FloatType>(0.1666667) * (1-fract)
+                    * ( (x[3]-x[0] - 3.0f*(x[2]-x[1]))*fract
+                      + (x[3] + 2*x[0] - 3*x[1])));
         }
     }
 

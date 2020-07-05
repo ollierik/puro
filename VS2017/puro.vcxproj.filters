@@ -15,36 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\buffers.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\defs.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\math.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\node_stacks.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\operations.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\pools.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\puro.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\utils.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\panning.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\sequences.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\examples\01_simple_example.hpp">
       <Filter>examples</Filter>
     </ClInclude>
@@ -57,14 +27,53 @@
     <ClInclude Include="..\tests\nodestack_tests.h">
       <Filter>tests</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\alignment.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\benchmark\random_benchmark.hpp">
       <Filter>benchmark</Filter>
     </ClInclude>
     <ClInclude Include="..\benchmark\rvo_benchmark.hpp">
       <Filter>benchmark</Filter>
+    </ClInclude>
+    <ClInclude Include="..\benchmark\interp3_benchmark.hpp">
+      <Filter>benchmark</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\alignment.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\buffer.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\defs.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\envelope.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\interpolation.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\node_stacks.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\panning.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\pool.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\puro.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\sequences.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\signal.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\utility.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

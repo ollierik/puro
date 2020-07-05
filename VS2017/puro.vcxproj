@@ -19,22 +19,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\benchmark\interp3_benchmark.hpp" />
     <ClInclude Include="..\benchmark\random_benchmark.hpp" />
     <ClInclude Include="..\benchmark\rvo_benchmark.hpp" />
     <ClInclude Include="..\examples\01_simple_example.hpp" />
     <ClInclude Include="..\examples\02_granular_example.hpp" />
     <ClInclude Include="..\examples\03_threadsafe_example.hpp" />
-    <ClInclude Include="..\src\buffers.hpp" />
-    <ClInclude Include="..\src\defs.hpp" />
     <ClInclude Include="..\src\alignment.hpp" />
+    <ClInclude Include="..\src\buffer.hpp" />
+    <ClInclude Include="..\src\defs.hpp" />
+    <ClInclude Include="..\src\envelope.hpp" />
+    <ClInclude Include="..\src\interpolation.hpp" />
     <ClInclude Include="..\src\math.hpp" />
     <ClInclude Include="..\src\node_stacks.hpp" />
-    <ClInclude Include="..\src\operations.hpp" />
     <ClInclude Include="..\src\panning.hpp" />
-    <ClInclude Include="..\src\pools.hpp" />
+    <ClInclude Include="..\src\pool.hpp" />
     <ClInclude Include="..\src\puro.hpp" />
     <ClInclude Include="..\src\sequences.hpp" />
-    <ClInclude Include="..\src\utils.hpp" />
+    <ClInclude Include="..\src\signal.hpp" />
+    <ClInclude Include="..\src\utility.hpp" />
     <ClInclude Include="..\tests\nodestack_tests.h" />
   </ItemGroup>
   <ItemGroup>
@@ -138,13 +141,15 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -7,14 +7,16 @@
 #endif
 
 #ifndef PURO_DEBUG
-    #define PURO_DEBUG 1
+    #ifdef _DEBUG
+        #define PURO_DEBUG 1
+    #endif
 #endif
 
 #if PURO_MSVC
     #define NOMINMAX
 #endif
 
-// TODO currently works with Windows only
+// TODO errorif works with Windows only for now
 
 #if PURO_MSVC
     #include <Windows.h>
@@ -25,7 +27,7 @@
     #define breakpoint raise(SIGABRT)
 #endif
 
-#if PURO_DEBUG 
+#if PURO_DEBUG == 1
     #define errorif(condition, msg) if ((condition)) { std::cout << msg << std::endl; breakpoint; }
 #else
     #define errorif(condition, msg) ((void)0)

@@ -17,12 +17,13 @@
 #include <vector>
 
 #include "math.hpp"
-#include "pools.hpp"
+#include "pool.hpp"
 #include "node_stacks.hpp"
-#include "buffers.hpp"
-#include "sequences.hpp"
-#include "panning.hpp"
+#include "buffer.hpp"
 #include "alignment.hpp"
-#include "utils.hpp"
-#include "operations.hpp"
+#include "utility.hpp"
+#include "signal.hpp"
+#include "envelope.hpp"
+#include "interpolation.hpp"
+#include "panning.hpp"
 

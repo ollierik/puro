@@ -1,11 +1,10 @@
 #pragma once
 
+namespace puro {
+
 /** Memory aligned pool based on a vector. To avoid cache misses, elements are stored in a consecutive order,
     and moved around upon popping. Works best for Elements with small size and trivial copy operation.
 */
-
-namespace puro {
-
 template <typename T>
 struct AlignedPool
 {

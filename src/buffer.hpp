@@ -197,7 +197,7 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
 }
 
 template <typename BufferType, typename MultBufferType>
-BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferType src2) noexcept
+BufferType buffer_multiply_add(BufferType dst, const BufferType src1, const MultBufferType src2) noexcept
 {
     errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
@@ -221,6 +221,31 @@ BufferType multiply_add(BufferType dst, const BufferType src1, const MultBufferT
     else
     {
         errorif(true, "channel config not implemented");
+    }
+       
+    return dst;
+}
+
+template <typename BufferType, typename MultBufferType>
+BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
+{
+    errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
+
+    // identical channel config
+    if (dst.getNumChannels() == src.getNumChannels())
+    {
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::multiply_inplace(dst.channel(ch), src.channel(ch), dst.length());
+        }
+    }
+    // mono src, multichannel dst
+    else if (dst.getNumChannels() != src.getNumChannels() && src.getNumChannels() == 1)
+    {
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::multiply_inplace(dst.channel(ch), src.channel(0), dst.length());
+        }
     }
        
     return dst;

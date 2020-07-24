@@ -23,6 +23,20 @@ struct Timer
     ValueType interval;
     ValueType counter;
 };
+    
+template <typename FloatType>
+FloatType random_bspline2_fast(std::mt19937& gen, FloatType mean, FloatType dev) noexcept
+{
+    constexpr int smin = std::numeric_limits<short>::min();
+    constexpr int smax = std::numeric_limits<short>::max();
+    constexpr FloatType fdiv = static_cast<FloatType>(1.0 / (3.0 * static_cast<FloatType>(smax)));
+
+    std::uniform_int_distribution<short> dist (smin, smax);
+
+    const FloatType r = fdiv * (static_cast<float>(dist(gen)) + static_cast<float>(dist(gen)) + static_cast<float>(dist(gen)));
+
+    return r * dev + mean;
+}
 
 
 template <typename ValueType, bool useRelativeDeviation, typename FloatType=float>
@@ -60,21 +74,6 @@ public:
     ValueType minimum;
     ValueType maximum;
 };
-
-
-template <typename FloatType>
-FloatType random_bspline2_fast(std::mt19937& gen, FloatType mean, FloatType dev) noexcept
-{
-    constexpr int smin = std::numeric_limits<short>::min();
-    constexpr int smax = std::numeric_limits<short>::max();
-    constexpr FloatType fdiv = static_cast<FloatType>(1.0 / (3.0 * static_cast<FloatType>(smax)));
-
-    const std::uniform_int_distribution<short> dist (smin, smax);
-
-    const FloatType r = fdiv * (static_cast<float>(dist(gen)) + static_cast<float>(dist(gen)) + static_cast<float>(dist(gen)));
-
-    return r * dev + mean;
-}
 
 
 

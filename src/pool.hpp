@@ -11,8 +11,8 @@ struct AlignedPool
     struct Iterator
     {
         Iterator(AlignedPool<T>& p, int i) : pool(p), index(i) {}
-        int index;
         AlignedPool<T>& pool;
+        int index;
 
         T& get() noexcept { return pool.elements[index]; }
 

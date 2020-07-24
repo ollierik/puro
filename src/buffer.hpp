@@ -63,7 +63,7 @@ struct Buffer
 
 #ifndef PURO_DYNAMIC_BUFFER_MAX_CHANNELS
 #define PURO_DYNAMIC_BUFFER_MAX_CHANNELS 8
-#endif PURO_DYNAMIC_BUFFER_MAX_CHANNELS
+#endif 
 
 /** Dynamic wrapper around audio buffer data with resizeable channel count. Does not own the data. */
 template <class FloatType, int maxNumberOfChannels = PURO_DYNAMIC_BUFFER_MAX_CHANNELS>
@@ -99,7 +99,7 @@ struct DynamicBuffer
 
     // constructors
 
-    DynamicBuffer() : numChannels(0), numSamples(0) {} // invalid Buffer
+    DynamicBuffer() : numSamples(0), numChannels(0) {} // invalid Buffer
 
     DynamicBuffer (int numChannels, int numSamples)
         : numChannels(numChannels), numSamples(numSamples)
@@ -143,6 +143,7 @@ BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
     return buffer;
 }
 
+/** Slice a piece of buffer with given offset and length */
 template <typename BufferType>
 BufferType buffer_slice(BufferType buffer, int offset, int length) noexcept
 {
@@ -154,6 +155,19 @@ BufferType buffer_slice(BufferType buffer, int offset, int length) noexcept
 
     buffer.numSamples = length;
     return buffer;
+}
+    
+/** Split the given buffer into from index. The second buffer starts with index at zeroeth index. */
+template <typename BufferType>
+std::tuple<BufferType, BufferType> buffer_split(BufferType buffer, int index) noexcept
+{
+    errorif(index <= 0, "split is 0 or below");
+    errorif(index >= buffer.numSamples, "split greater than number of samples available");
+    
+    BufferType pre = buffer_trim_length(buffer, index);
+    BufferType post = buffer_trim_begin(buffer, index);
+
+    return std::make_tuple(std::move(pre), std::move(post));
 }
 
 /** Create a Buffer with the data laid out into the provided vector.

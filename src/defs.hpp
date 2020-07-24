@@ -2,6 +2,8 @@
 
 #if defined (_MSC_VER)
     #define PURO_MSVC 1
+#elif defined (__APPLE_CPP__) || defined (__APPLE_CC__)
+    #define PURO_XCODE 1
 #elif defined(__GNUC__)
     #define PURO_GCC 1
 #endif
@@ -22,8 +24,9 @@
     #include <Windows.h>
     #include <intrin.h> // MSVS breakpoint
     #define breakpoint __debugbreak()
-
-#elif PURO_GCC 
+#elif PURO_XCODE
+    #define breakpoint { asm ("int $3"); }
+#elif PURO_GCC
     #define breakpoint raise(SIGABRT)
 #endif
 

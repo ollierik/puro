@@ -45,15 +45,16 @@ void linspace_fill(BufferType buffer, ValueType start, const ValueType increment
     }
 }
 
-template <typename BufferType, typename SrcBufferType, typename SeqType>
-std::tuple<BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType source, SeqType seq) noexcept
+/** Naive buffer fill from another buffer */
+template <typename BufferType, typename SorceBufferType>
+std::tuple<BufferType, int> buffer_fill(BufferType buffer, SorceBufferType source, int position) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
     // source buffer will run out, trim the destination buffer
-    if (source.length() < (seq + buffer.length()))
+    if (source.length() < (position + buffer.length()))
     {
-        buffer = trimmed_length(buffer, source.length() - seq);
+        buffer = buffer_trim_length(buffer, source.length() - position);
     }
 
     // identical channel config
@@ -63,7 +64,7 @@ std::tuple<BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType sou
         {
             math::copy<FloatType>(buffer.channel(ch), source.channel(ch), buffer.length());
         }
-        seq += buffer.length();
+        position += buffer.length();
     }
     // mono source, use for all channels
     else if (source.getNumChannels() == 1)
@@ -72,14 +73,62 @@ std::tuple<BufferType, SeqType> buffer_fill(BufferType buffer, SrcBufferType sou
         {
             math::copy(buffer.channel(ch), source.channel(0), buffer.length());
         }
-        seq += buffer.length();
+        position += buffer.length();
     }
     else
     {
         errorif(true, "channel config combination not implemented");
     }
 
-    return std::make_tuple(buffer, seq);
+    return std::make_tuple(buffer, position);
+}
+    
+/** Fill from another buffer, without resizing. Returned buffer has always same size as the called one, padded to zero instead. */
+template <typename BufferType, typename SorceBufferType>
+int buffer_fill_with_padding(BufferType buffer, SorceBufferType source, int position) noexcept
+{
+    using FloatType = typename BufferType::value_type;
+    
+    // if position is negative, fill the beginning with zeros
+    if (position < 0)
+    {
+        BufferType prePad;
+        std::tie(prePad, buffer) = buffer_split(buffer, -position);
+        constant_fill(prePad, 0);
+    }
+
+    // source buffer will run out, pad the end
+    if (source.length() < (position + buffer.length()))
+    {
+        BufferType postPad;
+        std::tie(buffer, postPad) = buffer_split(buffer, source.length() - position);
+        constant_fill(postPad, 0);
+    }
+
+    // identical channel config
+    if (buffer.getNumChannels() == source.getNumChannels())
+    {
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+        {
+            math::copy<FloatType>(buffer.channel(ch), source.channel(ch), buffer.length());
+        }
+        position += buffer.length();
+    }
+    // mono source, use for all channels
+    else if (source.getNumChannels() == 1)
+    {
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+        {
+            math::copy(buffer.channel(ch), source.channel(0), buffer.length());
+        }
+        position += buffer.length();
+    }
+    else
+    {
+        errorif(true, "channel config combination not implemented");
+    }
+
+    return std::make_tuple(buffer, position);
 }
 
 } // namespace puro

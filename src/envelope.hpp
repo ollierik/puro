@@ -39,14 +39,15 @@ PositionType envelope_hann_get_increment(int lengthInSamples, bool symmetric = t
     return val;
 }
 
-template <typename BufferType, typename SeqType>
-SeqType envelope_hann_fill(BufferType buffer, SeqType seq) noexcept
+template <typename BufferType, typename PositionType>
+PositionType envelope_hann_fill(BufferType buffer, PositionType position, const PositionType increment) noexcept
 {
     auto dst = buffer.channel(0);
     for (int i = 0; i < buffer.length(); ++i)
     {
-        const auto sample = (1 - std::cos<typename BufferType::value_type>(seq++)) / 2;
+        const auto sample = (1 - std::cos<typename BufferType::value_type>(position)) / 2;
         dst[i] = sample;
+        position += increment;
     }
 
     for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
@@ -54,7 +55,7 @@ SeqType envelope_hann_fill(BufferType buffer, SeqType seq) noexcept
         math::copy(buffer.channel(ch), &buffer.channel(ch), buffer.length());
     }
 
-    return seq;
+    return position;
 }
 
 } // namespace puro

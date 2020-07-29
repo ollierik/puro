@@ -6,27 +6,18 @@ namespace puro {
 template <class FloatType, int numberOfChannels>
 struct Buffer
 {
-    // member fields
-    int numSamples;
-    std::array<FloatType*, numberOfChannels> channelPtrs;
-
     // template arg broadcasts
     typedef FloatType value_type;
     static constexpr int num_channels = numberOfChannels;
+    
+    // member fields
+    int numSamples;
+    std::array<FloatType*, numberOfChannels> channelPtrs;
 
     // getters
     bool isInvalid() const noexcept { return numSamples <= 0; }
     int length() const noexcept { return numSamples; }
     constexpr int getNumChannels() const noexcept { return num_channels; } // some more advanced class may want to redefine this
-
-    /*
-    FloatType& operator() (int ch, int i) noexcept
-    {
-        errorif(ch < 0 || ch >= num_channels, "channel out of range");
-        errorif(i < 0 || i >= numSamples, "sample index out of range");
-        return channelPtrs[ch][i];
-    }
-    */
 
     FloatType* channel(int ch) const noexcept
     {
@@ -58,8 +49,16 @@ struct Buffer
         for (int ch = 0; ch < data.size(); ++ch)
             channelPtrs[ch] = &data[ch];
     }
+    
+    /** Buffer from already allocated memory per channel.
+     Provided data is expected to be able to hold numSamples of data per channel */
+    Buffer (int numSamples, std::array<FloatType*, numberOfChannels> chPtrs) noexcept
+    : numSamples(numSamples)
+    {
+        for (int ch = 0; ch < num_channels; ++ch)
+            channelPtrs[ch] = chPtrs[ch];
+    }
 };
-
 
 #ifndef PURO_DYNAMIC_BUFFER_MAX_CHANNELS
 #define PURO_DYNAMIC_BUFFER_MAX_CHANNELS 8
@@ -81,15 +80,6 @@ struct DynamicBuffer
     bool isInvalid() const { return numSamples <= 0 || numChannels <= 0; }
     int length() const { return numSamples; };
     int getNumChannels() const { return numChannels; } // some more advanced class may want to redefine this
-
-    /*
-    FloatType& operator() (int ch, int i)
-    {
-        errorif(ch < 0 || ch >= numChannels, "channel out of range");
-        errorif(i < 0 || i >= numSamples, "sample index out of range");
-        return channelPtrs[ch][i];
-    }
-    */
 
     FloatType* channel(int ch) const
     {
@@ -172,18 +162,42 @@ std::tuple<BufferType, BufferType> buffer_split(BufferType buffer, int index) no
 
 /** Create a Buffer with the data laid out into the provided vector.
     The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
-template <typename BufferType, typename FloatType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
-BufferType buffer_wrap_vector(std::vector<FloatType>& vector, int numSamples) noexcept
+template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
+BufferType buffer_wrap_vector(VectorType& vector, int numSamples) noexcept
 {
     if (resizeIfNeeded)
     {
-        const int totLength = BufferType::num_channels * numSamples;
+        const auto totLength = BufferType::num_channels * numSamples;
 
-        if ((int)vector.size() < totLength)
+        if (vector.size() < totLength)
             vector.resize(totLength);
     }
 
     return BufferType(numSamples, vector.data());
+}
+    
+/** Create a Buffer with the data laid out into the provided vector.
+ The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
+template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
+BufferType buffer_wrap_vector_per_channel(std::array<VectorType&, 2> vectors, int numSamples) noexcept
+{
+    if (resizeIfNeeded)
+    {
+        for (auto ch=0; ch<vectors.size(); ++ch)
+        {
+            if (vectors[ch].size() < numSamples)
+                vectors[ch].resize(numSamples);
+        }
+    }
+    
+    BufferType buffer (numSamples);
+    
+    for (auto ch=0; ch<vectors.size(); ++ch)
+    {
+        buffer.channelPtr[ch] = vectors[ch].data();
+    }
+    
+    return buffer;
 }
 
 template <typename ToBufferType, typename FromBufferType>
@@ -239,6 +253,15 @@ BufferType buffer_multiply_add(BufferType dst, const BufferType src1, const Mult
        
     return dst;
 }
+    
+template <typename BufferType>
+BufferType buffer_scale(BufferType dst, const typename BufferType::value_type value) noexcept
+{
+    for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+    {
+        math::multiply(dst.channel(ch), value, dst.length());
+    }
+}
 
 template <typename BufferType, typename MultBufferType>
 BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
@@ -250,7 +273,7 @@ BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
     {
         for (int ch = 0; ch < dst.getNumChannels(); ++ch)
         {
-            math::multiply_inplace(dst.channel(ch), src.channel(ch), dst.length());
+            math::multiply(dst.channel(ch), src.channel(ch), dst.length());
         }
     }
     // mono src, multichannel dst
@@ -258,10 +281,60 @@ BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
     {
         for (int ch = 0; ch < dst.getNumChannels(); ++ch)
         {
-            math::multiply_inplace(dst.channel(ch), src.channel(0), dst.length());
+            math::multiply(dst.channel(ch), src.channel(0), dst.length());
         }
     }
        
+    return dst;
+}
+    
+template <typename BufferType, typename AddBufferType>
+BufferType buffer_add(BufferType dst, const AddBufferType src) noexcept
+{
+    errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
+
+    // identical channel config
+    if (dst.getNumChannels() == src.getNumChannels())
+    {
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::add(dst.channel(ch), src.channel(ch), dst.length());
+        }
+    }
+    // mono src, multichannel dst
+    else if (dst.getNumChannels() != src.getNumChannels() && src.getNumChannels() == 1)
+    {
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::add(dst.channel(ch), src.channel(0), dst.length());
+        }
+    }
+    
+    return dst;
+}
+    
+template <typename BufferType, typename SubstBufferType>
+BufferType buffer_substract(BufferType dst, const SubstBufferType src) noexcept
+{
+    errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
+
+    // identical channel config
+    if (dst.getNumChannels() == src.getNumChannels())
+    {
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::substract(dst.channel(ch), src.channel(ch), dst.length());
+        }
+    }
+    // mono src, multichannel dst
+    else if (dst.getNumChannels() != src.getNumChannels() && src.getNumChannels() == 1)
+    {
+        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        {
+            math::substract(dst.channel(ch), src.channel(0), dst.length());
+        }
+    }
+    
     return dst;
 }
 

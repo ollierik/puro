@@ -45,14 +45,14 @@ PositionType envelope_hann_fill(BufferType buffer, PositionType position, const 
     auto dst = buffer.channel(0);
     for (int i = 0; i < buffer.length(); ++i)
     {
-        const auto sample = (1 - std::cos<typename BufferType::value_type>(position)) / 2;
+        const auto sample = (1 - std::cos(position)) / 2;
         dst[i] = sample;
         position += increment;
     }
 
     for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
     {
-        math::copy(buffer.channel(ch), &buffer.channel(ch), buffer.length());
+        math::copy(buffer.channel(ch), buffer.channel(0), buffer.length());
     }
 
     return position;

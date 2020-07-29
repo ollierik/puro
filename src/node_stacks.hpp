@@ -255,7 +255,7 @@ public:
 
 /** A helper class to own the memory the Stacks use. */
 template <typename T>
-class StackMemoryAllocator
+class ChunkMemoryAllocator
 {
     struct Chunk
     {
@@ -269,7 +269,7 @@ class StackMemoryAllocator
     };
 
 public:
-    StackMemoryAllocator() : head(nullptr) {}
+    ChunkMemoryAllocator() : head(nullptr) {}
 
     template <typename StackType>
     void allocateChunk(int numElements, StackType& pushToStack)

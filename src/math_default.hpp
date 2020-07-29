@@ -1,8 +1,56 @@
 #pragma once
 
+#include "../include/pffft.h"
+
 /** Maths routines, mostly for buffers. Used to allow flexibility later on by implementing vector math libs such as IPP */
-namespace math
-{
+namespace puro {
+    namespace math {
+    
+    /** FFT wrapper for pffft. Results are not normalised!
+        irfft(rfft(signal)) = fftSize * signal */
+    struct FFT
+    {
+        FFT(int size) : setup(pffft_new_setup(size, PFFFT_REAL))
+        {}
+        
+        ~FFT()
+        {
+            pffft_destroy_setup(setup);
+        }
+        
+        void rfft(float* dst, float* src)
+        {
+            pffft_transform_ordered(setup, src, dst, 0, PFFFT_FORWARD);
+        }
+        
+        void irfft(float* dst, float* src, bool normalise=true)
+        {
+            pffft_transform_ordered(setup, src, dst, 0, PFFFT_BACKWARD);
+        }
+        
+        PFFFT_Setup* setup;
+    };
+        
+    /** Memory-aligned allocator for pffft */
+    template <typename T>
+    struct Allocator
+    {
+        typedef T value_type;
+        
+        T* allocate(std::size_t n, const void* hint=0)
+        {
+            auto numBytes = sizeof(T) * n;
+            void* mem = pffft_aligned_malloc(numBytes);
+            return reinterpret_cast<T*> (mem);
+        }
+        
+        void deallocate(T* ptr, std::size_t)
+        {
+            pffft_aligned_free(ptr);
+        }
+    };
+    
+
     template <typename FloatType>
     FloatType pi() noexcept
     {
@@ -32,9 +80,16 @@ namespace math
     {
         return static_cast<ValueType> (value + (FloatType)0.5);
     }
-
+        
     template <typename FloatType>
-    void multiply_inplace(FloatType* dst, const FloatType* src, const int n) noexcept
+    void multiply(FloatType* dst, const FloatType value, const int n) noexcept
+    {
+        for (int i = 0; i < n; ++i)
+            dst[i] *= value;
+    };
+        
+    template <typename FloatType>
+    void multiply(FloatType* dst, const FloatType* src, const int n) noexcept
     {
         for (int i = 0; i < n; ++i)
             dst[i] *= src[i];
@@ -101,6 +156,14 @@ namespace math
         for (int i=0; i<n; ++i)
             buf[i] += value;
     }
+        
+    /** Substract source from destination */
+    template <typename FloatType>
+    void substract(FloatType* dst, FloatType* src, const int n) noexcept
+    {
+        for (int i=0; i<n; ++i)
+            dst[i] -= src[i];
+    }
 
     /** Set to constant */
     template <typename FloatType>
@@ -110,4 +173,5 @@ namespace math
             buf[i] = value;
     }
 
-};
+    } // namespace math
+} // namespace puro

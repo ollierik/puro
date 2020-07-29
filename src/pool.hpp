@@ -16,14 +16,13 @@ struct AlignedPool
 
         T& get() noexcept { return pool.elements[index]; }
 
-        bool isValid() const noexcept { return index >= 0; }
+        bool is_valid() const noexcept { return index >= 0; }
 
         bool operator!= (const Iterator& other) noexcept { return index != other.index; }
         Iterator& operator*() noexcept { return *this; }
         T* operator->() noexcept { return &pool[index]; }
         Iterator& operator++() noexcept { --index; return *this; }
     };
-
 
     Iterator push(T&& element) noexcept
     {
@@ -38,11 +37,16 @@ struct AlignedPool
 
     void pop(const Iterator& it) noexcept
     {
-        if ((int)size() > 1 && it.index < (int)size() - 1)
+        pop(it.index);
+    }
+    
+    void pop(int index) noexcept
+    {
+        if ((int)size() > 1 && index < (int)size() - 1)
         {
-            memcpy(&elements[it.index], &elements[size() - 1], sizeof(T));
+            memcpy(&elements[index], &elements[size() - 1], sizeof(T));
         }
-
+        
         elements.pop_back();
     }
 

@@ -33,15 +33,16 @@ void noise_fill(BufferType buffer) noexcept
 template <typename BufferType, typename ValueType>
 void linspace_fill(BufferType buffer, ValueType start, const ValueType increment) noexcept
 {
+    auto* ch0 = buffer.channel(0);
     for (int i=0; i<buffer.length(); ++i)
     {
-        buffer(0, i) = start;
+        ch0[i] = start;
         start += increment;
     }
 
     for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
     {
-        math::copy(buffer.channel(ch), buffer.channel(0), buffer.length());
+        math::copy(buffer.channel(ch), ch0, buffer.length());
     }
 }
 
@@ -128,7 +129,7 @@ int buffer_fill_with_padding(BufferType buffer, SorceBufferType source, int posi
         errorif(true, "channel config combination not implemented");
     }
 
-    return std::make_tuple(buffer, position);
+    return position;
 }
 
 } // namespace puro

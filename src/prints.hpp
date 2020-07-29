@@ -5,17 +5,34 @@ namespace details_table {
     
 /////////////////////////////////////// LENGTH ///////////////////////////////////////
 
-int print_buffer_table_find_length(int n) { return n; }
+template <class N, class B>
+int print_buffer_table_find_length(int n, const N& name, const B& buffer)
+{
+    n = buffer.length() > n ? buffer.length() : n;
+    return n;
+}
 
 template <class N, class B, class... Ts>
 int print_buffer_table_find_length(int n, const N& name, const B& buffer, const Ts&... rest)
 {
-    return print_buffer_table_find_length(buffer.length() > n ? buffer.length() : n, rest...);
+    n = buffer.length() > n ? buffer.length() : n;
+    return print_buffer_table_find_length(n, rest...);
 }
     
 /////////////////////////////////////// ROW ///////////////////////////////////////
 
-void print_buffer_table_row(int i) { std::cout << "\n"; }
+template <class N, class B>
+void print_buffer_table_row(int i, const N&, const B& buffer)
+{
+    if (i < buffer.length())
+        for (auto ch=0; ch < buffer.getNumChannels(); ++ch)
+            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer.channel(ch)[i] << " | ";
+    else
+        for (auto ch=0; ch < buffer.getNumChannels(); ++ch)
+            std::cout << std::fixed << std::setw(12) << " " << " | ";
+    
+    std::cout << "\n";
+}
 
 template <class N, class B, class... Ts>
 void print_buffer_table_row(int i, const N&, const B& buffer, const Ts&... rest)
@@ -26,8 +43,7 @@ void print_buffer_table_row(int i, const N&, const B& buffer, const Ts&... rest)
     else
         for (auto ch=0; ch < buffer.getNumChannels(); ++ch)
             std::cout << std::fixed << std::setw(12) << " " << " | ";
-    
-    
+
     print_buffer_table_row(i, rest...);
 }
 
@@ -126,8 +142,11 @@ void print_buffer_table_hr(const N& name, const B& buffer, const Ts&... rest)
 template <class... Ts>
 void print_buffer_table_heading(const Ts&... buffersAndNames)
 {
+    std::cout << "      ";
     print_buffer_table_names(buffersAndNames...);
+    std::cout << "      ";
     print_buffer_table_channel_numbers(buffersAndNames...);
+    std::cout << "      ";
     print_buffer_table_hr(buffersAndNames...);
 }
     
@@ -150,8 +169,11 @@ void print_buffer_table(const Ts&... buffersAndNames)
     
     for (int i=0; i<n; ++i)
     {
+        std::cout << std::setw(5) << i << ":";
         details_table::print_buffer_table_row(i, buffersAndNames...);
     }
+    
+    std::cout << "\n\n";
 }
     
 } // namespace puro

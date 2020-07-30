@@ -68,6 +68,31 @@ namespace puro {
     {
         return f1 > f2 ? f1 : f2;
     }
+        
+    template <typename ValueType>
+    ValueType normalise(ValueType value, ValueType zero, ValueType one) noexcept
+    {
+        return (value - zero) / (one - zero);
+    }
+        
+    template <typename ValueType>
+    ValueType scale(ValueType value, ValueType min, ValueType max) noexcept
+    {
+        return value * (max - min) + min;
+    }
+        
+    template <typename ValueType>
+    ValueType atodb(ValueType value, ValueType nonzero=1e-30) noexcept
+    {
+        return 20 * log10(value);
+    }
+        
+    template <typename ValueType>
+    ValueType dbtoa(ValueType value) noexcept
+    {
+        return pow(static_cast<ValueType>(10), value / static_cast<ValueType>(20));
+    }
+        
 
     template <typename ValueType>
     ValueType clip(ValueType val, ValueType minValue, ValueType maxValue) noexcept

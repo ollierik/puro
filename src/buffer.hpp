@@ -337,6 +337,17 @@ BufferType buffer_substract(BufferType dst, const SubstBufferType src) noexcept
     
     return dst;
 }
+    
+template <typename BufferType>
+void buffer_copy(BufferType dst, BufferType src) noexcept
+{
+    errorif(dst.length() != src.length(), "dst and src lengths don't match");
+    
+    for (int ch=0; ch<dst.getNumChannels(); ++ch)
+    {
+        math::copy(dst.channel(ch), src.channel(ch), dst.length());
+    }
+}
 
 template <typename BufferType>
 void buffer_clear(BufferType buffer) noexcept

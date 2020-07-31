@@ -6,6 +6,7 @@ namespace puro {
 template <typename BufferType>
 void buffer_rfft_inplace(BufferType buffer, math::FFT& fft) noexcept
 {
+    errorif(buffer.length() != fft.size(), "buffer length and fft size don't match");
     for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
     {
         fft.rfft(buffer.channel(ch), buffer.channel(ch));
@@ -15,6 +16,7 @@ void buffer_rfft_inplace(BufferType buffer, math::FFT& fft) noexcept
 template <typename BufferType>
 void buffer_irfft_inplace(BufferType buffer, math::FFT& fft) noexcept
 {
+    errorif(buffer.length() != fft.size(), "buffer length and fft size don't match");
     for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
     {
         fft.irfft(buffer.channel(ch), buffer.channel(ch));

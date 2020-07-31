@@ -112,7 +112,7 @@ int buffer_fill_with_padding(BufferType buffer, SorceBufferType source, int read
     {
         for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
         {
-            math::copy<FloatType>(buffer.channel(ch), &source.channel(ch)[readIndex], buffer.length());
+            math::copy(buffer.channel(ch), &source.channel(ch)[readIndex], buffer.length());
         }
     }
     // mono source, use for all channels
@@ -127,7 +127,7 @@ int buffer_fill_with_padding(BufferType buffer, SorceBufferType source, int read
     {
         errorif(true, "channel config combination not implemented");
     }
-    
+
     readIndex += buffer.length();
 
     return readIndex;

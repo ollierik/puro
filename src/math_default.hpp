@@ -10,7 +10,7 @@ namespace puro {
         irfft(rfft(signal)) = fftSize * signal */
     struct FFT
     {
-        FFT(int size) : setup(pffft_new_setup(size, PFFFT_REAL))
+        FFT(int size) : setup(pffft_new_setup(size, PFFFT_REAL)), n(size)
         {}
         
         ~FFT()
@@ -28,7 +28,13 @@ namespace puro {
             pffft_transform_ordered(setup, src, dst, 0, PFFFT_BACKWARD);
         }
         
+        int size() const
+        {
+            return n;
+        }
+
         PFFFT_Setup* setup;
+        int n;
     };
         
     /** Memory-aligned allocator for pffft */

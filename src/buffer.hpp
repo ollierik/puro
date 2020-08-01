@@ -1,6 +1,7 @@
 #pragma once
 
 namespace puro {
+    
 
 /** A Wrapper around audio buffer data with helper functions for accessing and debug checks. Does not own the data. */
 template <class FloatType, int numberOfChannels>
@@ -105,7 +106,6 @@ struct DynamicBuffer
     }
 };
 
-
 ////////////////////////////////
 // Buffer operations
 ////////////////////////////////
@@ -133,17 +133,33 @@ BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
     return buffer;
 }
 
-/** Slice a piece of buffer with given offset and length */
+/** Get a segment of a buffer with given offset and length */
 template <typename BufferType>
-BufferType buffer_slice(BufferType buffer, int offset, int length) noexcept
+BufferType buffer_segment(BufferType buffer, int offset, int length) noexcept
 {
-    errorif(offset > buffer.numSamples, "slice offset greater than number of samples available");
-    errorif(length < 0 || length > (offset + buffer.numSamples), "slice length out of bounds");
+    errorif(offset > buffer.numSamples, "segment offset greater than number of samples available");
+    errorif(length < 0 || length > (offset + buffer.length()), "segment length out of bounds");
 
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
         buffer.channelPtrs[ch] = &buffer.channelPtrs[ch][offset];
 
     buffer.numSamples = length;
+    return buffer;
+}
+    
+/** Get a segment of a buffer with given offset and length */
+template <typename BufferType>
+BufferType buffer_slice(BufferType buffer, int start, int end) noexcept
+{
+    errorif(start < 0, "slice start below zero");
+    errorif(start > buffer.length(), "slice start greater than number of samples available");
+    errorif(end < start, "slice end below start");
+    errorif(end > buffer.length(), "slice end greater than number of samples available");
+    
+    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+        buffer.channelPtrs[ch] = &buffer.channelPtrs[ch][start];
+
+    buffer.numSamples = end - start;
     return buffer;
 }
     
@@ -251,6 +267,21 @@ BufferType buffer_multiply_add(BufferType dst, const BufferType src1, const Mult
         errorif(true, "channel config not implemented");
     }
        
+    return dst;
+}
+    
+template <typename BufferType, typename ValueType>
+BufferType buffer_multiply_add_constant(BufferType dst, const BufferType src, const ValueType multiplier) noexcept
+{
+    errorif(dst.getNumChannels() != src.getNumChannels(), "dst and src channel number doesn't match");
+    errorif(dst.length() != src.length(), "dst and src1 buffer lengths don't match");
+
+    // identical channel configs
+    for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+    {
+        math::multiply_add(dst.channel(ch), src.channel(ch), multiplier, dst.length());
+    }
+
     return dst;
 }
     

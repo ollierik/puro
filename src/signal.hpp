@@ -31,8 +31,10 @@ void noise_fill(BufferType buffer) noexcept
 }
 
 template <typename BufferType, typename ValueType>
-void linspace_fill(BufferType buffer, ValueType start, const ValueType increment) noexcept
+void linspace_fill(BufferType buffer, ValueType start, ValueType end) noexcept
 {
+    const ValueType increment = (end - start) / buffer.length();
+    
     auto* ch0 = buffer.channel(0);
     for (int i=0; i<buffer.length(); ++i)
     {

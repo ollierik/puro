@@ -24,6 +24,24 @@ struct Timer
     ValueType counter;
 };
     
+/** std::function may allocate memory when called with a lambda with large capture. puro::function wraps a cpp function pointer
+    because the syntax for easier syntax:
+ 
+    double myFunc(int a, float b) { return a * b }
+    ...
+    puro::function<double, int float> funcPtr = &myFunc;
+    double r = funcPtr(foo, bar);
+ */
+template <typename Return, typename... Args>
+struct function
+{
+    Return operator() (Args... args)
+    {
+        return (*fn_ptr)(args...);
+    }
+    Return (*fn_ptr) (Args... args) = nullptr;
+};
+    
 template <typename FloatType>
 FloatType random_bspline2_fast(std::mt19937& gen, FloatType mean, FloatType dev) noexcept
 {

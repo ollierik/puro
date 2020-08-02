@@ -2,123 +2,162 @@
 
 namespace puro {
 
-/** A Wrapper around audio buffer data with helper functions for accessing and debug checks. Does not own the data. */
-template <class FloatType, int numberOfChannels>
-struct Buffer
+#ifndef PURO_BUFFER_DEFAULT_MAX_CHANNELS
+    #define PURO_BUFFER_DEFAULT_MAX_CHANNELS 2
+#endif
+
+#ifndef PURO_BUFFER_WRAP_VECTOR_RESIZING
+    #define PURO_BUFFER_WRAP_VECTOR_RESIZING true
+#endif
+
+namespace detail {
+
+template <typename T, bool FixedChannels, bool FixedSamples, int NumChannels, int Length>
+struct buffer_members {};
+
+/** Dynamic channels, dynamic length */
+template <typename T, int NumChannels, int Length>
+struct buffer_members <T, false, false, NumChannels, Length>
 {
-    // member fields
-    int numSamples;
-    std::array<FloatType*, numberOfChannels> channelPtrs;
+    buffer_members() = default;
+    buffer_members(int num_channels, int length)
+        : num_channels(num_channels), length(length) {}
+    buffer_members(int num_channels, int length, std::array<T, NumChannels> channelPtrs)
+        : num_channels(num_channels), length(length), ptrs(channelPtrs) {}
 
-    // template arg broadcasts
-    typedef FloatType value_type;
-    static constexpr int num_channels = numberOfChannels;
+    int num_channels = 0;
+    int length = 0;
+    std::array<T*, NumChannels> ptrs;
+};
 
-    // getters
-    bool isInvalid() const noexcept { return numSamples <= 0; }
-    int length() const noexcept { return numSamples; }
-    constexpr int getNumChannels() const noexcept { return num_channels; } // some more advanced class may want to redefine this
+/** Dynamic channels, fixed length */
+template <typename T, int NumChannels, int Length>
+struct buffer_members <T, false, true, NumChannels, Length>
+{
+    buffer_members() = default;
+    buffer_members(int num_channels)
+        : num_channels(num_channels) {}
+    buffer_members(int num_channels, std::array<T, NumChannels> channelPtrs)
+        : num_channels(num_channels), ptrs(channelPtrs) {}
 
-    /*
-    FloatType& operator() (int ch, int i) noexcept
-    {
-        errorif(ch < 0 || ch >= num_channels, "channel out of range");
-        errorif(i < 0 || i >= numSamples, "sample index out of range");
-        return channelPtrs[ch][i];
-    }
-    */
+    int num_channels = 0;
+    static constexpr int length = Length;
+    std::array<T*, NumChannels> ptrs;
+};
 
-    FloatType* channel(int ch) const noexcept
-    {
-        errorif(ch < 0 || ch >= num_channels, "channel out of range");
-        return channelPtrs[ch];
-    }
+/** Fixed channels, dynamic length */
+template <typename T, int NumChannels, int Length>
+struct buffer_members <T, true, false, NumChannels, Length>
+{
+    buffer_members() = default;
+    buffer_members(int length)
+        : length(length) {}
+    buffer_members(int length, std::array<T, NumChannels> channelPtrs)
+        : length(length), ptrs(channelPtrs) {}
 
-    // constructors
+    static constexpr int num_channels = NumChannels;
+    int length = 0;
+    std::array<T*, NumChannels> ptrs;
+};
 
-    Buffer() : numSamples(0) {} // invalid Buffer
-
-    Buffer (int numSamples) noexcept
-        : numSamples(numSamples)
-    {}
-
-    /** Buffer from raw allocated memory.
-        Provided data is expected to be able to hold (numSamples * numChannels) of data */
-    Buffer (int numSamples, FloatType* data) noexcept
-        : numSamples(numSamples)
-    {
-        for (int ch = 0; ch < num_channels; ++ch)
-            channelPtrs[ch] = &data[ch * numSamples];
-    }
-
-    /** Buffer from raw allocated memory. Provided array should contain the per-channel pointers. */
-    Buffer (int numSamples, std::array<FloatType, numberOfChannels> data) noexcept
-        : numSamples(numSamples)
-    {
-        for (int ch = 0; ch < data.size(); ++ch)
-            channelPtrs[ch] = &data[ch];
-    }
+/** Fixed channels, fixed length */
+template <typename T, int NumChannels, int Length>
+struct buffer_members <T, true, true, NumChannels, Length>
+{
+    buffer_members() = default;
+    buffer_members(std::array<T, NumChannels> channelPtrs)
+        : ptrs(channelPtrs) {}
+    static constexpr int num_channels = NumChannels;
+    static constexpr int length = Length;
+    std::array<T*, NumChannels> ptrs;
 };
 
 
-#ifndef PURO_DYNAMIC_BUFFER_MAX_CHANNELS
-#define PURO_DYNAMIC_BUFFER_MAX_CHANNELS 8
-#endif PURO_DYNAMIC_BUFFER_MAX_CHANNELS
+struct not_implemented { not_implemented() = delete; };
 
-/** Dynamic wrapper around audio buffer data with resizeable channel count. Does not own the data. */
-template <class FloatType, int maxNumberOfChannels = PURO_DYNAMIC_BUFFER_MAX_CHANNELS>
-struct DynamicBuffer
+} // namespace detail
+
+constexpr int operator"" _maxchs (unsigned long long n)
 {
-    // member fields
-    int numSamples;
-    int numChannels;
-    std::array<FloatType*, maxNumberOfChannels> channelPtrs;
+    return -static_cast<int> (n);
+};
 
-    // template arg broadcasts
-    typedef FloatType value_type;
+template <typename T, int NumChannels=-PURO_BUFFER_DEFAULT_MAX_CHANNELS, int Length=-1>
+struct buffer
+{
+    typedef T value_type;
 
-    // getters
-    bool isInvalid() const { return numSamples <= 0 || numChannels <= 0; }
-    int length() const { return numSamples; };
-    int getNumChannels() const { return numChannels; } // some more advanced class may want to redefine this
+    static constexpr bool has_fixed_channels = NumChannels > 0;
+    static constexpr bool has_fixed_length= Length > 0;
+    static constexpr int max_channels = NumChannels > 0 ? NumChannels : -NumChannels;
 
-    /*
-    FloatType& operator() (int ch, int i)
-    {
-        errorif(ch < 0 || ch >= numChannels, "channel out of range");
-        errorif(i < 0 || i >= numSamples, "sample index out of range");
-        return channelPtrs[ch][i];
-    }
+    using Members = detail::buffer_members<T, has_fixed_channels, has_fixed_length, max_channels, Length>;
+    Members members;
+
+    ///////////////////////// CONSTRUCTORS /////////////////////////
+
+    buffer() = default;
+
+    template <typename ...Args>
+    buffer(Args... args) : members(args...) {}
+
+    ///////////////////////// MEMBER FUNCTIONS /////////////////////////
+
+    /** Get the constexpr number of channels for the buffer.
+        To harness constexpr where applicable, this function is overloaded so that the variant to use has the signature:
+        int num_channels();
     */
-
-    FloatType* channel(int ch) const
+    static constexpr int num_channels(typename std::conditional<has_fixed_channels, void, detail::not_implemented>::type)
     {
-        errorif(ch < 0 || ch >= numChannels, "channel out of range");
-        return channelPtrs[ch];
+        return Members::num_channels;
     }
 
-    // constructors
-
-    DynamicBuffer() : numChannels(0), numSamples(0) {} // invalid Buffer
-
-    DynamicBuffer (int numChannels, int numSamples)
-        : numChannels(numChannels), numSamples(numSamples)
-    {}
-
-    /** Buffer from raw allocated memory.
-        Provided data is expected to be able to hold (numSamples * numChannels) of data */
-    DynamicBuffer (int numChannels, int numSamples, FloatType* data)
-        : numChannels(numChannels), numSamples(numSamples)
+    /** Get number of channels for the buffer.
+        To harness constexpr where applicable, this function is overloaded so that the variant to use has the signature:
+        int num_channels();
+    */
+    int num_channels(typename std::conditional<has_fixed_channels, detail::not_implemented, void>::type)
     {
-        for (int ch = 0; ch < numChannels; ++ch)
-            channelPtrs[ch] = &data[ch * numSamples];
+        return members.num_channels;
+    }
+
+    /** Get constexpr length per channels for the buffer.
+        To harness constexpr where applicable, this function is overloaded so that the variant to use has the signature:
+        int length();
+    */
+    static constexpr int length(typename std::conditional<has_fixed_length, void, detail::not_implemented>::type)
+    {
+        return Members::length;
+    }
+
+    /** Get length per channels for the buffer.
+        To harness constexpr where applicable, this function is overloaded so that the variant to use has the signature:
+        int length();
+    */
+    int length(typename std::conditional<has_fixed_length, detail::not_implemented, void>::type)
+    {
+        return members.length;
+    }
+
+    T* channel(int ch)
+    {
+        errorif(ch < 0 || ch >= fields.ptrs.size(), "channel out of range");
+        return members.ptrs[ch];
     }
 };
 
+template <int NumChannels=-PURO_BUFFER_DEFAULT_MAX_CHANNELS, int Length=-1>
+using bufferf = buffer<float, NumChannels, Length>;
+
+template <int NumChannels=-PURO_BUFFER_DEFAULT_MAX_CHANNELS, int Length=-1>
+using bufferd = buffer<double, NumChannels, Length>;
+
+
 
 ////////////////////////////////
-// Buffer operations
+// buffer operations
 ////////////////////////////////
+
 
 template <typename BufferType>
 BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
@@ -133,13 +172,21 @@ BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
     return buffer;
 }
 
-
 template <typename BufferType>
-BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
+BufferType buffer_trim_to_length(BufferType buffer, int newLength) noexcept
 {
     errorif(newLength > buffer.numSamples, "new length out of bounds");
 
     buffer.numSamples = math::max(newLength, 0);
+    return buffer;
+}
+
+template <typename BufferType>
+BufferType buffer_trim_from_end(BufferType buffer, int trimLength) noexcept
+{
+    errorif(newLength > buffer.numSamples, "new length out of bounds");
+
+    buffer.numSamples -= trimLength;
     return buffer;
 }
 
@@ -252,11 +299,11 @@ BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
 }
 
 template <typename BufferType>
-void buffer_clear(BufferType buffer) noexcept
+void buffer_clear(BufferType buf) noexcept
 {
     for (int ch=0; ch<buffer.getNumChannels(); ++ch)
     {
-        math::set<typename BufferType::value_type>(buffer.channel(ch), 0, buffer.length());
+        math::set<typename BufferType::value_type>(buf.channel(ch), 0, buf.length());
     }
 }
 

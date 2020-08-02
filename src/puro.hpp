@@ -20,6 +20,7 @@
 #include "pool.hpp"
 #include "node_stacks.hpp"
 #include "buffer.hpp"
+#include "ring_buffer.hpp"
 #include "alignment.hpp"
 #include "utility.hpp"
 #include "signal.hpp"

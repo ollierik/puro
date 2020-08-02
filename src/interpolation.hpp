@@ -57,7 +57,7 @@ std::tuple<RelativeAlignment, PositionType> interp_avoid_out_of_bounds_reads(Rel
 /** Assumes that the source buffer can provide all the required samples, i.e. doesn't do bound checking.
     Buffer should be cropped for example with interp_crop_buffer before-hand. */
 template <typename BufferType, typename SourceBufferType, typename PositionType>
-PositionType interp1_fill(BufferType buffer, SourceBufferType source, const PositionType readPos, const PositionType increment) noexcept
+PositionType interp1_from_buffer_fill(BufferType buffer, SourceBufferType source, const PositionType readPos, const PositionType increment) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -92,7 +92,7 @@ PositionType interp1_fill(BufferType buffer, SourceBufferType source, const Posi
 /** Assumes that the source buffer can provide all the required samples, i.e. doesn't do bound checking.
     Buffer should be cropped for example with interp_crop_buffer before-hand. */
 template <typename BufferType, typename SourceBufferType, typename PositionType>
-PositionType interp3_fill(BufferType buffer, SourceBufferType source, const PositionType readPos, const PositionType increment) noexcept
+PositionType interp3_from_buffer_fill(BufferType buffer, SourceBufferType source, const PositionType readPos, const PositionType increment) noexcept
 {
     using FloatType = typename BufferType::value_type;
 

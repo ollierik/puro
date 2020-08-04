@@ -271,7 +271,7 @@ BufferType buffer_multiply_add(BufferType dst, const BufferType src1, const Mult
 }
     
 template <typename BufferType, typename ValueType>
-BufferType buffer_multiply_add_constant(BufferType dst, const BufferType src, const ValueType multiplier) noexcept
+BufferType buffer_multiply_with_constant_and_add(BufferType dst, const BufferType src, const ValueType multiplier) noexcept
 {
     errorif(dst.getNumChannels() != src.getNumChannels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src1 buffer lengths don't match");
@@ -286,7 +286,7 @@ BufferType buffer_multiply_add_constant(BufferType dst, const BufferType src, co
 }
     
 template <typename BufferType>
-BufferType buffer_scale(BufferType dst, const typename BufferType::value_type value) noexcept
+void buffer_scale(BufferType dst, const typename BufferType::value_type value) noexcept
 {
     for (int ch = 0; ch < dst.getNumChannels(); ++ch)
     {

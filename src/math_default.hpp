@@ -76,6 +76,12 @@ namespace puro {
     }
         
     template <typename ValueType>
+    ValueType clip(ValueType val, ValueType minValue, ValueType maxValue) noexcept
+    {
+        return min(max(val, minValue), maxValue);
+    }
+        
+    template <typename ValueType>
     ValueType normalise(ValueType value, ValueType zero, ValueType one) noexcept
     {
         return (value - zero) / (one - zero);
@@ -99,11 +105,18 @@ namespace puro {
         return pow(static_cast<ValueType>(10), value / static_cast<ValueType>(20));
     }
         
-
+    /** Frequency to log2 scale */
     template <typename ValueType>
-    ValueType clip(ValueType val, ValueType minValue, ValueType maxValue) noexcept
+    ValueType ftox_log2(ValueType freq, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=0)
     {
-        return min(max(val, minValue), maxValue);
+        return normalise(log2(freq), minLog2, maxLog2);
+    }
+        
+    /** Log2 scale normalised x to frequency */
+    template <typename ValueType>
+    ValueType xtof_log2(ValueType value, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=0)
+    {
+        return pow(static_cast<ValueType> (2), scale(value, minLog2, maxLog2));
     }
 
     template <typename FloatType, typename ValueType=int>

@@ -388,5 +388,34 @@ void buffer_clear(BufferType buffer) noexcept
         math::set<typename BufferType::value_type>(buffer.channel(ch), 0, buffer.length());
     }
 }
+    
+template <typename BufferType>
+void buffer_normalise(BufferType buf)
+{
+    using T = typename BufferType::value_type;
+    
+    T max = 0;
+    for (auto ch=0; ch<buf.getNumChannels(); ++ch)
+    {
+        T* ptr = buf.channel(ch);
+        
+        for (int i=0; i<buf.length(); ++i)
+        {
+            max = puro::math::max(abs(ptr[i]), max);
+        }
+    }
+    
+    if (max > 0)
+    {
+        for (auto ch=0; ch<buf.getNumChannels(); ++ch)
+        {
+            T* ptr = buf.channel(ch);
+            for (auto ch=0; ch<buf.getNumChannels(); ++ch)
+            {
+                math::multiply(ptr, 1/max, buf.length());
+            }
+        }
+    }
+}
 
 } // namespace puro

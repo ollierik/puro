@@ -75,4 +75,28 @@ public:
     ValueType maximum;
 };
     
+    
+template <typename BufferType, typename JuceBufferType>
+BufferType buffer_from_juce_buffer(JuceBufferType& juceBuffer)
+{
+    BufferType buffer (juceBuffer.getNumSamples());
+
+    if (juceBuffer.getNumChannels() == 1)
+    {
+        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
+            buffer.channelPtrs[ch] = juceBuffer.getWritePointer(0);
+    }
+    else if (juceBuffer.getNumChannels() == buffer.getNumChannels())
+    {
+        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
+            buffer.channelPtrs[ch] = juceBuffer.getWritePointer(ch);
+    }
+    else
+    {
+        errorif(true, "channel config not implemented");
+    }
+
+    return buffer;
+}
+    
 }

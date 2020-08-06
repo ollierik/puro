@@ -107,14 +107,14 @@ namespace puro {
         
     /** Frequency to log2 scale */
     template <typename ValueType>
-    ValueType ftox_log2(ValueType freq, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=0)
+    ValueType ftox_log2(ValueType freq, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=-1)
     {
         return normalise(log2(freq), minLog2, maxLog2);
     }
         
     /** Log2 scale normalised x to frequency */
     template <typename ValueType>
-    ValueType xtof_log2(ValueType value, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=0)
+    ValueType xtof_log2(ValueType value, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=-1)
     {
         return pow(static_cast<ValueType> (2), scale(value, minLog2, maxLog2));
     }
@@ -123,6 +123,13 @@ namespace puro {
     ValueType round(FloatType value) noexcept
     {
         return static_cast<ValueType> (value + (FloatType)0.5);
+    }
+        
+    /** Compare equality with error */
+    template <typename FloatType>
+    bool equal(FloatType f1, FloatType f2, const FloatType epsilon=1e-5)
+    {
+        return (abs(f1-f2) < epsilon);
     }
         
     template <typename FloatType>

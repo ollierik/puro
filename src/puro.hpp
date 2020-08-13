@@ -23,6 +23,7 @@
 #include "node_stacks.hpp"
 #include "buffer.hpp"
 #include "spectrum.hpp"
+#include "ring_buffer.hpp"
 #include "alignment.hpp"
 #include "utility.hpp"
 #include "signal.hpp"

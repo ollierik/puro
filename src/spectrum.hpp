@@ -59,8 +59,8 @@ void buffer_spectrum_phases(BufferType dstReal, BufferType srcComplex)
         FloatType* src = srcComplex.channel(ch);
         FloatType* dst = dstReal.channel(ch);
 
-        dst[0] = ( (src[0] >= 0) ? 0 : math::pi<FloatType>());
-        dst[dstReal.length() - 1] = ( (src[1] >= 0) ? 0 : math::pi<FloatType>());
+        dst[0] = ( (src[0] >= 0) ? 0 : math::pi);
+        dst[dstReal.length() - 1] = ( (src[1] >= 0) ? 0 : math::pi);
 
         for (int si=2, di=1; si < srcComplex.length(); si+=2, ++di)
         {

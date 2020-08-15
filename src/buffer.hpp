@@ -4,111 +4,128 @@ namespace puro {
     
 
 /** A Wrapper around audio buffer data with helper functions for accessing and debug checks. Does not own the data. */
-template <class FloatType, int numberOfChannels>
-struct Buffer
+template <int NumChannels, typename T=float>
+struct buffer
 {
-    // template arg broadcasts
-    typedef FloatType value_type;
-    static constexpr int num_channels = numberOfChannels;
-    
-    // member fields
-    int numSamples;
-    std::array<FloatType*, numberOfChannels> channelPtrs;
+    typedef T value_type;
+    static constexpr int max_channels = NumChannels;
 
-    // getters
-    bool isInvalid() const noexcept { return numSamples <= 0; }
-    int length() const noexcept { return numSamples; }
-    constexpr int getNumChannels() const noexcept { return num_channels; } // some more advanced class may want to redefine this
+    int num_samples;
+    std::array<T*, NumChannels> ptrs;
 
-    FloatType* channel(int ch) const noexcept
+    int length() const noexcept { return num_samples; }
+    static constexpr int num_channels() noexcept { return NumChannels; }
+
+    T* operator[] (int ch)
     {
-        errorif(ch < 0 || ch >= num_channels, "channel out of range");
-        return channelPtrs[ch];
-    }
-
-    // constructors
-
-    Buffer() : numSamples(0) {} // invalid Buffer
-
-    Buffer (int numSamples) noexcept
-        : numSamples(numSamples)
-    {}
-
-    /** Buffer from raw allocated memory.
-        Provided data is expected to be able to hold (numSamples * numChannels) of data */
-    Buffer (int numSamples, FloatType* data) noexcept
-        : numSamples(numSamples)
-    {
-        for (int ch = 0; ch < num_channels; ++ch)
-            channelPtrs[ch] = &data[ch * numSamples];
-    }
-
-    /** Buffer from raw allocated memory. Provided array should contain the per-channel pointers. */
-    Buffer (int numSamples, std::array<FloatType, numberOfChannels> data) noexcept
-        : numSamples(numSamples)
-    {
-        for (int ch = 0; ch < data.size(); ++ch)
-            channelPtrs[ch] = &data[ch];
+        errorif(ch < 0 || ch >= num_channels(), "channel out of range");
+        return ptrs[ch];
     }
     
-    /** Buffer from already allocated memory per channel.
-     Provided data is expected to be able to hold numSamples of data per channel */
-    Buffer (int numSamples, std::array<FloatType*, numberOfChannels> chPtrs) noexcept
-    : numSamples(numSamples)
+    // ctors
+    buffer(int length) : num_samples(length) {};
+
+    buffer(int length, T** channelPtrs) : num_samples(length)
     {
-        for (int ch = 0; ch < num_channels; ++ch)
-            channelPtrs[ch] = chPtrs[ch];
+        for (auto ch = 0; ch < num_channels(); ++ch)
+            ptrs[ch] = channelPtrs[ch];
     }
 };
-
-#ifndef PURO_DYNAMIC_BUFFER_MAX_CHANNELS
-#define PURO_DYNAMIC_BUFFER_MAX_CHANNELS 8
-#endif 
 
 /** Dynamic wrapper around audio buffer data with resizeable channel count. Does not own the data. */
-template <class FloatType, int maxNumberOfChannels = PURO_DYNAMIC_BUFFER_MAX_CHANNELS>
-struct DynamicBuffer
+template <int MaxChannels=8, typename T=float>
+struct dynamic_buffer
 {
-    // member fields
-    int numSamples;
-    int numChannels;
-    std::array<FloatType*, maxNumberOfChannels> channelPtrs;
+    typedef T value_type;
+    static constexpr int max_channels = MaxChannels;
+    
+    int num_samples;
+    int used_num_channels;
+    std::array<T*, MaxChannels> ptrs;
 
-    // template arg broadcasts
-    typedef FloatType value_type;
+    int length() const { return num_samples; };
+    int num_channels() const { return used_num_channels; } // some more advanced class may want to redefine this
 
-    // getters
-    bool isInvalid() const { return numSamples <= 0 || numChannels <= 0; }
-    int length() const { return numSamples; };
-    int getNumChannels() const { return numChannels; } // some more advanced class may want to redefine this
-
-    FloatType* channel(int ch) const
+    T* operator[] (int ch)
     {
-        errorif(ch < 0 || ch >= numChannels, "channel out of range");
-        return channelPtrs[ch];
+        errorif(ch < 0 || ch >= num_channels(), "channel out of range");
+        return ptrs[ch];
     }
-
-    // constructors
-
-    DynamicBuffer() : numSamples(0), numChannels(0) {} // invalid Buffer
-
-    DynamicBuffer (int numChannels, int numSamples)
-        : numChannels(numChannels), numSamples(numSamples)
-    {}
-
-    /** Buffer from raw allocated memory.
-        Provided data is expected to be able to hold (numSamples * numChannels) of data */
-    DynamicBuffer (int numChannels, int numSamples, FloatType* data)
-        : numChannels(numChannels), numSamples(numSamples)
+    
+    // ctors
+    dynamic_buffer(int num_channels, int length) : used_num_channels(num_channels), num_samples(length)
+    {};
+    
+    dynamic_buffer(int num_channels, int length, T** channelPtrs) : used_num_channels(num_channels), num_samples(length)
     {
-        for (int ch = 0; ch < numChannels; ++ch)
-            channelPtrs[ch] = &data[ch * numSamples];
+        for (auto ch = 0; ch < num_channels; ++ch)
+            ptrs[ch] = channelPtrs[ch];
     }
 };
+    
+template <int NumChannels, int NumSamples, typename T=float>
+struct fixed_buffer
+{
+    typedef T value_type;
+    static constexpr int max_channels = NumChannels;
 
+    std::array<T*, NumChannels> ptrs;
+    
+    constexpr int length() const noexcept { return NumSamples; }
+    constexpr int num_channels() const noexcept { return NumChannels; }
+
+    T* operator[] (int ch)
+    {
+        errorif(ch < 0 || ch >= num_channels(), "channel out of range");
+        return ptrs[ch];
+    }
+};
+    
+    
+
+template <class BufferType, class Allocator = std::allocator<typename BufferType::value_type>>
+struct mem_owner
+{
+    typedef typename BufferType::value_type value_type;
+    static constexpr auto num_channels = BufferType::max_channels;
+    
+    template <typename ...Args>
+    mem_owner(Args... args) : buffer(args...)
+    {
+        for (auto ch=0; ch<buffer.num_channels(); ++ch)
+        {
+            vectors[ch].resize(buffer.length());
+            buffer.ptrs[ch] = vectors[ch].data();
+        }
+    }
+    
+    mem_owner(mem_owner &&) = delete;
+    mem_owner(const mem_owner &) = delete;
+
+    BufferType buffer;
+    std::array<std::vector<value_type, Allocator>, num_channels> vectors;
+};
+
+    
 ////////////////////////////////
 // Buffer operations
 ////////////////////////////////
+    
+/** Create a Buffer with the data laid out into the provided vector.
+ The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
+template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
+BufferType buffer_wrap_vector(VectorType& vector, int numSamples) noexcept
+{
+    if (resizeIfNeeded)
+    {
+        const auto totLength = BufferType::num_channels * numSamples;
+
+        if (vector.size() < totLength)
+            vector.resize(totLength);
+    }
+
+    return BufferType(numSamples, vector.data());
+}
 
 template <typename BufferType>
 BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
@@ -176,22 +193,7 @@ std::tuple<BufferType, BufferType> buffer_split(BufferType buffer, int index) no
     return std::make_tuple(std::move(pre), std::move(post));
 }
 
-/** Create a Buffer with the data laid out into the provided vector.
-    The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
-template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
-BufferType buffer_wrap_vector(VectorType& vector, int numSamples) noexcept
-{
-    if (resizeIfNeeded)
-    {
-        const auto totLength = BufferType::num_channels * numSamples;
 
-        if (vector.size() < totLength)
-            vector.resize(totLength);
-    }
-
-    return BufferType(numSamples, vector.data());
-}
-    
 /** Create a Buffer with the data laid out into the provided vector.
  The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
 template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
@@ -259,6 +261,7 @@ BufferType buffer_multiply_add(BufferType dst, const BufferType src1, const Mult
     {
         for (int ch = 0; ch < dst.getNumChannels(); ++ch)
         {
+            //math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.length());
             math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.length());
         }
     }
@@ -383,9 +386,9 @@ void buffer_copy(BufferType dst, BufferType src) noexcept
 template <typename BufferType>
 void buffer_clear(BufferType buffer) noexcept
 {
-    for (int ch=0; ch<buffer.getNumChannels(); ++ch)
+    for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::set<typename BufferType::value_type>(buffer.channel(ch), 0, buffer.length());
+        math::set<typename BufferType::value_type>(buffer[ch], 0, buffer.length());
     }
 }
     

@@ -6,7 +6,7 @@ namespace puro {
 template <typename PositionType>
 PositionType envelope_halfcos_get_increment(int lengthInSamples) noexcept
 {
-    const PositionType val = math::pi<PositionType>() / static_cast<PositionType>(lengthInSamples + 1);
+    const PositionType val = math::pi / static_cast<PositionType>(lengthInSamples + 1);
     return val;
 }
 
@@ -35,7 +35,7 @@ template <typename PositionType>
 PositionType envelope_hann_get_increment(int lengthInSamples, bool symmetric = true) noexcept
 {
     const PositionType div = static_cast<PositionType>(lengthInSamples) + (symmetric ? 1 : 0);
-    const PositionType val = 2 * math::pi<PositionType>() / div;
+    const PositionType val = 2 * math::pi / div;
     return val;
 }
 

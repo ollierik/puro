@@ -450,7 +450,7 @@ void buffer_normalise(BufferType buf)
     T max = 0;
     for (auto ch=0; ch<buf.num_channels(); ++ch)
     {
-        T* ptr = buf.channel(ch);
+        T* ptr = buf[ch];
         
         for (int i=0; i<buf.length(); ++i)
         {
@@ -462,7 +462,7 @@ void buffer_normalise(BufferType buf)
     {
         for (auto ch=0; ch<buf.num_channels(); ++ch)
         {
-            T* ptr = buf.channel(ch);
+            T* ptr = buf[ch];
             for (auto ch=0; ch<buf.num_channels(); ++ch)
             {
                 math::multiply(ptr, 1/max, buf.length());

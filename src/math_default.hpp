@@ -28,7 +28,7 @@ struct fft
         pffft_transform_ordered(setup, src, dst, 0, PFFFT_BACKWARD);
     }
 
-    int size() const
+    int length() const
     {
         return n;
     }
@@ -199,6 +199,14 @@ void copy(FloatType* dst, FloatType* src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] = src[i];
+}
+    
+/** Copy every ratioth sample from source to destination */
+template <typename FloatType>
+void copy_decimating(FloatType* dst, FloatType* src, const int ratio, const int n) noexcept
+{
+    for (int i=0, j=0; i < n; ++i, j+=ratio)
+        dst[i] = src[j];
 }
 
 /** Add from source to destination */

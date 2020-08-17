@@ -8,7 +8,7 @@ template <int NumChannels, typename T=float>
 struct buffer
 {
     typedef T value_type;
-    static constexpr int max_channels = NumChannels;
+    static constexpr int number_of_channels = NumChannels;
 
     int num_samples;
     std::array<T*, NumChannels> ptrs;
@@ -16,10 +16,16 @@ struct buffer
     int length() const noexcept { return num_samples; }
     static constexpr int num_channels() noexcept { return NumChannels; }
 
-    T* operator[] (int ch)
+    T* operator[] (int ch) const
     {
         errorif(ch < 0 || ch >= num_channels(), "channel out of range");
         return ptrs[ch];
+    }
+    
+    // numpy-style slice operator
+    buffer operator() (int start, int end)
+    {
+        return buffer_slice(*this, start, end);
     }
     
     // ctors
@@ -63,6 +69,7 @@ struct dynamic_buffer
     }
 };
     
+/*
 template <int NumChannels, int NumSamples, typename T=float>
 struct fixed_buffer
 {
@@ -80,9 +87,10 @@ struct fixed_buffer
         return ptrs[ch];
     }
 };
+*/
     
     
-
+/*
 template <class BufferType, class Allocator = std::allocator<typename BufferType::value_type>>
 struct mem_owner
 {
@@ -104,6 +112,36 @@ struct mem_owner
 
     BufferType buffer;
     std::array<std::vector<value_type, Allocator>, num_channels> vectors;
+};
+*/
+    
+template <class BufferType, class Allocator = std::allocator<typename BufferType::value_type>>
+struct mem_buffer : public BufferType
+{
+    typedef typename BufferType::value_type value_type;
+    
+    mem_buffer() = default;
+    mem_buffer(mem_buffer &&) = delete;
+    mem_buffer(const mem_buffer &) = delete;
+
+    mem_buffer(int length) : BufferType(length)
+    {
+        for (auto ch=0; ch < BufferType::number_of_channels; ++ch)
+        {
+            vectors[ch].resize(BufferType::length());
+            this->ptrs[ch] = vectors[ch].data();
+        }
+    }
+    
+    BufferType operator* () { return *this; }
+    BufferType get() { return *this; }
+    
+    void operator= (BufferType new_buffer)
+    {
+        *reinterpret_cast<BufferType*>(this) = new_buffer;
+    }
+
+    std::array<std::vector<value_type, Allocator>, BufferType::number_of_channels> vectors;
 };
 
     
@@ -134,7 +172,7 @@ BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
 
     buffer.numSamples -= offset;
 
-    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+    for (int ch = 0; ch < buffer.num_channels(); ++ch)
         buffer.channelPtrs[ch] = &buffer.channelPtrs[ch][offset];
 
     return buffer;
@@ -157,7 +195,7 @@ BufferType buffer_segment(BufferType buffer, int offset, int length) noexcept
     errorif(offset > buffer.numSamples, "segment offset greater than number of samples available");
     errorif(length < 0 || length > (offset + buffer.length()), "segment length out of bounds");
 
-    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+    for (int ch = 0; ch < buffer.num_channels(); ++ch)
         buffer.channelPtrs[ch] = &buffer.channelPtrs[ch][offset];
 
     buffer.numSamples = length;
@@ -173,10 +211,10 @@ BufferType buffer_slice(BufferType buffer, int start, int end) noexcept
     errorif(end < start, "slice end below start");
     errorif(end > buffer.length(), "slice end greater than number of samples available");
     
-    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-        buffer.channelPtrs[ch] = &buffer.channelPtrs[ch][start];
+    for (int ch = 0; ch < buffer.num_channels(); ++ch)
+        buffer.ptrs[ch] = &buffer.ptrs[ch][start];
 
-    buffer.numSamples = end - start;
+    buffer.num_samples = end - start;
     return buffer;
 }
     
@@ -222,9 +260,9 @@ template <typename ToBufferType, typename FromBufferType>
 ToBufferType buffer_convert_to_type(FromBufferType src) noexcept
 {
     ToBufferType dst (src.length());
-    for (int ch=0; ch < dst.getNumChannels(); ++ch)
+    for (int ch=0; ch < dst.num_channels(); ++ch)
     {
-        errorif (ch >= src.getNumChannels(), "trying to convert from less channels to a larger one");
+        errorif (ch >= src.num_channels(), "trying to convert from less channels to a larger one");
         dst.channelPtrs[ch] = src.channelPtrs[ch];
     }
     return dst;
@@ -249,17 +287,17 @@ BufferType buffer_multiply_add(BufferType dst, const BufferType src1, const Mult
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
 
     // identical channel configs
-    if (src1.getNumChannels() == src2.getNumChannels())
+    if (src1.num_channels() == src2.num_channels())
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
             math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(ch), dst.length());
         }
     }
     // src2 is a mono buffer
-    else if (src1.getNumChannels() > 1 && src2.getNumChannels() == 1)
+    else if (src1.num_channels() > 1 && src2.num_channels() == 1)
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
             //math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.length());
             math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.length());
@@ -276,11 +314,11 @@ BufferType buffer_multiply_add(BufferType dst, const BufferType src1, const Mult
 template <typename BufferType, typename ValueType>
 BufferType buffer_multiply_with_constant_and_add(BufferType dst, const BufferType src, const ValueType multiplier) noexcept
 {
-    errorif(dst.getNumChannels() != src.getNumChannels(), "dst and src channel number doesn't match");
+    errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src1 buffer lengths don't match");
 
     // identical channel configs
-    for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+    for (int ch = 0; ch < dst.num_channels(); ++ch)
     {
         math::multiply_add(dst.channel(ch), src.channel(ch), multiplier, dst.length());
     }
@@ -291,9 +329,9 @@ BufferType buffer_multiply_with_constant_and_add(BufferType dst, const BufferTyp
 template <typename BufferType>
 void buffer_scale(BufferType dst, const typename BufferType::value_type value) noexcept
 {
-    for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+    for (int ch = 0; ch < dst.num_channels(); ++ch)
     {
-        math::multiply(dst.channel(ch), value, dst.length());
+        math::multiply(dst[ch], value, dst.length());
     }
 }
 
@@ -303,17 +341,17 @@ BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
     // identical channel config
-    if (dst.getNumChannels() == src.getNumChannels())
+    if (dst.num_channels() == src.num_channels())
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
             math::multiply(dst.channel(ch), src.channel(ch), dst.length());
         }
     }
     // mono src, multichannel dst
-    else if (dst.getNumChannels() != src.getNumChannels() && src.getNumChannels() == 1)
+    else if (dst.num_channels() != src.num_channels() && src.num_channels() == 1)
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
             math::multiply(dst.channel(ch), src.channel(0), dst.length());
         }
@@ -328,19 +366,19 @@ BufferType buffer_add(BufferType dst, const AddBufferType src) noexcept
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
     // identical channel config
-    if (dst.getNumChannels() == src.getNumChannels())
+    if (dst.num_channels() == src.num_channels())
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
-            math::add(dst.channel(ch), src.channel(ch), dst.length());
+            math::add(dst[ch], src[ch], dst.length());
         }
     }
     // mono src, multichannel dst
-    else if (dst.getNumChannels() != src.getNumChannels() && src.getNumChannels() == 1)
+    else if (dst.num_channels() != src.num_channels() && src.num_channels() == 1)
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
-            math::add(dst.channel(ch), src.channel(0), dst.length());
+            math::add(dst[ch], src[0], dst.length());
         }
     }
     
@@ -353,17 +391,17 @@ BufferType buffer_substract(BufferType dst, const SubstBufferType src) noexcept
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
     // identical channel config
-    if (dst.getNumChannels() == src.getNumChannels())
+    if (dst.num_channels() == src.num_channels())
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
             math::substract(dst.channel(ch), src.channel(ch), dst.length());
         }
     }
     // mono src, multichannel dst
-    else if (dst.getNumChannels() != src.getNumChannels() && src.getNumChannels() == 1)
+    else if (dst.num_channels() != src.num_channels() && src.num_channels() == 1)
     {
-        for (int ch = 0; ch < dst.getNumChannels(); ++ch)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
             math::substract(dst.channel(ch), src.channel(0), dst.length());
         }
@@ -377,12 +415,24 @@ void buffer_copy(BufferType dst, BufferType src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src lengths don't match");
     
-    for (int ch=0; ch<dst.getNumChannels(); ++ch)
+    for (int ch=0; ch<dst.num_channels(); ++ch)
     {
-        math::copy(dst.channel(ch), src.channel(ch), dst.length());
+        math::copy(dst[ch], src[ch], dst.length());
     }
 }
+    
+template <typename BufferType>
+void buffer_copy_decimating(BufferType dst, BufferType src, int ratio) noexcept
+{
+    errorif(dst.length() != src.length() / ratio, "dst.length (" << dst.length() << ") should be src.length/ratio (" << src.length() << "/" << ratio << ")");
+    errorif(src.length() % ratio != 0, "src.length should be divisible by ratio");
 
+    for (int ch=0; ch<dst.num_channels(); ++ch)
+    {
+        math::copy_decimating(dst[ch], src[ch], ratio, src.length());
+    }
+}
+    
 template <typename BufferType>
 void buffer_clear(BufferType buffer) noexcept
 {
@@ -398,7 +448,7 @@ void buffer_normalise(BufferType buf)
     using T = typename BufferType::value_type;
     
     T max = 0;
-    for (auto ch=0; ch<buf.getNumChannels(); ++ch)
+    for (auto ch=0; ch<buf.num_channels(); ++ch)
     {
         T* ptr = buf.channel(ch);
         
@@ -410,10 +460,10 @@ void buffer_normalise(BufferType buf)
     
     if (max > 0)
     {
-        for (auto ch=0; ch<buf.getNumChannels(); ++ch)
+        for (auto ch=0; ch<buf.num_channels(); ++ch)
         {
             T* ptr = buf.channel(ch);
-            for (auto ch=0; ch<buf.getNumChannels(); ++ch)
+            for (auto ch=0; ch<buf.num_channels(); ++ch)
             {
                 math::multiply(ptr, 1/max, buf.length());
             }

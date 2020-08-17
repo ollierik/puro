@@ -25,10 +25,10 @@ template <class N, class B>
 void print_buffer_table_row(int i, const N&, const B& buffer)
 {
     if (i < buffer.length())
-        for (auto ch=0; ch < buffer.getNumChannels(); ++ch)
-            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer.channel(ch)[i] << " | ";
+        for (auto ch=0; ch < buffer.num_channels(); ++ch)
+            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer[ch][i] << " | ";
     else
-        for (auto ch=0; ch < buffer.getNumChannels(); ++ch)
+        for (auto ch=0; ch < buffer.num_channels(); ++ch)
             std::cout << std::fixed << std::setw(12) << " " << " | ";
     
     std::cout << "\n";
@@ -38,10 +38,10 @@ template <class N, class B, class... Ts>
 void print_buffer_table_row(int i, const N&, const B& buffer, const Ts&... rest)
 {
     if (i < buffer.length())
-        for (auto ch=0; ch < buffer.getNumChannels(); ++ch)
-            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer.channel(ch)[i] << " | ";
+        for (auto ch=0; ch < buffer.num_channels(); ++ch)
+            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer[ch][i] << " | ";
     else
-        for (auto ch=0; ch < buffer.getNumChannels(); ++ch)
+        for (auto ch=0; ch < buffer.num_channels(); ++ch)
             std::cout << std::fixed << std::setw(12) << " " << " | ";
 
     print_buffer_table_row(i, rest...);
@@ -52,9 +52,9 @@ void print_buffer_table_row(int i, const N&, const B& buffer, const Ts&... rest)
 template <class N, class B>
 void print_buffer_table_channel_numbers(const N& name, const B& buffer)
 {
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
+    for (auto ch=0; ch<buffer.num_channels(); ++ch)
     {
-        if (ch == buffer.getNumChannels()-1)
+        if (ch == buffer.num_channels()-1)
             std::cout << "ch " << std::setw(9) << ch << " | ";
         else
             std::cout << "ch " << std::setw(9) << ch << "   ";
@@ -65,9 +65,9 @@ void print_buffer_table_channel_numbers(const N& name, const B& buffer)
 template <class N, class B, class... Ts>
 void print_buffer_table_channel_numbers(const N& name, const B& buffer, const Ts&... rest)
 {
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
+    for (auto ch=0; ch<buffer.num_channels(); ++ch)
     {
-        if (ch == buffer.getNumChannels()-1)
+        if (ch == buffer.num_channels()-1)
             std::cout << "ch " << std::setw(9) << ch << " | ";
         else
             std::cout << "ch " << std::setw(9) << ch << "   ";
@@ -83,9 +83,9 @@ void print_buffer_table_names(const N& name, const B& buffer)
 {
     //std::cout << std::fixed << std::setw(12) << name << " | ";
     
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
+    for (auto ch=0; ch<buffer.num_channels(); ++ch)
     {
-        if (ch == buffer.getNumChannels()-1)
+        if (ch == buffer.num_channels()-1)
             std::cout << std::fixed << std::setw(12) << name << " | ";
         else
             std::cout << std::fixed << std::setw(12) << " " << "   ";
@@ -97,9 +97,9 @@ void print_buffer_table_names(const N& name, const B& buffer)
 template <class N, class B, class... Ts>
 void print_buffer_table_names(const N& name, const B& buffer, const Ts&... rest)
 {
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
+    for (auto ch=0; ch<buffer.num_channels(); ++ch)
     {
-        if (ch == buffer.getNumChannels()-1)
+        if (ch == buffer.num_channels()-1)
             std::cout << std::fixed << std::setw(12) << name << " | ";
         else
             std::cout << std::fixed << std::setw(12) << " " << "   ";
@@ -113,9 +113,9 @@ void print_buffer_table_names(const N& name, const B& buffer, const Ts&... rest)
 template <class N, class B>
 void print_buffer_table_hr(const N& name, const B& buffer)
 {
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
+    for (auto ch=0; ch<buffer.num_channels(); ++ch)
     {
-        if (ch == buffer.getNumChannels() - 1)
+        if (ch == buffer.num_channels() - 1)
             std::cout << "------------" << " | ";
         else
             std::cout << "------------" << "---";
@@ -126,9 +126,9 @@ void print_buffer_table_hr(const N& name, const B& buffer)
 template <class N, class B, class... Ts>
 void print_buffer_table_hr(const N& name, const B& buffer, const Ts&... rest)
 {
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
+    for (auto ch=0; ch<buffer.num_channels(); ++ch)
     {
-        if (ch == buffer.getNumChannels() - 1)
+        if (ch == buffer.num_channels() - 1)
             std::cout << "------------" << " | ";
         else
             std::cout << "------------" << "---";

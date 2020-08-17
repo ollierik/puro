@@ -2,39 +2,60 @@
 
 namespace puro {
     
-    
 template <typename BufferType>
-void buffer_rfft_inplace(BufferType buffer, math::FFT& fft) noexcept
+void rfft(BufferType buffer, math::fft& fft) noexcept
 {
-    errorif(buffer.length() != fft.size(), "buffer length and fft size don't match");
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
-    {
-        fft.rfft(buffer.channel(ch), buffer.channel(ch));
-    }
+    rfft(buffer, buffer, fft);
 }
 
 template <typename BufferType>
-void buffer_irfft_inplace(BufferType buffer, math::FFT& fft) noexcept
+void rfft(BufferType dst, BufferType src, math::fft& fft) noexcept
 {
-    errorif(buffer.length() != fft.size(), "buffer length and fft size don't match");
-    for (auto ch=0; ch<buffer.getNumChannels(); ++ch)
+    errorif(dst.length() != fft.length(), "dst length and fft size don't match");
+    errorif(dst.length() != src.length(), "dst and source lengths don't match");
+
+    for (auto ch=0; ch<dst.num_channels(); ++ch)
     {
-        fft.irfft(buffer.channel(ch), buffer.channel(ch));
+        fft.rfft(dst[ch], src[ch]);
+    }
+}
+    
+template <typename BufferType, bool Normalise=true>
+void irfft(BufferType buffer, math::fft& fft) noexcept
+{
+    irfft(buffer, buffer, fft);
+}
+
+template <typename BufferType, bool Normalise=true>
+void irfft(BufferType dst, BufferType src, math::fft& fft) noexcept
+{
+    errorif(dst.length() != fft.length(), "dst length and fft size don't match");
+    errorif(dst.length() != src.length(), "dst and source lengths don't match");
+    
+    for (auto ch=0; ch<dst.num_channels(); ++ch)
+    {
+        fft.irfft(dst[ch], src[ch]);
+    }
+    
+    if (Normalise)
+    {
+        using T = typename BufferType::value_type;
+        buffer_scale(dst, 1 / static_cast<T>(fft.length()));
     }
 }
 
 template <typename BufferType>
 void buffer_spectrum_magnitudes(BufferType dstReal, BufferType srcComplex)
 {
-    errorif(dstReal.getNumChannels() != srcComplex.getNumChannels(), "channel configs not identicalt");
+    errorif(dstReal.num_channels() != srcComplex.num_channels(), "channel configs not identicalt");
     errorif(dstReal.length() != (srcComplex.length() / 2 + 1), "buffer lengths are not compatible");
     
     using FloatType = typename BufferType::value_type;
 
-    for (int ch=0; ch < dstReal.getNumChannels(); ++ch)
+    for (int ch=0; ch < dstReal.num_channels(); ++ch)
     {
-        FloatType* src = srcComplex.channel(ch);
-        FloatType* dst = dstReal.channel(ch);
+        FloatType* src = srcComplex[ch];
+        FloatType* dst = dstReal[ch];
         
         dst[0] = std::abs(src[0]);
         dst[dstReal.length() - 1] = std::abs(src[1]);
@@ -49,12 +70,12 @@ void buffer_spectrum_magnitudes(BufferType dstReal, BufferType srcComplex)
 template <typename BufferType>
 void buffer_spectrum_phases(BufferType dstReal, BufferType srcComplex)
 {
-    errorif(dstReal.getNumChannels() != srcComplex.getNumChannels(), "channel configs not identicalt");
+    errorif(dstReal.num_channels() != srcComplex.num_channels(), "channel configs not identicalt");
     errorif(dstReal.length() != (srcComplex.length() / 2 + 1), "buffer lengths are not compatible");
 
     using FloatType = typename BufferType::value_type;
 
-    for (int ch=0; ch < dstReal.getNumChannels(); ++ch)
+    for (int ch=0; ch < dstReal.num_channels(); ++ch)
     {
         FloatType* src = srcComplex.channel(ch);
         FloatType* dst = dstReal.channel(ch);
@@ -79,7 +100,7 @@ void buffer_spectrum_from_polar(BufferType dstComplex, BufferType magnitudesReal
     
     using FloatType = typename BufferType::value_type;
 
-    for (int ch=0; ch < dstComplex.getNumChannels(); ++ch)
+    for (int ch=0; ch < dstComplex.num_channels(); ++ch)
     {
         FloatType* dst = dstComplex.channel(ch);
         FloatType* msrc = magnitudesReal.channel(ch);
@@ -97,17 +118,78 @@ void buffer_spectrum_from_polar(BufferType dstComplex, BufferType magnitudesReal
     }
 }
     
-/*
 template <typename BufferType, typename MultBufferType>
-void buffer_complex_multiply(BufferType dst, const MultBufferType src) noexcept
+void spectrum_substract(BufferType dst, const MultBufferType src) noexcept
 {
-    using ValueType = typename Buffer::value_type;
+    using FloatType = typename BufferType::value_type;
+    using ComplexType = std::complex<FloatType>;
 
-    for (int ch=0; ch<dst.getNumChannels(); ++ch)
+    for (int ch=0; ch<dst.num_channels(); ++ch)
+    {
+        ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
+        ComplexType* src_cplx = reinterpret_cast<ComplexType*> (src[ch]);
+
+        for (auto i=0; i<dst.length()/2; ++i)
+        {
+            dst_cplx[i] -= src_cplx[i];
+        }
+    }
+}
+    
+template <typename BufferType, typename MultBufferType>
+void spectrum_multiply(BufferType dst, const MultBufferType src) noexcept
+{
+    using FloatType = typename BufferType::value_type;
+    using ComplexType = std::complex<FloatType>;
+
+    for (int ch=0; ch<dst.num_channels(); ++ch)
+    {
+        ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
+        ComplexType* src_cplx = reinterpret_cast<ComplexType*> (src[ch]);
+        
+        dst_cplx[0] = { src_cplx[0].real() * dst_cplx[0].real(), src_cplx[0].imag() * dst_cplx[0].imag() };
+
+        for (auto i=1; i<dst.length()/2; ++i)
+        {
+            dst_cplx[i] *= src_cplx[i];
+        }
+    }
+}
+
+template <typename BufferType, typename MultBufferType>
+void spectrum_multiply(BufferType dst, const BufferType src1, const MultBufferType src2) noexcept
+{
+    using FloatType = typename BufferType::value_type;
+    using ComplexType = std::complex<FloatType>;
+
+    for (int ch = 0; ch < dst.num_channels(); ++ch)
+    {
+        ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
+        ComplexType* src1_cplx = reinterpret_cast<ComplexType*> (src1[ch]);
+        ComplexType* src2_cplx = reinterpret_cast<ComplexType*> (src2[ch]);
+
+        //dst_cplx[0].real = src1_cplx[0].real * src2_cplx[0].real;
+        //dst_cplx[0].imag = src1_cplx[0].imag * src2_cplx[0].imag;
+        dst_cplx[0] = { src1_cplx[0].real() * src2_cplx[0].real(), src1_cplx[0].imag() * src2_cplx[0].imag() };
+        
+        for (auto i=1; i<dst.length()/2; ++i)
+        {
+            dst_cplx[i] = src1_cplx[i] * src2_cplx[i];
+        }
+    }
+}
+
+    /*
+template <typename BufferType, typename MultBufferType>
+void spectrum_multiply(BufferType dst, const MultBufferType src) noexcept
+{
+    using ValueType = typename BufferType::value_type;
+
+    for (int ch=0; ch<dst.num_channels(); ++ch)
     {
         ValueType* dptr = dst.channel(ch);
         ValueType* sptr = src.channel(ch);
-        
+
         dptr[0] *= sptr[0];
         dptr[1] *= sptr[1];
 
@@ -121,13 +203,15 @@ void buffer_complex_multiply(BufferType dst, const MultBufferType src) noexcept
         }
     }
 }
+     */
 
+/*
 template <typename BufferType, typename DivBufferType>
 void buffer_complex_divide(BufferType dst, const DivBufferType src) noexcept
 {
     using ValueType = typename Buffer::value_type;
     
-    for (int ch=0; ch<dst.getNumChannels(); ++ch)
+    for (int ch=0; ch<dst.num_channels(); ++ch)
     {
         ValueType* dptr = dst.channel(ch);
         ValueType* sptr = src.channel(ch);
@@ -151,7 +235,7 @@ void buffer_complex_normalise(BufferType buffer) noexcept
 {
     using ValueType = typename Buffer::value_type;
     
-    for (int ch=0; ch<dst.getNumChannels(); ++ch)
+    for (int ch=0; ch<dst.num_channels(); ++ch)
     {
         ValueType* ptr = buffer.channel(ch);
 

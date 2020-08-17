@@ -5,8 +5,8 @@ namespace puro {
 template <int NumChannels, typename T=float>
 struct ring_buffer
 {
-    // template arg broadcasts
     typedef T value_type;
+    static constexpr int number_of_channels = NumChannels;
     
     int num_samples;
     int index = 0;
@@ -26,6 +26,15 @@ struct ring_buffer
         errorif(ch < 0 || ch >= num_channels(), "channel out of range");
         return ptrs[ch];
     }
+    
+    // ctors
+    ring_buffer() = default;
+    ring_buffer(int length) : num_samples(length) {};
+    ring_buffer(int length, T** channelPtrs) : num_samples(length)
+    {
+        for (auto ch = 0; ch < num_channels(); ++ch)
+            ptrs[ch] = channelPtrs[ch];
+    }
 };
 
     
@@ -34,7 +43,7 @@ struct ring_buffer
 template <typename RingBufferType>
 RingBufferType ring_buffer_advance_index(RingBufferType ringbuf, int num_samples)
 {
-    ringbuf.index = math::wrap(ringbuf.index + num_samples);
+    ringbuf.index = math::wrap(ringbuf.index + num_samples, ringbuf.length());
     return ringbuf;
 }
     
@@ -48,11 +57,11 @@ void ring_buffer_clear(RingBufferType ringbuf, int offset, int length)
 
     if (overflow > 0) // ringbuffer wraps
     {
-        const int n = length - overflow;
+        const int num_samples_first = length - overflow;
         
         for (auto ch=0; ch<ringbuf.num_channels(); ++ch)
         {
-            math::clear(&ringbuf[ch][i0], n);
+            math::clear(&ringbuf[ch][i0], num_samples_first);
             math::clear(&ringbuf[ch][0], overflow);
         }
     }

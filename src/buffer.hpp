@@ -470,5 +470,14 @@ void buffer_normalise(BufferType buf)
         }
     }
 }
+    
+template <typename BufferType>
+void buffer_log(BufferType buffer) noexcept
+{
+    for (int ch=0; ch<buffer.num_channels(); ++ch)
+    {
+        math::log(buffer[ch], buffer.length());
+    }
+}
 
 } // namespace puro

@@ -260,6 +260,13 @@ void normalise_energy(FloatType* buf, const int n) noexcept
     for (int i = 0; i < n; ++i)
         buf[i] /= sum;
 }
+    
+template <typename FloatType>
+void log(FloatType* buf, const int n) noexcept
+{
+    for (int i=0; i<n; ++i)
+        buf[i] = std::log(buf[i]);
+}
 
 } // namespace math
 } // namespace puro

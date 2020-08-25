@@ -556,5 +556,14 @@ void buffer_log(BufferType buffer) noexcept
         math::log(buffer[ch], buffer.length());
     }
 }
+    
+template <typename BufferType>
+void buffer_negate(BufferType buffer) noexcept
+{
+    for (int ch=0; ch<buffer.num_channels(); ++ch)
+    {
+        math::multiply(buffer[ch], static_cast<typename BufferType::value_type> (-1), buffer.length());
+    }
+}
 
 } // namespace puro

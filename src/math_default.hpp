@@ -87,7 +87,7 @@ ValueType clip(ValueType val, ValueType minValue, ValueType maxValue) noexcept
 template <typename ValueType>
 ValueType wrap(ValueType index, ValueType length) noexcept
 {
-    return index < length ? index : index - length;
+    return (index + length) % length;
 }
 
 template <typename ValueType>
@@ -171,7 +171,7 @@ void multiply_add(FloatType* dst, const FloatType* src, const FloatType value, c
 
 /** Multiply src buffer with value and set to dst */
 template <typename FloatType>
-void multiply_set(FloatType* dst, const FloatType* src, const FloatType value, const int n) noexcept
+void multiply(FloatType* dst, const FloatType* src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] = src[i] * value;
@@ -191,6 +191,33 @@ void cos(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] = std::cos(buf[i]);
+}
+    
+template <typename FloatType>
+void osc(FloatType* buf, FloatType norm_freq, const int n)
+{
+    const FloatType inc = norm_freq * 2 * pi;
+    FloatType phase = 0;
+    
+    for (int i=0; i < n; i++)
+    {
+        buf[i] = std::cos(phase);
+        phase += inc;
+    }
+}
+    
+template <typename FloatType>
+void reciprocal(FloatType* buf, const int n)
+{
+    for (int i=0; i<n; ++i)
+        buf[i] = ((FloatType)1) / buf[i];
+}
+    
+template <typename FloatType>
+void max(FloatType* buf, FloatType value, const int n)
+{
+    for (int i=0; i<n; ++i)
+        buf[i] = buf[i] > value ? buf[i] : value;
 }
 
 /** Copy from source to destination */
@@ -239,6 +266,13 @@ void set(FloatType* buf, FloatType value, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] = value;
+}
+    
+template <typename FloatType>
+void pow(FloatType* buf, FloatType power, const int n)
+{
+    for (int i=0; i<n; ++i)
+        buf[i] = std::pow(buf[i], power);
 }
 
 /** Set to constant */

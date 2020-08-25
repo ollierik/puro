@@ -83,7 +83,7 @@ void ring_buffer_add_buffer(RingBufferType dst, BufferType src, int offset)
     const int i0 = math::wrap(dst.index + offset, dst.length());
     const int overflow = i0 + num_samples_to_add - dst.length();
 
-    if (overflow > 0) // dstfer wraps
+    if (overflow > 0) // wraps
     {
         const int num_samples_first = num_samples_to_add - overflow;
 
@@ -101,7 +101,7 @@ void ring_buffer_add_buffer(RingBufferType dst, BufferType src, int offset)
         }
     }
 }
-    
+
 template <typename RingBufferType, typename BufferType>
 void ring_buffer_copy_to_buffer(BufferType dst, RingBufferType src, int offset)
 {
@@ -129,8 +129,6 @@ void ring_buffer_copy_to_buffer(BufferType dst, RingBufferType src, int offset)
         }
     }
 }
-    
-
 
 /** NOT TESTED
 template <typename RingBufferType, typename BufferType>

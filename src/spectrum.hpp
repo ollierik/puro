@@ -137,6 +137,7 @@ void spectrum_linphase_from_magnitudes(BufferType dstComplex, BufferType magnitu
         for (int di=2, si=1; di < dstComplex.length(); di += 2, si += 1)
         {
             dst[di] = src[si];
+            dst[di+1] = 0.0;
         }
     }
 }

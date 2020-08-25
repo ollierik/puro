@@ -22,6 +22,20 @@ struct buffer
         return ptrs[ch];
     }
     
+    T* channel(int ch) const
+    {
+        errorif(ch < 0 || ch >= num_channels(), "channel out of range");
+        return ptrs[ch];
+    }
+    
+    void clear()
+    {
+        for (auto ch=0; ch<num_channels(); ++ch)
+        {
+            math::clear(channel(ch), length());
+        }
+    }
+    
     // numpy-style slice operator
     buffer operator() (int start, int end)
     {
@@ -51,6 +65,12 @@ struct dynamic_buffer
 
     int length() const { return num_samples; };
     int num_channels() const { return used_num_channels; } // some more advanced class may want to redefine this
+    
+    T* channel(int ch)
+    {
+        errorif(ch < 0 || ch >= num_channels(), "channel out of range");
+        return ptrs[ch];
+    }
 
     T* operator[] (int ch)
     {
@@ -156,13 +176,20 @@ BufferType buffer_wrap_vector(VectorType& vector, int numSamples) noexcept
 {
     if (resizeIfNeeded)
     {
-        const auto totLength = BufferType::num_channels * numSamples;
+        const auto totLength = BufferType::num_channels() * numSamples;
 
         if (vector.size() < totLength)
             vector.resize(totLength);
     }
+    
+    BufferType buf (numSamples);
+    
+    for (auto ch=0; ch<buf.num_channels(); ++ch)
+    {
+        buf.ptrs[ch] = vector.data() + ch * numSamples;
+    }
 
-    return BufferType(numSamples, vector.data());
+    return buf;
 }
 
 template <typename BufferType>
@@ -360,6 +387,18 @@ BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
     return dst;
 }
     
+template <typename BufferType>
+void buffer_multiply(BufferType dst, BufferType src, typename BufferType::value_type value) noexcept
+{
+    errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
+    
+    // identical channel config
+    for (int ch = 0; ch < dst.num_channels(); ++ch)
+    {
+        math::multiply(dst.channel(ch), src.channel(ch), value, dst.length());
+    }
+}
+    
 template <typename BufferType, typename AddBufferType>
 BufferType buffer_add(BufferType dst, const AddBufferType src) noexcept
 {
@@ -382,6 +421,17 @@ BufferType buffer_add(BufferType dst, const AddBufferType src) noexcept
         }
     }
     
+    return dst;
+}
+    
+template <typename BufferType>
+BufferType buffer_add_const(BufferType dst, const typename BufferType::value_type value) noexcept
+{
+    for (int ch = 0; ch < dst.num_channels(); ++ch)
+    {
+        math::add(dst[ch], value, dst.length());
+    }
+
     return dst;
 }
     
@@ -468,6 +518,33 @@ void buffer_normalise(BufferType buf)
                 math::multiply(ptr, 1/max, buf.length());
             }
         }
+    }
+}
+    
+template <typename BufferType>
+void buffer_max(BufferType buffer, const typename BufferType::value_type value)
+{
+    for (int ch=0; ch<buffer.num_channels(); ++ch)
+    {
+        math::max(buffer.channel(ch), value, buffer.length());
+    }
+}
+    
+template <typename BufferType>
+void buffer_pow(BufferType buffer, const typename BufferType::value_type power)
+{
+    for (int ch=0; ch<buffer.num_channels(); ++ch)
+    {
+        math::pow(buffer.channel(ch), power, buffer.length());
+    }
+}
+
+template <typename BufferType>
+void buffer_reciprocal(BufferType buffer)
+{
+    for (int ch=0; ch<buffer.num_channels(); ++ch)
+    {
+        math::reciprocal(buffer.channel(ch), buffer.length());
     }
 }
     

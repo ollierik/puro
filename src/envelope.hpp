@@ -50,7 +50,7 @@ PositionType envelope_hann_fill(BufferType buffer, PositionType position, const 
         position += increment;
     }
 
-    for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
+    for (int ch = 1; ch < buffer.num_channels(); ++ch)
     {
         math::copy(buffer.channel(ch), buffer.channel(0), buffer.length());
     }

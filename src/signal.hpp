@@ -22,6 +22,16 @@ void impulse_fill(BufferType buffer, int index) noexcept
         buffer[ch][index] = 1;
     }
 }
+    
+/// norm_freq between [0, 0.5)
+template <typename BufferType>
+void osc(BufferType buffer, typename BufferType::value_type norm_freq) noexcept
+{
+    for (auto ch=0; ch < buffer.num_channels(); ++ch)
+    {
+        math::osc(buffer[ch], norm_freq, buffer.length());
+    }
+}
 
 template <typename BufferType>
 void noise_fill(BufferType buffer) noexcept

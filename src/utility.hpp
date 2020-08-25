@@ -83,13 +83,13 @@ BufferType buffer_from_juce_buffer(JuceBufferType& juceBuffer)
 
     if (juceBuffer.getNumChannels() == 1)
     {
-        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
-            buffer.channelPtrs[ch] = juceBuffer.getWritePointer(0);
+        for (int ch=0; ch < buffer.num_channels(); ++ch)
+            buffer.ptrs[ch] = juceBuffer.getWritePointer(0);
     }
-    else if (juceBuffer.getNumChannels() == buffer.getNumChannels())
+    else if (juceBuffer.getNumChannels() == buffer.num_channels())
     {
-        for (int ch=0; ch < buffer.getNumChannels(); ++ch)
-            buffer.channelPtrs[ch] = juceBuffer.getWritePointer(ch);
+        for (int ch=0; ch < buffer.num_channels(); ++ch)
+            buffer.ptrs[ch] = juceBuffer.getWritePointer(ch);
     }
     else
     {

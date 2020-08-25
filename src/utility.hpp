@@ -98,5 +98,5 @@ BufferType buffer_from_juce_buffer(JuceBufferType& juceBuffer)
 
     return buffer;
 }
-    
+
 }

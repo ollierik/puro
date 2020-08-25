@@ -464,7 +464,7 @@ template <typename BufferType>
 void buffer_copy(BufferType dst, BufferType src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src lengths don't match");
-    
+
     for (int ch=0; ch<dst.num_channels(); ++ch)
     {
         math::copy(dst[ch], src[ch], dst.length());

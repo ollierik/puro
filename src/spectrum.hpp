@@ -166,17 +166,39 @@ void spectrum_multiply(BufferType dst, const MultBufferType src) noexcept
     using FloatType = typename BufferType::value_type;
     using ComplexType = std::complex<FloatType>;
 
-    for (int ch=0; ch<dst.num_channels(); ++ch)
+    if (dst.num_channels() == src.num_channels())
     {
-        ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
-        ComplexType* src_cplx = reinterpret_cast<ComplexType*> (src[ch]);
-        
-        dst_cplx[0] = { src_cplx[0].real() * dst_cplx[0].real(), src_cplx[0].imag() * dst_cplx[0].imag() };
-
-        for (auto i=1; i<dst.length()/2; ++i)
+        for (int ch=0; ch<dst.num_channels(); ++ch)
         {
-            dst_cplx[i] *= src_cplx[i];
+            ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
+            ComplexType* src_cplx = reinterpret_cast<ComplexType*> (src[ch]);
+    
+            dst_cplx[0] = { src_cplx[0].real() * dst_cplx[0].real(), src_cplx[0].imag() * dst_cplx[0].imag() };
+
+            for (auto i=1; i<dst.length()/2; ++i)
+            {
+                dst_cplx[i] *= src_cplx[i];
+            }
         }
+    }
+    else if (src.num_channels() == 1)
+    {
+        for (int ch=0; ch<dst.num_channels(); ++ch)
+        {
+            ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
+            ComplexType* src_cplx = reinterpret_cast<ComplexType*> (src[0]);
+            
+            dst_cplx[0] = { src_cplx[0].real() * dst_cplx[0].real(), src_cplx[0].imag() * dst_cplx[0].imag() };
+            
+            for (auto i=1; i<dst.length()/2; ++i)
+            {
+                dst_cplx[i] *= src_cplx[i];
+            }
+        }
+    }
+    else
+    {
+        errorif(true, "incompatible channel configs");
     }
 }
 
@@ -185,21 +207,42 @@ void spectrum_multiply(BufferType dst, const BufferType src1, const MultBufferTy
 {
     using FloatType = typename BufferType::value_type;
     using ComplexType = std::complex<FloatType>;
-
-    for (int ch = 0; ch < dst.num_channels(); ++ch)
+    
+    if (src1.num_channels() == src2.num_channels())
     {
-        ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
-        ComplexType* src1_cplx = reinterpret_cast<ComplexType*> (src1[ch]);
-        ComplexType* src2_cplx = reinterpret_cast<ComplexType*> (src2[ch]);
-
-        //dst_cplx[0].real = src1_cplx[0].real * src2_cplx[0].real;
-        //dst_cplx[0].imag = src1_cplx[0].imag * src2_cplx[0].imag;
-        dst_cplx[0] = { src1_cplx[0].real() * src2_cplx[0].real(), src1_cplx[0].imag() * src2_cplx[0].imag() };
-        
-        for (auto i=1; i<dst.length()/2; ++i)
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
-            dst_cplx[i] = src1_cplx[i] * src2_cplx[i];
+            ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
+            ComplexType* src1_cplx = reinterpret_cast<ComplexType*> (src1[ch]);
+            ComplexType* src2_cplx = reinterpret_cast<ComplexType*> (src2[ch]);
+
+            dst_cplx[0] = { src1_cplx[0].real() * src2_cplx[0].real(), src1_cplx[0].imag() * src2_cplx[0].imag() };
+    
+            for (auto i=1; i<dst.length()/2; ++i)
+            {
+                dst_cplx[i] = src1_cplx[i] * src2_cplx[i];
+            }
         }
+    }
+    else if (src2.num_channels() == 1)
+    {
+        for (int ch = 0; ch < dst.num_channels(); ++ch)
+        {
+            ComplexType* dst_cplx = reinterpret_cast<ComplexType*> (dst[ch]);
+            ComplexType* src1_cplx = reinterpret_cast<ComplexType*> (src1[ch]);
+            ComplexType* src2_cplx = reinterpret_cast<ComplexType*> (src2[0]);
+            
+            dst_cplx[0] = { src1_cplx[0].real() * src2_cplx[0].real(), src1_cplx[0].imag() * src2_cplx[0].imag() };
+            
+            for (auto i=1; i<dst.length()/2; ++i)
+            {
+                dst_cplx[i] = src1_cplx[i] * src2_cplx[i];
+            }
+        }
+    }
+    else
+    {
+        errorif(true, "incompatible channel configs");
     }
 }
     

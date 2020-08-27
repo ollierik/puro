@@ -301,6 +301,17 @@ void log(FloatType* buf, const int n) noexcept
     for (int i=0; i<n; ++i)
         buf[i] = std::log(buf[i]);
 }
+    
+template <typename FloatType>
+FloatType sum(FloatType* buf, const int n) noexcept
+{
+    FloatType sigma = 0;
+    
+    for (int i=0; i<n; ++i)
+        sigma += buf[i];
+    
+    return sigma;
+}
 
 } // namespace math
 } // namespace puro

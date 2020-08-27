@@ -21,7 +21,7 @@ struct ring_buffer
         return ptrs[ch];
     }
     
-    T* operator[] (int ch)
+    T* operator[] (int ch) const noexcept
     {
         errorif(ch < 0 || ch >= num_channels(), "channel out of range");
         return ptrs[ch];
@@ -41,14 +41,14 @@ struct ring_buffer
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename RingBufferType>
-RingBufferType ring_buffer_advance_index(RingBufferType ringbuf, int num_samples)
+void ring_buffer_advance_index(RingBufferType& ringbuf, int num_samples)
 {
     ringbuf.index = math::wrap(ringbuf.index + num_samples, ringbuf.length());
-    return ringbuf;
+    //return ringbuf;
 }
     
 template <typename RingBufferType>
-void ring_buffer_clear(RingBufferType ringbuf, int offset, int length)
+void ring_buffer_clear(RingBufferType& ringbuf, int offset, int length)
 {
     errorif(length > ringbuf.length(), "length parameter exceeds ring buffer length");
     
@@ -75,7 +75,7 @@ void ring_buffer_clear(RingBufferType ringbuf, int offset, int length)
 }
     
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_add_buffer(RingBufferType dst, BufferType src, int offset)
+void ring_buffer_add_buffer(RingBufferType& dst, const BufferType& src, int offset)
 {
     errorif(src.length() > dst.length(), "src buffer length exceeds ring buffer length");
 
@@ -103,7 +103,7 @@ void ring_buffer_add_buffer(RingBufferType dst, BufferType src, int offset)
 }
     
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_copy_buffer(RingBufferType dst, BufferType src, int offset)
+void ring_buffer_copy_buffer(RingBufferType& dst, const BufferType& src, int offset)
 {
     errorif(src.length() > dst.length(), "src buffer length exceeds ring buffer length");
 
@@ -131,7 +131,7 @@ void ring_buffer_copy_buffer(RingBufferType dst, BufferType src, int offset)
 }
 
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_copy_to_buffer(BufferType dst, RingBufferType src, int offset)
+void ring_buffer_copy_to_buffer(BufferType&& dst, const RingBufferType& src, int offset)
 {
     errorif(dst.length() > src.length(), "dst length exceeds ring buffer length");
 
@@ -145,21 +145,21 @@ void ring_buffer_copy_to_buffer(BufferType dst, RingBufferType src, int offset)
 
         for (auto ch=0; ch<dst.num_channels(); ++ch)
         {
-            math::copy(&dst[ch][0], &src[ch][i0], num_samples_first);
-            math::copy(&dst[ch][num_samples_first], &src[ch][0], overflow);
+            math::copy(&dst[ch][0], &src.channel(ch)[i0], num_samples_first);
+            math::copy(&dst[ch][num_samples_first], &src.channel(ch)[0], overflow);
         }
     }
     else
     {
         for (auto ch=0; ch < dst.num_channels(); ++ch)
         {
-            math::copy(&dst[ch][0], &src[ch][i0], num_samples_to_copy);
+            math::copy(&dst[ch][0], &src.channel(ch)[i0], num_samples_to_copy);
         }
     }
 }
     
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_add_to_buffer(BufferType dst, RingBufferType src, int offset)
+void ring_buffer_add_to_buffer(BufferType& dst, const RingBufferType& src, int offset)
 {
     errorif(dst.length() > src.length(), "dst length exceeds ring buffer length");
 

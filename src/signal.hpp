@@ -13,7 +13,7 @@ void constant_fill(BufferType buffer, typename BufferType::value_type value) noe
 }
     
 template <typename BufferType>
-void impulse_fill(BufferType buffer, int index) noexcept
+void impulse_fill(BufferType& buffer, int index) noexcept
 {
     errorif(index < 0 || index > buffer.length(), "index out of bounds");
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
@@ -25,7 +25,7 @@ void impulse_fill(BufferType buffer, int index) noexcept
     
 /// norm_freq between [0, 0.5)
 template <typename BufferType>
-void osc(BufferType buffer, typename BufferType::value_type norm_freq) noexcept
+void osc(BufferType& buffer, typename BufferType::value_type norm_freq) noexcept
 {
     for (auto ch=0; ch < buffer.num_channels(); ++ch)
     {
@@ -34,7 +34,7 @@ void osc(BufferType buffer, typename BufferType::value_type norm_freq) noexcept
 }
 
 template <typename BufferType>
-void noise_fill(BufferType buffer) noexcept
+void noise_fill(BufferType& buffer) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -52,7 +52,7 @@ void noise_fill(BufferType buffer) noexcept
 }
 
 template <typename BufferType>
-void linspace_fill(BufferType buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
+void linspace_fill(BufferType& buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
 {
     using ValueType = typename BufferType::value_type;
     
@@ -72,7 +72,7 @@ void linspace_fill(BufferType buffer, typename BufferType::value_type start, typ
 }
     
 template <typename BufferType, typename KernelType>
-void convolve_sparse(BufferType dst, BufferType src, KernelType kernel, int kernel_offset, int stride) noexcept
+void convolve_sparse(BufferType& dst, const BufferType& src, const KernelType& kernel, int kernel_offset, int stride) noexcept
 {
     buffer_clear(dst);
     
@@ -95,7 +95,7 @@ void convolve_sparse(BufferType dst, BufferType src, KernelType kernel, int kern
             
             //std::cout << read_index << ":\tto (" << d0 << ", " << d1 << ") from (" << k0 << ", " << k1 << ")\n";
 
-            math::multiply_add(dst(d0, d1)[ch], kernel(k0, k1)[0], src[ch][read_index], k1 - k0);
+            math::multiply_add(dst(d0, d1).channel(ch), kernel(k0, k1).channel(0), src.channel(ch)[read_index], k1 - k0);
 
             read_index += 1;
             write_index += stride;

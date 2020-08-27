@@ -3,13 +3,13 @@
 namespace puro {
     
 template <typename BufferType>
-void rfft(BufferType buffer, math::fft& fft) noexcept
+void rfft(BufferType& buffer, math::fft& fft) noexcept
 {
     rfft(buffer, buffer, fft);
 }
 
 template <typename BufferType>
-void rfft(BufferType dst, BufferType src, math::fft& fft) noexcept
+void rfft(BufferType& dst, const BufferType& src, math::fft& fft) noexcept
 {
     errorif(dst.length() != fft.length(), "dst length and fft size don't match");
     errorif(dst.length() != src.length(), "dst and source lengths don't match");
@@ -21,13 +21,13 @@ void rfft(BufferType dst, BufferType src, math::fft& fft) noexcept
 }
     
 template <typename BufferType, bool Normalise=true>
-void irfft(BufferType buffer, math::fft& fft) noexcept
+void irfft(BufferType& buffer, math::fft& fft) noexcept
 {
     irfft(buffer, buffer, fft);
 }
 
 template <typename BufferType, bool Normalise=true>
-void irfft(BufferType dst, BufferType src, math::fft& fft) noexcept
+void irfft(BufferType& dst, BufferType& src, math::fft& fft) noexcept
 {
     errorif(dst.length() != fft.length(), "dst length and fft size don't match");
     errorif(dst.length() != src.length(), "dst and source lengths don't match");
@@ -44,13 +44,13 @@ void irfft(BufferType dst, BufferType src, math::fft& fft) noexcept
     }
 }
 
-template <typename BufferType>
-void spectrum_magnitudes(BufferType dstReal, BufferType srcComplex)
+template <typename DestBufferType, typename SourceBufferType>
+void spectrum_magnitudes(DestBufferType&& dstReal, const SourceBufferType& srcComplex)
 {
     errorif(dstReal.num_channels() != srcComplex.num_channels(), "channel configs not identicalt");
     errorif(dstReal.length() != (srcComplex.length() / 2 + 1), "buffer lengths are not compatible");
     
-    using FloatType = typename BufferType::value_type;
+    using FloatType = typename DestBufferType::value_type;
 
     for (int ch=0; ch < dstReal.num_channels(); ++ch)
     {
@@ -68,7 +68,7 @@ void spectrum_magnitudes(BufferType dstReal, BufferType srcComplex)
 }
     
 template <typename BufferType>
-void spectrum_phases(BufferType dstReal, BufferType srcComplex)
+void spectrum_phases(BufferType& dstReal, const BufferType& srcComplex)
 {
     errorif(dstReal.num_channels() != srcComplex.num_channels(), "channel configs not identicalt");
     errorif(dstReal.length() != (srcComplex.length() / 2 + 1), "buffer lengths are not compatible");
@@ -93,7 +93,7 @@ void spectrum_phases(BufferType dstReal, BufferType srcComplex)
 }
 
 template <typename BufferType>
-void spectrum_from_polar(BufferType dstComplex, BufferType magnitudesReal, BufferType phasesReal)
+void spectrum_from_polar(BufferType& dstComplex, const BufferType& magnitudesReal, BufferType phasesReal)
 {
     errorif(magnitudesReal.length() != phasesReal.length(), "magnitudes and phases length differs");
     errorif(magnitudesReal.length() != dstComplex.length()/2+1, "dst and magnitudes lengths incompatible");
@@ -119,7 +119,7 @@ void spectrum_from_polar(BufferType dstComplex, BufferType magnitudesReal, Buffe
 }
     
 template <typename BufferType>
-void spectrum_linphase_from_magnitudes(BufferType dstComplex, BufferType magnitudesReal)
+void spectrum_linphase_from_magnitudes(BufferType& dstComplex, const BufferType& magnitudesReal)
 {
     errorif(magnitudesReal.length() != dstComplex.length()/2+1, "dst and magnitudes lengths incompatible");
     
@@ -143,7 +143,7 @@ void spectrum_linphase_from_magnitudes(BufferType dstComplex, BufferType magnitu
 }
     
 template <typename BufferType, typename MultBufferType>
-void spectrum_substract(BufferType dst, const MultBufferType src) noexcept
+void spectrum_substract(BufferType& dst, const MultBufferType& src) noexcept
 {
     using FloatType = typename BufferType::value_type;
     using ComplexType = std::complex<FloatType>;
@@ -161,7 +161,7 @@ void spectrum_substract(BufferType dst, const MultBufferType src) noexcept
 }
     
 template <typename BufferType, typename MultBufferType>
-void spectrum_multiply(BufferType dst, const MultBufferType src) noexcept
+void spectrum_multiply(BufferType& dst, const MultBufferType& src) noexcept
 {
     using FloatType = typename BufferType::value_type;
     using ComplexType = std::complex<FloatType>;
@@ -203,7 +203,7 @@ void spectrum_multiply(BufferType dst, const MultBufferType src) noexcept
 }
 
 template <typename BufferType, typename MultBufferType>
-void spectrum_multiply(BufferType dst, const BufferType src1, const MultBufferType src2) noexcept
+void spectrum_multiply(BufferType& dst, const BufferType& src1, const MultBufferType& src2) noexcept
 {
     using FloatType = typename BufferType::value_type;
     using ComplexType = std::complex<FloatType>;
@@ -247,7 +247,7 @@ void spectrum_multiply(BufferType dst, const BufferType src1, const MultBufferTy
 }
     
 template <typename BufferType>
-void spectrum_exp(BufferType buf) noexcept
+void spectrum_exp(BufferType& buf) noexcept
 {
     using FloatType = typename BufferType::value_type;
     using ComplexType = std::complex<FloatType>;

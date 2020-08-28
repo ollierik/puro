@@ -67,48 +67,56 @@ FloatType pi() noexcept
      */
 
 template <typename ValueType>
+inline
 ValueType min(ValueType f1, ValueType f2) noexcept
 {
     return f1 < f2 ? f1 : f2;
 }
 
 template <typename ValueType>
+inline
 ValueType max(ValueType f1, ValueType f2) noexcept
 {
     return f1 > f2 ? f1 : f2;
 }
 
 template <typename ValueType>
+inline
 ValueType clip(ValueType val, ValueType minValue, ValueType maxValue) noexcept
 {
     return min(max(val, minValue), maxValue);
 }
 
 template <typename ValueType>
+inline
 ValueType wrap(ValueType index, ValueType length) noexcept
 {
     return (index + length) % length;
 }
 
 template <typename ValueType>
+inline
 ValueType normalise(ValueType value, ValueType zero, ValueType one) noexcept
 {
     return (value - zero) / (one - zero);
 }
 
 template <typename ValueType>
+inline
 ValueType scale(ValueType value, ValueType min, ValueType max) noexcept
 {
     return value * (max - min) + min;
 }
 
 template <typename ValueType>
+inline
 ValueType atodb(ValueType value, ValueType nonzero=1e-30) noexcept
 {
     return 20 * log10(value);
 }
 
 template <typename ValueType>
+inline
 ValueType dbtoa(ValueType value) noexcept
 {
     return pow(static_cast<ValueType>(10), value / static_cast<ValueType>(20));
@@ -116,6 +124,7 @@ ValueType dbtoa(ValueType value) noexcept
 
 /** Frequency to log2 scale */
 template <typename ValueType>
+inline
 ValueType ftox_log2(ValueType freq, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=-1)
 {
     return normalise(log2(freq), minLog2, maxLog2);
@@ -123,12 +132,14 @@ ValueType ftox_log2(ValueType freq, const ValueType minLog2= -10.784634845557521
 
 /** Log2 scale normalised x to frequency */
 template <typename ValueType>
+inline
 ValueType xtof_log2(ValueType value, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=-1)
 {
     return pow(static_cast<ValueType> (2), scale(value, minLog2, maxLog2));
 }
 
 template <typename FloatType, typename ValueType=int>
+inline
 ValueType round(FloatType value) noexcept
 {
     return static_cast<ValueType> (value + (FloatType)0.5);
@@ -136,12 +147,14 @@ ValueType round(FloatType value) noexcept
 
 /** Compare equality with error */
 template <typename FloatType>
+inline
 bool equal(FloatType f1, FloatType f2, const FloatType epsilon=1e-5)
 {
     return (abs(f1-f2) < epsilon);
 }
 
 template <typename FloatType>
+inline
 void multiply(FloatType* dst, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
@@ -149,21 +162,24 @@ void multiply(FloatType* dst, const FloatType value, const int n) noexcept
 };
 
 template <typename FloatType>
-void multiply(FloatType* dst, const FloatType* src, const int n) noexcept
+inline
+void multiply(FloatType* __restrict dst, const FloatType* __restrict src, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] *= src[i];
 };
 
 template <typename FloatType>
-void multiply_add(FloatType* dst, const FloatType* src1, const FloatType* src2, const int n) noexcept
+inline
+void multiply_add(FloatType* __restrict dst, const FloatType* __restrict src1, const FloatType* __restrict src2, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src1[i] * src2[i];
 };
 
 template <typename FloatType>
-void multiply_add(FloatType* dst, const FloatType* src, const FloatType value, const int n) noexcept
+inline
+void multiply_add(FloatType* __restrict dst, const FloatType* __restrict src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src[i] * value;
@@ -171,7 +187,8 @@ void multiply_add(FloatType* dst, const FloatType* src, const FloatType value, c
 
 /** Multiply src buffer with value and set to dst */
 template <typename FloatType>
-void multiply(FloatType* dst, const FloatType* src, const FloatType value, const int n) noexcept
+inline
+void multiply(FloatType* __restrict dst, const FloatType* __restrict src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] = src[i] * value;
@@ -179,6 +196,7 @@ void multiply(FloatType* dst, const FloatType* src, const FloatType value, const
 
 /** In-place sin */
 template <typename FloatType>
+inline
 void sin(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
@@ -187,6 +205,7 @@ void sin(FloatType* buf, const int n) noexcept
 
 /** In-place cosine */
 template <typename FloatType>
+inline
 void cos(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
@@ -194,6 +213,7 @@ void cos(FloatType* buf, const int n) noexcept
 }
     
 template <typename FloatType>
+inline
 void osc(FloatType* buf, FloatType norm_freq, const int n)
 {
     const FloatType inc = norm_freq * 2 * pi;
@@ -207,6 +227,7 @@ void osc(FloatType* buf, FloatType norm_freq, const int n)
 }
     
 template <typename FloatType>
+inline
 void reciprocal(FloatType* buf, const int n)
 {
     for (int i=0; i<n; ++i)
@@ -214,6 +235,7 @@ void reciprocal(FloatType* buf, const int n)
 }
     
 template <typename FloatType>
+inline
 void max(FloatType* buf, FloatType value, const int n)
 {
     for (int i=0; i<n; ++i)
@@ -222,7 +244,8 @@ void max(FloatType* buf, FloatType value, const int n)
 
 /** Copy from source to destination */
 template <typename FloatType>
-void copy(FloatType* dst, FloatType* src, const int n) noexcept
+inline
+void copy(FloatType* __restrict dst, FloatType* __restrict src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] = src[i];
@@ -230,6 +253,7 @@ void copy(FloatType* dst, FloatType* src, const int n) noexcept
     
 /** Copy every ratioth sample from source to destination */
 template <typename FloatType>
+inline
 void copy_decimating(FloatType* dst, FloatType* src, const int ratio, const int n) noexcept
 {
     for (int i=0, j=0; i < n; ++i, j+=ratio)
@@ -238,7 +262,8 @@ void copy_decimating(FloatType* dst, FloatType* src, const int ratio, const int 
 
 /** Add from source to destination */
 template <typename FloatType>
-void add(FloatType* dst, FloatType* src, const int n) noexcept
+inline
+void add(FloatType* __restrict dst, FloatType* __restrict src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] += src[i];
@@ -246,7 +271,8 @@ void add(FloatType* dst, FloatType* src, const int n) noexcept
 
 /** Add constant */
 template <typename FloatType>
-void add(FloatType* buf, FloatType value, const int n) noexcept
+inline
+void add(FloatType* __restrict buf, FloatType value, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] += value;
@@ -254,7 +280,8 @@ void add(FloatType* buf, FloatType value, const int n) noexcept
 
 /** Substract source from destination */
 template <typename FloatType>
-void substract(FloatType* dst, FloatType* src, const int n) noexcept
+inline
+void substract(FloatType* __restrict dst, FloatType* __restrict src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] -= src[i];
@@ -262,6 +289,7 @@ void substract(FloatType* dst, FloatType* src, const int n) noexcept
 
 /** Set to constant */
 template <typename FloatType>
+inline
 void set(FloatType* buf, FloatType value, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
@@ -269,6 +297,7 @@ void set(FloatType* buf, FloatType value, const int n) noexcept
 }
     
 template <typename FloatType>
+inline
 void pow(FloatType* buf, FloatType power, const int n)
 {
     for (int i=0; i<n; ++i)
@@ -277,6 +306,7 @@ void pow(FloatType* buf, FloatType power, const int n)
 
 /** Set to constant */
 template <typename FloatType>
+inline
 void clear(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
@@ -286,6 +316,7 @@ void clear(FloatType* buf, const int n) noexcept
     
 /** Divide by sum of abs(buf)  */
 template <typename FloatType>
+inline
 void normalise_energy(FloatType* buf, const int n) noexcept
 {
     float sum = 0;
@@ -296,6 +327,7 @@ void normalise_energy(FloatType* buf, const int n) noexcept
 }
     
 template <typename FloatType>
+inline
 void log(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
@@ -303,6 +335,7 @@ void log(FloatType* buf, const int n) noexcept
 }
     
 template <typename FloatType>
+inline
 FloatType sum(FloatType* buf, const int n) noexcept
 {
     FloatType sigma = 0;

@@ -4,7 +4,8 @@ namespace puro {
 
 
 template <typename BufferType>
-void constant_fill(BufferType buffer, typename BufferType::value_type value) noexcept
+    inline
+void constant_fill(const BufferType& buffer, typename BufferType::value_type value) noexcept
 {
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
@@ -13,7 +14,8 @@ void constant_fill(BufferType buffer, typename BufferType::value_type value) noe
 }
     
 template <typename BufferType>
-void impulse_fill(BufferType& buffer, int index) noexcept
+    inline
+void impulse_fill(const BufferType& buffer, int index) noexcept
 {
     errorif(index < 0 || index > buffer.length(), "index out of bounds");
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
@@ -25,7 +27,8 @@ void impulse_fill(BufferType& buffer, int index) noexcept
     
 /// norm_freq between [0, 0.5)
 template <typename BufferType>
-void osc(BufferType& buffer, typename BufferType::value_type norm_freq) noexcept
+inline
+void osc(const BufferType& buffer, typename BufferType::value_type norm_freq) noexcept
 {
     for (auto ch=0; ch < buffer.num_channels(); ++ch)
     {
@@ -34,7 +37,8 @@ void osc(BufferType& buffer, typename BufferType::value_type norm_freq) noexcept
 }
 
 template <typename BufferType>
-void noise_fill(BufferType& buffer) noexcept
+inline
+void noise_fill(const BufferType& buffer) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -52,7 +56,8 @@ void noise_fill(BufferType& buffer) noexcept
 }
 
 template <typename BufferType>
-void linspace_fill(BufferType& buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
+inline
+void linspace_fill(const BufferType& buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
 {
     using ValueType = typename BufferType::value_type;
     
@@ -72,7 +77,8 @@ void linspace_fill(BufferType& buffer, typename BufferType::value_type start, ty
 }
     
 template <typename BufferType, typename KernelType>
-void convolve_sparse(BufferType& dst, const BufferType& src, const KernelType& kernel, int kernel_offset, int stride) noexcept
+inline
+void convolve_sparse(const BufferType& dst, const BufferType& src, const KernelType& kernel, int kernel_offset, int stride) noexcept
 {
     buffer_clear(dst);
     

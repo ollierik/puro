@@ -48,7 +48,7 @@ void ring_buffer_advance_index(RingBufferType& ringbuf, int num_samples)
 }
     
 template <typename RingBufferType>
-void ring_buffer_clear(RingBufferType& ringbuf, int offset, int length)
+void ring_buffer_clear(const RingBufferType& ringbuf, int offset, int length)
 {
     errorif(length > ringbuf.length(), "length parameter exceeds ring buffer length");
     
@@ -75,7 +75,7 @@ void ring_buffer_clear(RingBufferType& ringbuf, int offset, int length)
 }
     
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_add_buffer(RingBufferType& dst, const BufferType& src, int offset)
+void ring_buffer_add_buffer(const RingBufferType& dst, const BufferType& src, int offset)
 {
     errorif(src.length() > dst.length(), "src buffer length exceeds ring buffer length");
 
@@ -103,7 +103,7 @@ void ring_buffer_add_buffer(RingBufferType& dst, const BufferType& src, int offs
 }
     
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_copy_buffer(RingBufferType& dst, const BufferType& src, int offset)
+void ring_buffer_copy_buffer(const RingBufferType& dst, const BufferType& src, int offset)
 {
     errorif(src.length() > dst.length(), "src buffer length exceeds ring buffer length");
 
@@ -131,7 +131,7 @@ void ring_buffer_copy_buffer(RingBufferType& dst, const BufferType& src, int off
 }
 
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_copy_to_buffer(BufferType&& dst, const RingBufferType& src, int offset)
+void ring_buffer_copy_to_buffer(const BufferType& dst, const RingBufferType& src, int offset)
 {
     errorif(dst.length() > src.length(), "dst length exceeds ring buffer length");
 
@@ -159,7 +159,7 @@ void ring_buffer_copy_to_buffer(BufferType&& dst, const RingBufferType& src, int
 }
     
 template <typename RingBufferType, typename BufferType>
-void ring_buffer_add_to_buffer(BufferType& dst, const RingBufferType& src, int offset)
+void ring_buffer_add_to_buffer(const BufferType& dst, const RingBufferType& src, int offset)
 {
     errorif(dst.length() > src.length(), "dst length exceeds ring buffer length");
 

@@ -44,13 +44,13 @@ void irfft(BufferType dst, BufferType src, math::fft& fft) noexcept
     }
 }
 
-template <typename BufferType>
-void spectrum_magnitudes(BufferType dstReal, BufferType srcComplex)
+template <typename DestBufferType, typename SourceBufferType>
+void spectrum_magnitudes(DestBufferType dstReal, SourceBufferType srcComplex)
 {
     errorif(dstReal.num_channels() != srcComplex.num_channels(), "channel configs not identicalt");
     errorif(dstReal.length() != (srcComplex.length() / 2 + 1), "buffer lengths are not compatible");
     
-    using FloatType = typename BufferType::value_type;
+    using FloatType = typename DestBufferType::value_type;
 
     for (int ch=0; ch < dstReal.num_channels(); ++ch)
     {
@@ -160,10 +160,10 @@ void spectrum_substract(BufferType dst, const MultBufferType src) noexcept
     }
 }
     
-template <typename BufferType, typename MultBufferType>
-void spectrum_multiply(BufferType dst, const MultBufferType src) noexcept
+template <typename BT1, typename BT2>
+void spectrum_multiply(BT1 dst, const BT2 src) noexcept
 {
-    using FloatType = typename BufferType::value_type;
+    using FloatType = typename BT1::value_type;
     using ComplexType = std::complex<FloatType>;
 
     if (dst.num_channels() == src.num_channels())
@@ -202,10 +202,10 @@ void spectrum_multiply(BufferType dst, const MultBufferType src) noexcept
     }
 }
 
-template <typename BufferType, typename MultBufferType>
-void spectrum_multiply(BufferType dst, const BufferType src1, const MultBufferType src2) noexcept
+template <typename BT1, typename BT2, typename BT3>
+void spectrum_multiply(BT1 dst, const BT2 src1, const BT3 src2) noexcept
 {
-    using FloatType = typename BufferType::value_type;
+    using FloatType = typename BT1::value_type;
     using ComplexType = std::complex<FloatType>;
     
     if (src1.num_channels() == src2.num_channels())

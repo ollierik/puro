@@ -2,11 +2,11 @@
 
 namespace puro {
     
-template <int NumChannels, typename T=float>
+template <int NumChannels, typename T = float>
 struct ring_buffer
 {
     typedef T value_type;
-    static constexpr int number_of_channels = NumChannels;
+    constexpr static auto max_channels = NumChannels;
     
     int num_samples;
     int index = 0;
@@ -36,6 +36,19 @@ struct ring_buffer
             ptrs[ch] = channelPtrs[ch];
     }
 };
+    
+template <int NumChannels, typename T = float, typename Allocator = std::allocator<T>>
+ring_buffer<NumChannels, T> make_ring(heap_block<NumChannels, T, Allocator>& memory)
+{
+    ring_buffer<NumChannels, T> rbuf (memory.length());
+    
+    for (auto ch = 0; ch < NumChannels; ++ch)
+    {
+        rbuf.ptrs[ch] = memory.channel(ch);
+    }
+
+    return rbuf;
+}
 
     
 ////////////////////////////////////////////////////////////////////////////////////////////////////

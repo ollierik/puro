@@ -22,6 +22,7 @@
 #include "pool.hpp"
 #include "node_stacks.hpp"
 #include "buffer.hpp"
+#include "buffer_operations.hpp"
 #include "ring_buffer.hpp"
 #include "spectrum.hpp"
 #include "alignment.hpp"

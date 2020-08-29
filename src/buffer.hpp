@@ -35,7 +35,6 @@ template <int NumChannels, int Length, typename T = float>
 struct fixed_buffer
 {
     typedef T value_type;
-    constexpr static auto max_channels = NumChannels;
     
     std::array<T*, NumChannels> ptrs;
     
@@ -107,7 +106,6 @@ template <int NumChannels, typename T = float>
 struct buffer
 {
     typedef T value_type;
-    constexpr static auto max_channels = NumChannels;
     
     int num_samples;
     std::array<T*, NumChannels> ptrs;
@@ -182,6 +180,7 @@ struct buffer
 };
     
     
+/*
 template <class BufferType, class Allocator = std::allocator<typename BufferType::value_type>>
 struct mem_buffer : public BufferType
 {
@@ -218,5 +217,8 @@ struct mem_buffer : public BufferType
 
     std::array<std::vector<value_type, Allocator>, BufferType::max_channels> vectors;
 };
+*/
+
+
 
 } // namespace puro

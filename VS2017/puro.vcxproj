@@ -32,7 +32,8 @@
     <ClInclude Include="..\src\defs.hpp" />
     <ClInclude Include="..\src\envelope.hpp" />
     <ClInclude Include="..\src\interpolation.hpp" />
-    <ClInclude Include="..\src\math_default.hpp" />
+    <ClInclude Include="..\src\math_scalar.hpp" />
+    <ClInclude Include="..\src\math_vector.hpp" />
     <ClInclude Include="..\src\memory_block.hpp" />
     <ClInclude Include="..\src\node_stack.hpp" />
     <ClInclude Include="..\src\panning.hpp" />

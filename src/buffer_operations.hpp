@@ -2,29 +2,19 @@
 
 namespace puro {
 
-/** Create a Buffer with the data laid out into the provided vector.
- The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
-template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
-BufferType buffer_wrap_vector(VectorType& vector, int numSamples) noexcept
-{
-    if (resizeIfNeeded)
-    {
-        const auto totLength = BufferType::num_channels() * numSamples;
 
-        if (vector.size() < totLength)
-            vector.resize(totLength);
-            }
+template <typename T> struct is_scalar {}; 
+template <> struct is_scalar <int>                  { typedef void type; };
+template <> struct is_scalar <unsigned int>         { typedef void type; };
+template <> struct is_scalar <float>                { typedef void type; };
+template <> struct is_scalar <double>               { typedef void type; };
+template <> struct is_scalar <const int>            { typedef void type; };
+template <> struct is_scalar <const unsigned int>   { typedef void type; };
+template <> struct is_scalar <const float>          { typedef void type; };
+template <> struct is_scalar <const double>         { typedef void type; };
 
-    BufferType buf (numSamples);
 
-    for (auto ch=0; ch<buf.num_channels(); ++ch)
-    {
-        buf.ptrs[ch] = vector.data() + ch * numSamples;
-    }
-
-    return buf;
-}
-
+/*
 template <typename BufferType>
 BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
 {
@@ -47,10 +37,11 @@ BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
     buffer.numSamples = math::max(newLength, 0);
     return buffer;
 }
+*/
 
-/** Get a segment of a buffer with given offset and length */
-template <typename BufferType>
-BufferType buffer_segment(BufferType buffer, int offset, int length) noexcept
+/// Get a sub segment of a buffer with given offset and length
+template <typename BT>
+BT segment(BT buffer, int offset, int length) noexcept
 {
     errorif(offset > buffer.numSamples, "segment offset greater than number of samples available");
     errorif(length < 0 || length > (offset + buffer.length()), "segment length out of bounds");
@@ -62,10 +53,9 @@ BufferType buffer_segment(BufferType buffer, int offset, int length) noexcept
         return buffer;
 }
 
-/** Get a segment of a buffer with given offset and length */
-    /*
-template <typename BufferType>
-BufferType buffer_slice(BufferType buffer, int start, int end) noexcept
+/// Get a segment of a buffer from start to end index
+template <typename BT>
+BT slice(BT buffer, int start, int end) noexcept
 {
     errorif(start < 0, "slice start below zero");
     errorif(start > buffer.length(), "slice start greater than number of samples available");
@@ -78,17 +68,16 @@ BufferType buffer_slice(BufferType buffer, int start, int end) noexcept
         buffer.num_samples = end - start;
         return buffer;
 }
-     */
 
-/** Split the given buffer into from index. The second buffer starts with index at zeroeth index. */
-template <typename BufferType>
-std::tuple<BufferType, BufferType> buffer_split(BufferType buffer, int index) noexcept
+/// Split the given buffer into from index. The second buffer starts with index at zeroeth index.
+template <typename BT>
+std::tuple<BT, BT> split(BT buffer, int index) noexcept
 {
     errorif(index <= 0, "split is 0 or below");
     errorif(index >= buffer.numSamples, "split greater than number of samples available");
 
-    BufferType pre = buffer_trim_length(buffer, index);
-    BufferType post = buffer_trim_begin(buffer, index);
+    BT pre = buffer_trim_length(buffer, index);
+    BT post = buffer_trim_begin(buffer, index);
 
     return std::make_tuple(std::move(pre), std::move(post));
 }
@@ -96,6 +85,7 @@ std::tuple<BufferType, BufferType> buffer_split(BufferType buffer, int index) no
 
 /** Create a Buffer with the data laid out into the provided vector.
  The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
+/*
 template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
 BufferType buffer_wrap_vector_per_channel(std::array<VectorType&, 2> vectors, int numSamples) noexcept
 {
@@ -117,7 +107,9 @@ BufferType buffer_wrap_vector_per_channel(std::array<VectorType&, 2> vectors, in
 
     return buffer;
 }
+*/
 
+/*
 template <typename ToBufferType, typename FromBufferType>
 ToBufferType buffer_convert_to_type(FromBufferType src) noexcept
 {
@@ -129,7 +121,9 @@ ToBufferType buffer_convert_to_type(FromBufferType src) noexcept
     }
     return dst;
 }
+*/
 
+/*
 template <typename BufferType, typename FloatType>
 BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int numChannels, int numSamples) noexcept
 {
@@ -139,11 +133,12 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
     if ((int)vector.size() < totLength)
         vector.resize(totLength);
 
-        return BufferType(numChannels, numSamples, vector.data());
-        }
+    return BufferType(numChannels, numSamples, vector.data());
+}
+ */
 
 template <typename BT1, typename BT2, typename BT3>
-void buffer_multiply_add(BT1 dst, const BT2 src1, const BT3 src2) noexcept
+void multiply_add(BT1 dst, const BT2 src1, const BT3 src2) noexcept
 {
     errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
@@ -171,8 +166,9 @@ void buffer_multiply_add(BT1 dst, const BT2 src1, const BT3 src2) noexcept
     }
 }
 
-template <typename BT1, typename BT2, typename ValueType>
-void buffer_multiply_with_constant_and_add(BT1 dst, const BT2 src, const ValueType multiplier) noexcept
+template <typename BT1, typename BT2, typename ValueType,
+          typename Enable = is_scalar<ValueType>>
+void multiply_add(BT1 dst, const BT2 src, const ValueType multiplier) noexcept
 {
     errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src1 buffer lengths don't match");
@@ -184,8 +180,8 @@ void buffer_multiply_with_constant_and_add(BT1 dst, const BT2 src, const ValueTy
     }
 }
 
-template <typename BufferType>
-void buffer_scale(BufferType dst, const typename BufferType::value_type value) noexcept
+template <typename BT>
+void multiply(BT dst, const typename BT::value_type value) noexcept
 {
     for (int ch = 0; ch < dst.num_channels(); ++ch)
     {
@@ -193,8 +189,8 @@ void buffer_scale(BufferType dst, const typename BufferType::value_type value) n
     }
 }
 
-template <typename BufferType, typename MultBufferType>
-BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
+template <typename BT1, typename BT2>
+void multiply(BT1 dst, const BT2 src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -218,8 +214,8 @@ BufferType buffer_multiply(BufferType dst, const MultBufferType src) noexcept
     return dst;
 }
 
-template <typename BufferType>
-void buffer_multiply(BufferType dst, BufferType src, typename BufferType::value_type value) noexcept
+template <typename BT1, typename BT2>
+void multiply(BT1 dst, BT2 src, typename BT1::value_type value) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -230,8 +226,8 @@ void buffer_multiply(BufferType dst, BufferType src, typename BufferType::value_
     }
 }
 
-template <typename BufferType, typename AddBufferType>
-BufferType buffer_add(BufferType dst, const AddBufferType src) noexcept
+template <typename BT1, typename BT2>
+void add(BT1 dst, const BT2 src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -255,8 +251,8 @@ BufferType buffer_add(BufferType dst, const AddBufferType src) noexcept
     return dst;
 }
 
-template <typename BufferType>
-BufferType buffer_add_const(BufferType dst, const typename BufferType::value_type value) noexcept
+template <typename BT>
+void add(BT dst, const typename BT::value_type value) noexcept
 {
     for (int ch = 0; ch < dst.num_channels(); ++ch)
     {
@@ -266,8 +262,8 @@ BufferType buffer_add_const(BufferType dst, const typename BufferType::value_typ
     return dst;
 }
 
-template <typename BufferType, typename SubstBufferType>
-BufferType buffer_substract(BufferType dst, const SubstBufferType src) noexcept
+template <typename BT1, typename BT2>
+void buffer_substract(BT1 dst, const BT2 src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -291,8 +287,8 @@ BufferType buffer_substract(BufferType dst, const SubstBufferType src) noexcept
     return dst;
 }
 
-template <typename DestBufferType, typename SourceBufferType>
-void buffer_copy(DestBufferType dst, SourceBufferType src) noexcept
+template <typename BT1, typename BT2>
+void copy(BT1 dst, BT2 src) noexcept
 {
     errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src lengths don't match");
@@ -304,7 +300,7 @@ void buffer_copy(DestBufferType dst, SourceBufferType src) noexcept
 }
 
 template <typename BT1, typename BT2>
-void buffer_copy_decimating(BT1 dst, BT2 src, int ratio) noexcept
+void copy_decimating(BT1 dst, BT2 src, int ratio) noexcept
 {
     errorif(dst.length() != src.length() / ratio, "dst.length (" << dst.length() << ") should be src.length/ratio (" << src.length() << "/" << ratio << ")");
     errorif(src.length() % ratio != 0, "src.length should be divisible by ratio");
@@ -315,26 +311,26 @@ void buffer_copy_decimating(BT1 dst, BT2 src, int ratio) noexcept
     }
 }
 
-template <typename BufferType>
-void buffer_clear(BufferType buffer) noexcept
+template <typename BT>
+void clear(BT buffer) noexcept
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::set<typename BufferType::value_type>(buffer[ch], 0, buffer.length());
+        math::set<typename BT::value_type>(buffer[ch], 0, buffer.length());
     }
 }
 
-template <typename BufferType>
-void buffer_normalise(BufferType buf)
+template <typename BT>
+void normalise(BT buffer)
 {
-    using T = typename BufferType::value_type;
+    using T = typename BT::value_type;
 
     T max = 0;
-    for (auto ch=0; ch<buf.num_channels(); ++ch)
+    for (auto ch = 0; ch < buffer.num_channels(); ++ch)
     {
-        T* ptr = buf[ch];
+        T* ptr = buffer[ch];
 
-        for (int i=0; i<buf.length(); ++i)
+        for (int i = 0; i < buffer.length(); ++i)
         {
             max = puro::math::max(abs(ptr[i]), max);
         }
@@ -342,19 +338,19 @@ void buffer_normalise(BufferType buf)
 
     if (max > 0)
     {
-        for (auto ch=0; ch<buf.num_channels(); ++ch)
+        for (auto ch = 0; ch < buffer.num_channels(); ++ch)
         {
-            T* ptr = buf[ch];
-            for (auto ch=0; ch<buf.num_channels(); ++ch)
+            T* ptr = buffer[ch];
+            for (auto ch=0; ch<buffer.num_channels(); ++ch)
             {
-                math::multiply(ptr, 1/max, buf.length());
+                math::multiply(ptr, static_cast<T>(1)/max, buffer.length());
             }
         }
     }
 }
 
-template <typename BufferType>
-void buffer_max(BufferType buffer, const typename BufferType::value_type value)
+template <typename BT>
+void max(BT buffer, const typename BT::value_type value)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
@@ -362,8 +358,8 @@ void buffer_max(BufferType buffer, const typename BufferType::value_type value)
     }
 }
 
-template <typename BufferType>
-void buffer_pow(BufferType buffer, const typename BufferType::value_type power)
+template <typename BT>
+void pow(BT buffer, const typename BT::value_type power)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
@@ -371,8 +367,8 @@ void buffer_pow(BufferType buffer, const typename BufferType::value_type power)
     }
 }
 
-template <typename BufferType>
-void buffer_reciprocal(BufferType buffer)
+template <typename BT>
+void reciprocal(BT buffer)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
@@ -380,8 +376,8 @@ void buffer_reciprocal(BufferType buffer)
     }
 }
 
-template <typename BufferType>
-void buffer_log(BufferType buffer) noexcept
+template <typename BT>
+void log(BT buffer) noexcept
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
@@ -389,17 +385,17 @@ void buffer_log(BufferType buffer) noexcept
     }
 }
 
-template <typename BufferType>
-void buffer_negate(BufferType buffer) noexcept
+template <typename BT>
+void negate(BT buffer) noexcept
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::multiply(buffer[ch], static_cast<typename BufferType::value_type> (-1), buffer.length());
+        math::multiply(buffer[ch], static_cast<typename BT::value_type> (-1), buffer.length());
     }
 }
 
-template <typename BufferType>
-typename BufferType::value_type buffer_sum(BufferType buffer) noexcept
+template <typename BT>
+typename BT::value_type sum(BT buffer) noexcept
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {

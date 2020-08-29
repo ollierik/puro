@@ -81,9 +81,6 @@
     <ClInclude Include="..\src\buffer_operations.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\math_default.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\prints.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -95,6 +92,12 @@
     </ClInclude>
     <ClInclude Include="..\include\pffft.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math_vector.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math_scalar.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

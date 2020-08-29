@@ -56,91 +56,6 @@ struct allocator
     }
 };
 
-constexpr auto pi = 3.14159265358979323846;
-
-    /*
-template <typename FloatType>
-FloatType pi() noexcept
-{
-    return static_cast<FloatType> (3.14159265358979323846);
-}
-     */
-
-template <typename ValueType>
-ValueType min(ValueType f1, ValueType f2) noexcept
-{
-    return f1 < f2 ? f1 : f2;
-}
-
-template <typename ValueType>
-ValueType max(ValueType f1, ValueType f2) noexcept
-{
-    return f1 > f2 ? f1 : f2;
-}
-
-template <typename ValueType>
-ValueType clip(ValueType val, ValueType minValue, ValueType maxValue) noexcept
-{
-    return min(max(val, minValue), maxValue);
-}
-
-template <typename ValueType>
-ValueType wrap(ValueType index, ValueType length) noexcept
-{
-    return (index + length) % length;
-}
-
-template <typename ValueType>
-ValueType normalise(ValueType value, ValueType zero, ValueType one) noexcept
-{
-    return (value - zero) / (one - zero);
-}
-
-template <typename ValueType>
-ValueType scale(ValueType value, ValueType min, ValueType max) noexcept
-{
-    return value * (max - min) + min;
-}
-
-template <typename ValueType>
-ValueType atodb(ValueType value, ValueType nonzero=1e-30) noexcept
-{
-    return 20 * log10(value);
-}
-
-template <typename ValueType>
-ValueType dbtoa(ValueType value) noexcept
-{
-    return pow(static_cast<ValueType>(10), value / static_cast<ValueType>(20));
-}
-
-/** Frequency to log2 scale */
-template <typename ValueType>
-ValueType ftox_log2(ValueType freq, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=-1)
-{
-    return normalise(log2(freq), minLog2, maxLog2);
-}
-
-/** Log2 scale normalised x to frequency */
-template <typename ValueType>
-ValueType xtof_log2(ValueType value, const ValueType minLog2= -10.784634845557521, const ValueType maxLog2=-1)
-{
-    return pow(static_cast<ValueType> (2), scale(value, minLog2, maxLog2));
-}
-
-template <typename FloatType, typename ValueType=int>
-ValueType round(FloatType value) noexcept
-{
-    return static_cast<ValueType> (value + (FloatType)0.5);
-}
-
-/** Compare equality with error */
-template <typename FloatType>
-bool equal(FloatType f1, FloatType f2, const FloatType epsilon=1e-5)
-{
-    return (abs(f1-f2) < epsilon);
-}
-
 template <typename FloatType>
 void multiply(FloatType* dst, const FloatType value, const int n) noexcept
 {
@@ -230,9 +145,9 @@ void copy(FloatType* dst, FloatType* src, const int n) noexcept
     
 /** Copy every ratioth sample from source to destination */
 template <typename FloatType>
-void copy_decimating(FloatType* dst, FloatType* src, const int ratio, const int n) noexcept
+void copy_decimating(FloatType* dst, FloatType* src, const int stride, const int n) noexcept
 {
-    for (int i=0, j=0; i < n; ++i, j+=ratio)
+    for (int i = 0, j = 0; i < n; ++i, j += stride)
         dst[i] = src[j];
 }
 
@@ -267,15 +182,8 @@ void set(FloatType* buf, FloatType value, const int n) noexcept
     for (int i=0; i<n; ++i)
         buf[i] = value;
 }
-    
-template <typename FloatType>
-void pow(FloatType* buf, FloatType power, const int n)
-{
-    for (int i=0; i<n; ++i)
-        buf[i] = std::pow(buf[i], power);
-}
 
-/** Set to constant */
+/** Set to 0 */
 template <typename FloatType>
 void clear(FloatType* buf, const int n) noexcept
 {
@@ -283,6 +191,31 @@ void clear(FloatType* buf, const int n) noexcept
         buf[i] = 0;
 }
     
+template <typename FloatType>
+void pow(FloatType* buf, FloatType power, const int n)
+{
+    for (int i=0; i<n; ++i)
+        buf[i] = std::pow(buf[i], power);
+}
+    
+template <typename FloatType>
+void log(FloatType* buf, const int n) noexcept
+{
+    for (int i=0; i<n; ++i)
+        buf[i] = std::log(buf[i]);
+}
+
+
+template <typename FloatType>
+FloatType sum(FloatType* buf, const int n) noexcept
+{
+    FloatType sigma = 0;
+    
+    for (int i=0; i<n; ++i)
+        sigma += buf[i];
+    
+    return sigma;
+}
     
 /** Divide by sum of abs(buf)  */
 template <typename FloatType>
@@ -293,24 +226,6 @@ void normalise_energy(FloatType* buf, const int n) noexcept
         sum += abs(buf[i]);
     for (int i = 0; i < n; ++i)
         buf[i] /= sum;
-}
-    
-template <typename FloatType>
-void log(FloatType* buf, const int n) noexcept
-{
-    for (int i=0; i<n; ++i)
-        buf[i] = std::log(buf[i]);
-}
-    
-template <typename FloatType>
-FloatType sum(FloatType* buf, const int n) noexcept
-{
-    FloatType sigma = 0;
-    
-    for (int i=0; i<n; ++i)
-        sigma += buf[i];
-    
-    return sigma;
 }
 
 } // namespace math

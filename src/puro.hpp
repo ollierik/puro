@@ -18,10 +18,11 @@
 #include <utility>
 #include <vector>
 
-#include "math_default.hpp"
+#include "math_scalar.hpp"
+#include "math_vector.hpp"
+#include "memory_block.hpp"
 #include "aligned_pool.hpp"
 #include "node_stack.hpp"
-#include "memory_block.hpp"
 #include "buffer.hpp"
 #include "buffer_operations.hpp"
 #include "ring_buffer.hpp"

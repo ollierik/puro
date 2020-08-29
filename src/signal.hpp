@@ -4,7 +4,7 @@ namespace puro {
 
 
 template <typename BufferType>
-void constant_fill(BufferType buffer, typename BufferType::value_type value) noexcept
+void constant(BufferType buffer, typename BufferType::value_type value) noexcept
 {
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
@@ -13,7 +13,7 @@ void constant_fill(BufferType buffer, typename BufferType::value_type value) noe
 }
     
 template <typename BufferType>
-void impulse_fill(BufferType buffer, int index) noexcept
+void impulse(BufferType buffer, int index) noexcept
 {
     errorif(index < 0 || index > buffer.length(), "index out of bounds");
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
@@ -34,7 +34,7 @@ void osc(BufferType buffer, typename BufferType::value_type norm_freq) noexcept
 }
 
 template <typename BufferType>
-void noise_fill(BufferType buffer) noexcept
+void noise(BufferType buffer) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
@@ -52,7 +52,7 @@ void noise_fill(BufferType buffer) noexcept
 }
 
 template <typename BufferType>
-void linspace_fill(BufferType buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
+void linspace(BufferType buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
 {
     using ValueType = typename BufferType::value_type;
     

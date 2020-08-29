@@ -2,13 +2,11 @@
 
 namespace puro {
 
-struct is_memory_source_tag {};
-
 
 template <int NumChannels, int Length, typename T = float>
-struct stack_block : is_memory_source_tag
+struct stack_block
 {
-    typedef stack_block<NumChannels, Length, T>& reference_type;
+    //typedef void test_type;
 
     stack_block()
     {
@@ -109,6 +107,87 @@ struct heap_block
     T** ptrs = nullptr;
 };
 
+/**
+A pool of heap blocks to own memory used by buffers.
+Should be used on initialisation to allocate memory to buffers that are stored in the audio engine.
+*/
+template <typename T = float, typename Allocator = std::allocator<T>>
+class heap_block_pool
+{
+public:
+    heap_block_pool() {};
+
+    ~heap_block_pool()
+    {
+        int num_deleted = 0;
+        while (head != nullptr)
+        {
+            linked_node* prev_head = head;
+            head = prev_head->next;
+            delete prev_head;
+            ++num_deleted;
+        }
+
+        errorif(num_deleted != num_allocated, "heap_block_pool leaking memory");
+    }
+
+    T** get_allocated(int num_channels, int length)
+    {
+        allocate_and_push_front();
+        return head->block.get_allocated(num_channels, length);
+    }
+
+private:
+
+    struct linked_node
+    {
+        heap_block<T, Allocator> block;
+        linked_node* next;
+    };
+
+
+    void allocate_and_push_front()
+    {
+        linked_node* prev_head = head;
+        head = new linked_node();
+        head->next = prev_head;
+        ++num_allocated;
+    }
+
+    linked_node* head = nullptr;
+    int num_allocated = 0;
+};
+
+
+
+
+/**
+    Works like std::enable_if. Broadcasts type void if type can be used as a memory source for buffers.
+    Partial specialisation for the actual types that we want to support.
+    Used with fixed_buffer to prevent memory source constructor appearing as a copy constructor.
+*/
+template <typename T>
+struct is_memory_source
+{
+};
+
+template <int NumChannels, int Length, typename T>
+struct is_memory_source<stack_block<NumChannels, Length, T>>
+{
+    typedef void type;
+};
+
+template <typename T, typename Allocator>
+struct is_memory_source<heap_block<T, Allocator>>
+{
+    typedef void type;
+};
+
+template <typename T, typename Allocator>
+struct is_memory_source<heap_block_pool<T, Allocator>>
+{
+    typedef void type;
+};
 
 
 } // namespace puro

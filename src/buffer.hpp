@@ -83,18 +83,14 @@ struct fixed_buffer
     }
     
     // ctors
-    fixed_buffer() = default;
-    fixed_buffer(fixed_buffer&) = default;
-
     fixed_buffer(T** channelPtrs)
     {
         for (auto ch = 0; ch < num_channels(); ++ch)
             ptrs[ch] = channelPtrs[ch];
     }
 
-    // todo enable if
-    template <typename MemorySource>
-    fixed_buffer (MemorySource& as, void* dummy = nullptr) // second parameter changes signature to not appear as copy ctor
+    template <typename MemorySource, typename Enable = typename is_memory_source<MemorySource>::type>
+    fixed_buffer (MemorySource& as)
     {
         T** data = as.get_allocated(NumChannels, Length);
 
@@ -106,30 +102,6 @@ struct fixed_buffer
 };
     
 
-/*
-template <int NumChannels, int Length, typename T = float>
-fixed_buffer<NumChannels, Length, T> make_fixed(stack_memory<NumChannels, Length>& memory)
-{
-    fixed_buffer<NumChannels, Length, T> buf;
-    for (auto ch = 0; ch < NumChannels; ++ch)
-    {
-        buf.ptrs[ch] = memory.channel(ch);
-    }
-    return buf;
-}
-    
-template <int NumChannels, int Length, typename T, typename Allocator>
-fixed_buffer<NumChannels, Length, T> make_fixed(heap_block<NumChannels, T, Allocator>& memory)
-{
-    fixed_buffer<NumChannels, Length, T> buf;
-    for (auto ch = 0; ch < NumChannels; ++ch)
-    {
-        buf.ptrs[ch] = memory.channel(ch);
-    }
-    return buf;
-}
-*/
-    
 
 template <int NumChannels, typename T = float>
 struct buffer
@@ -197,8 +169,8 @@ struct buffer
             ptrs[ch] = channel_ptrs[ch];
     }
 
-    template <typename AllocatorSource>
-    buffer (int length, AllocatorSource& as) : num_samples(length)
+    template <typename MemorySource, typename Enable = typename is_memory_source<MemorySource>::type>
+    buffer (int length, MemorySource& as) : num_samples(length)
     {
         T** data = as.get_allocated(NumChannels, num_samples);
 
@@ -207,22 +179,6 @@ struct buffer
             ptrs[ch] = data[ch];
         }
     }
-    
-    /*
-    template <int MemoryNumChannels, int N>
-    buffer (const stack_memory<MemoryNumChannels, N, T>& memory)
-    {
-        for (auto ch = 0; ch < num_channels(); ++ch)
-            ptrs[ch] = memory[ch].data();
-    }
-    
-    template <int MemoryNumChannels, int N>
-    buffer (const heap_memory<MemoryNumChannels, N, T>& memory)
-    {
-        for (auto ch = 0; ch < num_channels(); ++ch)
-            ptrs[ch] = memory[ch].data();
-    }
-     */
 };
     
     

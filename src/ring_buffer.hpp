@@ -37,6 +37,7 @@ struct ring_buffer
     }
 };
     
+/*
 template <int NumChannels, typename T = float, typename Allocator = std::allocator<T>>
 ring_buffer<NumChannels, T> make_ring(heap_block<NumChannels, T, Allocator>& memory)
 {
@@ -49,6 +50,7 @@ ring_buffer<NumChannels, T> make_ring(heap_block<NumChannels, T, Allocator>& mem
 
     return rbuf;
 }
+*/
 
     
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,40 +2,6 @@
 
 namespace puro {
     
-template <int NumChannels, int Length, typename T = float>
-struct stack_memory
-{
-    T* channel(int ch)
-    {
-        errorif(ch >= NumChannels, "channel index out of range");
-        return memory[ch].data();
-    }
-    
-    std::array<std::array<T, Length>, NumChannels> memory;
-};
-
-template <int NumChannels, typename T = float, typename Allocator = std::allocator<T>>
-struct heap_block
-{
-    heap_block(int length) : num_samples(length)
-    {
-        for (auto ch = 0; ch < NumChannels; ++ch)
-        {
-            channel_data[ch].resize(length);
-        }
-    }
-    
-    T* channel(int ch)
-    {
-        errorif(ch >= NumChannels, "channel index out of range");
-        return channel_data[ch].data();
-    }
-    
-    int length() const { return num_samples; };
-    
-    const int num_samples;
-    std::array<std::vector<T, Allocator>, NumChannels> channel_data;
-};
     
     /*
 // fixed channels, fixed length
@@ -118,15 +84,29 @@ struct fixed_buffer
     
     // ctors
     fixed_buffer() = default;
+    fixed_buffer(fixed_buffer&) = default;
 
     fixed_buffer(T** channelPtrs)
     {
         for (auto ch = 0; ch < num_channels(); ++ch)
             ptrs[ch] = channelPtrs[ch];
     }
+
+    // todo enable if
+    template <typename MemorySource>
+    fixed_buffer (MemorySource& as, void* dummy = nullptr) // second parameter changes signature to not appear as copy ctor
+    {
+        T** data = as.get_allocated(NumChannels, Length);
+
+        for (int ch=0; ch<num_channels(); ++ch)
+        {
+            ptrs[ch] = data[ch];
+        }
+    }
 };
     
 
+/*
 template <int NumChannels, int Length, typename T = float>
 fixed_buffer<NumChannels, Length, T> make_fixed(stack_memory<NumChannels, Length>& memory)
 {
@@ -148,6 +128,7 @@ fixed_buffer<NumChannels, Length, T> make_fixed(heap_block<NumChannels, T, Alloc
     }
     return buf;
 }
+*/
     
 
 template <int NumChannels, typename T = float>
@@ -214,6 +195,17 @@ struct buffer
     {
         for (auto ch = 0; ch < num_channels(); ++ch)
             ptrs[ch] = channel_ptrs[ch];
+    }
+
+    template <typename AllocatorSource>
+    buffer (int length, AllocatorSource& as) : num_samples(length)
+    {
+        T** data = as.get_allocated(NumChannels, num_samples);
+
+        for (int ch=0; ch<num_channels(); ++ch)
+        {
+            ptrs[ch] = data[ch];
+        }
     }
     
     /*

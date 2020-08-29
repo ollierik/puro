@@ -79,6 +79,8 @@
 
 #include <stddef.h> // for size_t
 
+#define _USE_MATH_DEFINES // for math constants
+
 #ifdef __cplusplus
 extern "C" {
 #endif

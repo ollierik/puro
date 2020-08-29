@@ -13,6 +13,9 @@
     <Filter Include="benchmark">
       <UniqueIdentifier>{5e695fe8-8a48-4cc4-9257-ffb1aa7ac8b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{2cc978ce-1677-456e-9c63-06067bee063a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\examples\01_simple_example.hpp">
@@ -51,16 +54,7 @@
     <ClInclude Include="..\src\interpolation.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\math.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\node_stacks.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\panning.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\pool.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\puro.hpp">
@@ -75,10 +69,38 @@
     <ClInclude Include="..\src\utility.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\aligned_pool.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\node_stack.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\memory_block.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\buffer_operations.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math_default.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\prints.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ring_buffer.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\spectrum.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pffft.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\include\pffft.c">
+      <Filter>include</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -25,23 +25,30 @@
     <ClInclude Include="..\examples\01_simple_example.hpp" />
     <ClInclude Include="..\examples\02_granular_example.hpp" />
     <ClInclude Include="..\examples\03_threadsafe_example.hpp" />
+    <ClInclude Include="..\include\pffft.h" />
     <ClInclude Include="..\src\alignment.hpp" />
     <ClInclude Include="..\src\buffer.hpp" />
+    <ClInclude Include="..\src\buffer_operations.hpp" />
     <ClInclude Include="..\src\defs.hpp" />
     <ClInclude Include="..\src\envelope.hpp" />
     <ClInclude Include="..\src\interpolation.hpp" />
-    <ClInclude Include="..\src\math.hpp" />
-    <ClInclude Include="..\src\node_stacks.hpp" />
+    <ClInclude Include="..\src\math_default.hpp" />
+    <ClInclude Include="..\src\memory_block.hpp" />
+    <ClInclude Include="..\src\node_stack.hpp" />
     <ClInclude Include="..\src\panning.hpp" />
-    <ClInclude Include="..\src\pool.hpp" />
+    <ClInclude Include="..\src\aligned_pool.hpp" />
+    <ClInclude Include="..\src\prints.hpp" />
     <ClInclude Include="..\src\puro.hpp" />
+    <ClInclude Include="..\src\ring_buffer.hpp" />
     <ClInclude Include="..\src\sequences.hpp" />
     <ClInclude Include="..\src\signal.hpp" />
+    <ClInclude Include="..\src\spectrum.hpp" />
     <ClInclude Include="..\src\utility.hpp" />
     <ClInclude Include="..\tests\nodestack_tests.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\include\pffft.c" />
+    <ClCompile Include="..\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -116,6 +123,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +139,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +159,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -170,6 +180,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

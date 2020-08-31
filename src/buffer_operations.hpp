@@ -2,26 +2,6 @@
 
 namespace puro {
 
-template <typename T> struct is_scalar {};
-template <> struct is_scalar <int>                  { typedef void type; };
-template <> struct is_scalar <unsigned int>         { typedef void type; };
-template <> struct is_scalar <float>                { typedef void type; };
-template <> struct is_scalar <double>               { typedef void type; };
-template <> struct is_scalar <const int>            { typedef void type; };
-template <> struct is_scalar <const unsigned int>   { typedef void type; };
-template <> struct is_scalar <const float>          { typedef void type; };
-template <> struct is_scalar <const double>         { typedef void type; };
-    
-template <typename T>
-struct is_buffer {};
-    
-template <int NumChannels, int Length, typename T>
-struct is_buffer <fixed_buffer<NumChannels, Length, T>> { typedef void type; };
-    
-template <int NumChannels, typename T>
-struct is_buffer <buffer<NumChannels, T>> { typedef void type; };
-
-
 template <typename BufferType>
 BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
 {
@@ -143,8 +123,9 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
 }
  */
 
-template <typename BT1, typename BT2, typename BT3, typename Enable = typename is_buffer<BT3>::type>
-void multiply_add(const BT1 dst, const BT2 src1, const BT3 src2) noexcept
+template <typename BT1, typename BT2, typename BT3>
+typename enable_if_buffer<BT3, void>::type
+multiply_add(const BT1 dst, const BT2 src1, const BT3 src2) noexcept
 {
     errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
@@ -173,7 +154,7 @@ void multiply_add(const BT1 dst, const BT2 src1, const BT3 src2) noexcept
 }
 
 template <typename BT1, typename BT2, typename ValueType>
-typename is_scalar<ValueType>::type
+typename enable_if_scalar<ValueType, void>::type
 multiply_add(const BT1 dst, const BT2 src, const ValueType multiplier) noexcept
 {
     errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
@@ -195,8 +176,9 @@ void multiply(BT dst, const typename BT::value_type value) noexcept
     }
 }
 
-template <typename BT1, typename BT2, typename Enable = typename is_buffer<BT2>::type>
-void multiply(BT1 dst, const BT2 src) noexcept
+template <typename BT1, typename BT2>
+typename enable_if_buffer<BT2, void>::type
+multiply(BT1 dst, const BT2 src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -231,7 +213,7 @@ void multiply(BT1 dst, BT2 src, typename BT1::value_type value) noexcept
 }
 
 template <typename BT1, typename BT2>
-typename is_buffer<BT2>::type
+typename enable_if_buffer<BT2, void>::type
 add(BT1 dst, const BT2 src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");

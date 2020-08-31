@@ -53,7 +53,7 @@ void content_pan_apply(BufferType dst, BufferType src, PanType coeffs) noexcept
     const auto numChannels = coeffs.getNumChannels();
     using FloatType = typename BufferType::value_type;
 
-    puro::buffer_clear(dst);
+    dst.clear();
 
     // TODO optimise for special cases coef == 0 and coef == 1
 

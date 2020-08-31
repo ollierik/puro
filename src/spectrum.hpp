@@ -40,7 +40,7 @@ void irfft(BufferType dst, BufferType src, math::fft& fft) noexcept
     if (Normalise)
     {
         using T = typename BufferType::value_type;
-        buffer_scale(dst, 1 / static_cast<T>(fft.length()));
+        multiply(dst, 1 / static_cast<T>(fft.length()));
     }
 }
 
@@ -118,12 +118,12 @@ void spectrum_from_polar(BufferType dstComplex, BufferType magnitudesReal, Buffe
     }
 }
     
-template <typename BufferType>
-void spectrum_linphase_from_magnitudes(BufferType dstComplex, BufferType magnitudesReal)
+template <typename BT1, typename BT2>
+void spectrum_linphase_from_magnitudes(BT1 dstComplex, BT2 magnitudesReal)
 {
     errorif(magnitudesReal.length() != dstComplex.length()/2+1, "dst and magnitudes lengths incompatible");
     
-    using T = typename BufferType::value_type;
+    using T = typename BT1::value_type;
     
     for (int ch=0; ch < dstComplex.num_channels(); ++ch)
     {

@@ -2,8 +2,7 @@
 
 namespace puro {
 
-
-template <typename T> struct is_scalar {}; 
+template <typename T> struct is_scalar {};
 template <> struct is_scalar <int>                  { typedef void type; };
 template <> struct is_scalar <unsigned int>         { typedef void type; };
 template <> struct is_scalar <float>                { typedef void type; };
@@ -12,9 +11,17 @@ template <> struct is_scalar <const int>            { typedef void type; };
 template <> struct is_scalar <const unsigned int>   { typedef void type; };
 template <> struct is_scalar <const float>          { typedef void type; };
 template <> struct is_scalar <const double>         { typedef void type; };
+    
+template <typename T>
+struct is_buffer {};
+    
+template <int NumChannels, int Length, typename T>
+struct is_buffer <fixed_buffer<NumChannels, Length, T>> { typedef void type; };
+    
+template <int NumChannels, typename T>
+struct is_buffer <buffer<NumChannels, T>> { typedef void type; };
 
 
-/*
 template <typename BufferType>
 BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
 {
@@ -37,7 +44,6 @@ BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
     buffer.numSamples = math::max(newLength, 0);
     return buffer;
 }
-*/
 
 /// Get a sub segment of a buffer with given offset and length
 template <typename BT>
@@ -137,8 +143,8 @@ BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int nu
 }
  */
 
-template <typename BT1, typename BT2, typename BT3>
-void multiply_add(BT1 dst, const BT2 src1, const BT3 src2) noexcept
+template <typename BT1, typename BT2, typename BT3, typename Enable = typename is_buffer<BT3>::type>
+void multiply_add(const BT1 dst, const BT2 src1, const BT3 src2) noexcept
 {
     errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
@@ -166,9 +172,9 @@ void multiply_add(BT1 dst, const BT2 src1, const BT3 src2) noexcept
     }
 }
 
-template <typename BT1, typename BT2, typename ValueType,
-          typename Enable = is_scalar<ValueType>>
-void multiply_add(BT1 dst, const BT2 src, const ValueType multiplier) noexcept
+template <typename BT1, typename BT2, typename ValueType>
+typename is_scalar<ValueType>::type
+multiply_add(const BT1 dst, const BT2 src, const ValueType multiplier) noexcept
 {
     errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src1 buffer lengths don't match");
@@ -189,7 +195,7 @@ void multiply(BT dst, const typename BT::value_type value) noexcept
     }
 }
 
-template <typename BT1, typename BT2>
+template <typename BT1, typename BT2, typename Enable = typename is_buffer<BT2>::type>
 void multiply(BT1 dst, const BT2 src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
@@ -210,8 +216,6 @@ void multiply(BT1 dst, const BT2 src) noexcept
             math::multiply(dst.channel(ch), src.channel(0), dst.length());
         }
     }
-
-    return dst;
 }
 
 template <typename BT1, typename BT2>
@@ -227,7 +231,8 @@ void multiply(BT1 dst, BT2 src, typename BT1::value_type value) noexcept
 }
 
 template <typename BT1, typename BT2>
-void add(BT1 dst, const BT2 src) noexcept
+typename is_buffer<BT2>::type
+add(BT1 dst, const BT2 src) noexcept
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -247,8 +252,6 @@ void add(BT1 dst, const BT2 src) noexcept
             math::add(dst[ch], src[0], dst.length());
         }
     }
-
-    return dst;
 }
 
 template <typename BT>
@@ -258,8 +261,6 @@ void add(BT dst, const typename BT::value_type value) noexcept
     {
         math::add(dst[ch], value, dst.length());
     }
-
-    return dst;
 }
 
 template <typename BT1, typename BT2>
@@ -283,8 +284,6 @@ void buffer_substract(BT1 dst, const BT2 src) noexcept
             math::substract(dst.channel(ch), src.channel(0), dst.length());
         }
     }
-
-    return dst;
 }
 
 template <typename BT1, typename BT2>
@@ -316,7 +315,7 @@ void clear(BT buffer) noexcept
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::set<typename BT::value_type>(buffer[ch], 0, buffer.length());
+        math::clear(buffer[ch], buffer.length());
     }
 }
 

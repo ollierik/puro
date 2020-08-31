@@ -52,8 +52,16 @@ struct fixed_buffer
         errorif(ch < 0 || ch >= this->num_channels(), "channel out of range");
         return ptrs[ch];
     }
+    
+    void clear() const
+    {
+        for (int ch=0; ch < NumChannels; ++ch)
+        {
+            math::clear(channel(ch), Length);
+        }
+    }
 
-    buffer<NumChannels, T> slice (int start, int end)
+    buffer<NumChannels, T> sub (int start, int end) const
     {
         errorif(start < 0, "slice start below zero");
         errorif(start > length(), "slice start greater than number of samples available");
@@ -69,7 +77,7 @@ struct fixed_buffer
     }
     
     template <int NumSamples>
-    fixed_buffer<NumChannels, NumSamples, T> slice (int offset = 0)
+    fixed_buffer<NumChannels, NumSamples, T> sub (int offset = 0) const
     {
         fixed_buffer<NumChannels, NumSamples> fixbuf;
         
@@ -80,8 +88,11 @@ struct fixed_buffer
         
         return fixbuf;
     }
-    
+
     // ctors
+    
+    fixed_buffer() {};
+    
     fixed_buffer(T** channelPtrs)
     {
         for (auto ch = 0; ch < num_channels(); ++ch)
@@ -113,9 +124,12 @@ struct buffer
     constexpr static int num_channels() { return NumChannels; }
     int length() const { return num_samples; }
     
-    void clear()
+    void clear() const
     {
-        buffer_clear(*this);
+        for (int ch=0; ch < NumChannels; ++ch)
+        {
+            math::clear(channel(ch), num_samples);
+        }
     }
 
     T* operator[] (int ch) const
@@ -130,7 +144,7 @@ struct buffer
         return ptrs[ch];
     }
 
-    buffer slice (int start, int end)
+    buffer sub (int start, int end) const
     {
         errorif(start < 0, "slice start below zero");
         errorif(start > length(), "slice start greater than number of samples available");
@@ -146,7 +160,7 @@ struct buffer
     }
     
     template <int NumSamples>
-    fixed_buffer<NumChannels, NumSamples, T> slice (int offset = 0)
+    fixed_buffer<NumChannels, NumSamples, T> sub (int offset = 0) const
     {
         fixed_buffer<NumChannels, NumSamples> fixbuf;
         
@@ -159,6 +173,9 @@ struct buffer
     }
 
     // ctors
+    
+    buffer() {};
+    
     buffer(int length) : num_samples(length) {};
 
     buffer(int length, T** channel_ptrs) : num_samples(length)
@@ -179,6 +196,9 @@ struct buffer
     }
 };
     
+    
+    
+
     
 /*
 template <class BufferType, class Allocator = std::allocator<typename BufferType::value_type>>

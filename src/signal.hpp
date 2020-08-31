@@ -74,7 +74,7 @@ void linspace(BufferType buffer, typename BufferType::value_type start, typename
 template <typename BT1, typename BT2, typename KT>
 void convolve_sparse(BT1 dst, BT2 src, KT kernel, int kernel_offset, int stride) noexcept
 {
-    buffer_clear(dst);
+    clear(dst);
     
     const int kernel_pre = -kernel_offset;
     const int kernel_post = kernel.length() - kernel_offset;
@@ -95,7 +95,7 @@ void convolve_sparse(BT1 dst, BT2 src, KT kernel, int kernel_offset, int stride)
             
             //std::cout << read_index << ":\tto (" << d0 << ", " << d1 << ") from (" << k0 << ", " << k1 << ")\n";
 
-            math::multiply_add(dst.slice(d0, d1)[ch], kernel.slice(k0, k1)[0], src[ch][read_index], k1 - k0);
+            math::multiply_add(dst.sub(d0, d1)[ch], kernel.sub(k0, k1)[0], src[ch][read_index], k1 - k0);
 
             read_index += 1;
             write_index += stride;

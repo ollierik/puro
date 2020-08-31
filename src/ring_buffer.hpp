@@ -6,8 +6,7 @@ template <int NumChannels, typename T = float>
 struct ring_buffer
 {
     typedef T value_type;
-    constexpr static auto max_channels = NumChannels;
-    
+
     int num_samples;
     int index = 0;
     std::array<T*, NumChannels> ptrs;
@@ -35,6 +34,18 @@ struct ring_buffer
         for (auto ch = 0; ch < num_channels(); ++ch)
             ptrs[ch] = channelPtrs[ch];
     }
+    
+    template <typename MemorySource, typename Enable = typename is_memory_source<MemorySource>::type>
+    ring_buffer (int length, MemorySource& as) : num_samples(length)
+    {
+        T** data = as.get_allocated(NumChannels, num_samples);
+        
+        for (int ch=0; ch<num_channels(); ++ch)
+        {
+            ptrs[ch] = data[ch];
+        }
+    }
+    
 };
     
 /*

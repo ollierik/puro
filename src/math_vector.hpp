@@ -64,21 +64,21 @@ void multiply(FloatType* dst, const FloatType value, const int n) noexcept
 };
 
 template <typename FloatType>
-void multiply(FloatType* dst, const FloatType* src, const int n) noexcept
+void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] *= src[i];
 };
 
 template <typename FloatType>
-void multiply_add(FloatType* dst, const FloatType* src1, const FloatType* src2, const int n) noexcept
+void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src1, const FloatType* PURO_RESTRICT src2, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src1[i] * src2[i];
 };
 
 template <typename FloatType>
-void multiply_add(FloatType* dst, const FloatType* src, const FloatType value, const int n) noexcept
+void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src[i] * value;
@@ -86,7 +86,7 @@ void multiply_add(FloatType* dst, const FloatType* src, const FloatType value, c
 
 /** Multiply src buffer with value and set to dst */
 template <typename FloatType>
-void multiply(FloatType* dst, const FloatType* src, const FloatType value, const int n) noexcept
+void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] = src[i] * value;
@@ -137,7 +137,7 @@ void max(FloatType* buf, FloatType value, const int n)
 
 /** Copy from source to destination */
 template <typename FloatType>
-void copy(FloatType* dst, FloatType* src, const int n) noexcept
+void copy(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] = src[i];
@@ -145,7 +145,7 @@ void copy(FloatType* dst, FloatType* src, const int n) noexcept
     
 /** Copy every ratioth sample from source to destination */
 template <typename FloatType>
-void copy_decimating(FloatType* dst, FloatType* src, const int stride, const int n) noexcept
+void copy_decimating(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int stride, const int n) noexcept
 {
     for (int i = 0, j = 0; i < n; ++i, j += stride)
         dst[i] = src[j];
@@ -153,7 +153,7 @@ void copy_decimating(FloatType* dst, FloatType* src, const int stride, const int
 
 /** Add from source to destination */
 template <typename FloatType>
-void add(FloatType* dst, FloatType* src, const int n) noexcept
+void add(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] += src[i];

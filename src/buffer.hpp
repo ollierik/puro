@@ -1,27 +1,7 @@
+
 #pragma once
 
 namespace puro {
-    
-    
-    /*
-// fixed channels, fixed length
-template <int NumChannels, int Length, typename T>
-struct buffer_base
-{
-    constexpr static int num_channels() { return NumChannels; }
-    constexpr static int length() { return Length; }
-};
-    
-// fixed channels, dynamic length
-template <int NumChannels, typename T>
-struct buffer_base <NumChannels, -1, T>
-{
-    int length;
-    
-    constexpr static int num_channels() { return NumChannels; }
-    int length() const { return num_samples; }
-};
-     */
 
 template <int NumChannels, int Length, typename T>
 struct fixed_buffer;
@@ -30,30 +10,23 @@ template <int NumChannels, typename T>
 struct buffer;
 
 
-// fixed
 template <int NumChannels, int Length, typename T = float>
 struct fixed_buffer
 {
     typedef T value_type;
     
-    std::array<T*, NumChannels> ptrs;
+    T* ptrs [NumChannels];
     
     constexpr static int num_channels() { return NumChannels; }
     constexpr static int length() { return Length; }
 
-    T* operator[] (int ch) const
+    inline T* channel(int ch) const
     {
         errorif(ch < 0 || ch >= this->num_channels(), "channel out of range");
         return ptrs[ch];
     }
     
-    T* channel(int ch) const
-    {
-        errorif(ch < 0 || ch >= this->num_channels(), "channel out of range");
-        return ptrs[ch];
-    }
-    
-    void clear() const
+    inline void clear() const
     {
         for (int ch=0; ch < NumChannels; ++ch)
         {
@@ -61,53 +34,117 @@ struct fixed_buffer
         }
     }
 
-    buffer<NumChannels, T> sub (int start, int end) const
+    inline buffer<NumChannels, T> sub (int offset, int n) const
     {
-        errorif(start < 0, "slice start below zero");
-        errorif(start > length(), "slice start greater than number of samples available");
-        errorif(end < start, "slice end below start");
-        errorif(end > length(), "slice end greater than number of samples available");
+        errorif(offset < 0, "offset below zero");
+        errorif(offset > length(), "offset greater than number of samples available");
+        errorif(n < 0, "negative length");
+        errorif(offset + n > length(), "sub end exceeds the number of samples available");
         
-        buffer<NumChannels, T> retbuf (end - start);
+        buffer<NumChannels, T> retbuf (n);
         
         for (int ch = 0; ch < num_channels(); ++ch)
-            retbuf.ptrs[ch] = &ptrs[ch][start];
+            retbuf.ptrs[ch] = &ptrs[ch][offset];
         
         return retbuf;
     }
     
-    template <int NumSamples>
-    fixed_buffer<NumChannels, NumSamples, T> sub (int offset = 0) const
+    /**
+    Return fixed_buffer with constant length N and runtime offset
+     */
+    template <int N>
+    inline fixed_buffer<NumChannels, N, T> sub (int offset) const
     {
-        fixed_buffer<NumChannels, NumSamples> fixbuf;
+        errorif(offset < 0, "offset below zero");
+        errorif(offset > length(), "offset greater than number of samples available");
+        errorif(N < 0, "negative length");
+        errorif(offset + N > length(), "sub end exceeds the number of samples available");
         
-        for (auto ch=0; ch < NumChannels; ++ch)
+        fixed_buffer<NumChannels, N> fixbuf;
+        
+        for (int ch=0; ch < NumChannels; ++ch)
         {
             fixbuf.ptrs[ch] = &ptrs[ch][offset];
         }
         
         return fixbuf;
     }
+    
+    /**
+     Return fixed_buffer with constant offset and constant length
+     */
+    template <int Offset, int N>
+    inline fixed_buffer<NumChannels, N, T> sub () const
+    {
+        errorif(Offset < 0, "offset below zero");
+        errorif(Offset > length(), "offset greater than number of samples available");
+        errorif(N < 0, "negative length");
+        errorif(Offset + N > length(), "sub end exceeds the number of samples available");
+        
+        fixed_buffer<NumChannels, N> fixbuf;
+        
+        for (int ch=0; ch < NumChannels; ++ch)
+        {
+            fixbuf.ptrs[ch] = &ptrs[ch][Offset];
+        }
+        
+        return fixbuf;
+    }
+    
+    /// Return truncated fixed_buffer with length N
+    template <int N>
+    inline fixed_buffer<NumChannels, N, T> trunc() const
+    {
+        errorif(N < 0, "negative length");
+        errorif(N > length(), "cut end exceeds the number of samples available");
+        
+        fixed_buffer<NumChannels, N> fixbuf;
+        
+        for (int ch=0; ch < NumChannels; ++ch)
+        {
+            fixbuf.ptrs[ch] = &ptrs[ch][0];
+        }
+        
+        return fixbuf;
+    }
+    
+    inline fixed_buffer<1, Length, T> mono (int ch) const
+    {
+        errorif (ch >= num_channels(), "channel out of bounds");
+        
+        fixed_buffer<1, Length> fixbuf;
+        fixbuf.ptrs[0] = ptrs[ch];
+        return fixbuf;
+    }
+    
+    inline buffer<NumChannels, T> as_buffer() const
+    {
+        buffer<NumChannels, T> buf (Length, ptrs);
+        return buf;
+    }
+
 
     // ctors
     
-    fixed_buffer() {};
-    
-    fixed_buffer(T** channelPtrs)
+    inline fixed_buffer() {};
+
+    inline fixed_buffer (const fixed_buffer& other)
     {
-        for (auto ch = 0; ch < num_channels(); ++ch)
+        for (int ch = 0; ch < num_channels(); ++ch)
+            ptrs[ch] = other.ptrs[ch];
+    }
+
+    inline fixed_buffer(T** channelPtrs)
+    {
+        for (int ch = 0; ch < num_channels(); ++ch)
             ptrs[ch] = channelPtrs[ch];
     }
 
-    template <typename MemorySource, typename Enable = typename is_memory_source<MemorySource>::type>
-    fixed_buffer (MemorySource& as)
-    {
-        T** data = as.get_allocated(NumChannels, Length);
 
-        for (int ch=0; ch<num_channels(); ++ch)
-        {
-            ptrs[ch] = data[ch];
-        }
+    template <typename MemorySource>
+    inline fixed_buffer (MemorySource& ms, typename enable_if_memory_source<MemorySource>::type* dummy = 0)
+    {
+        ms.assign_allocated(ptrs, NumChannels, Length);
     }
 };
     
@@ -119,12 +156,12 @@ struct buffer
     typedef T value_type;
     
     int num_samples;
-    std::array<T*, NumChannels> ptrs;
+    T* ptrs [NumChannels];
 
-    constexpr static int num_channels() { return NumChannels; }
-    int length() const { return num_samples; }
+    constexpr static inline int num_channels() { return NumChannels; }
+    inline int length() const { return num_samples; }
     
-    void clear() const
+    inline void clear() const
     {
         for (int ch=0; ch < NumChannels; ++ch)
         {
@@ -132,113 +169,183 @@ struct buffer
         }
     }
 
-    T* operator[] (int ch) const
+    inline T* channel(int ch) const
     {
         errorif(ch < 0 || ch >= this->num_channels(), "channel out of range");
         return ptrs[ch];
     }
 
-    T* channel(int ch) const
+    inline buffer sub (int offset, int n) const
     {
-        errorif(ch < 0 || ch >= this->num_channels(), "channel out of range");
-        return ptrs[ch];
-    }
-
-    buffer sub (int start, int end) const
-    {
-        errorif(start < 0, "slice start below zero");
-        errorif(start > length(), "slice start greater than number of samples available");
-        errorif(end < start, "slice end below start");
-        errorif(end > length(), "slice end greater than number of samples available");
+        errorif(offset < 0, "offset below zero");
+        errorif(offset > length(), "offset greater than number of samples available");
+        errorif(n < 0, "negative length");
+        errorif(offset + n > length(), "sub end exceeds the number of samples available");
         
-        buffer retbuf (end - start);
+        buffer retbuf (n);
         
         for (int ch = 0; ch < num_channels(); ++ch)
-            retbuf.ptrs[ch] = &ptrs[ch][start];
+            retbuf.ptrs[ch] = &ptrs[ch][offset];
         
         return retbuf;
     }
     
-    template <int NumSamples>
-    fixed_buffer<NumChannels, NumSamples, T> sub (int offset = 0) const
+    /// Return fixed_buffer with constant length N
+    template <int N>
+    inline fixed_buffer<NumChannels, N, T> sub (int offset = 0) const
     {
-        fixed_buffer<NumChannels, NumSamples> fixbuf;
+        errorif(offset < 0, "offset below zero");
+        errorif(offset > length(), "offset greater than number of samples available");
+        errorif(N < 0, "negative length");
+        errorif(offset + N > length(), "sub end exceeds the number of samples available");
         
-        for (auto ch=0; ch < NumChannels; ++ch)
+        fixed_buffer<NumChannels, N> fixbuf;
+        
+        for (int ch=0; ch < NumChannels; ++ch)
         {
             fixbuf.ptrs[ch] = &ptrs[ch][offset];
         }
         
         return fixbuf;
     }
+    
+    /// Return fixed_buffer with constant offset and length
+    template <int Offset, int N>
+    inline fixed_buffer<NumChannels, N, T> sub () const
+    {
+        errorif(Offset < 0, "offset below zero");
+        errorif(Offset > length(), "offset greater than number of samples available");
+        errorif(N < 0, "negative length");
+        errorif(Offset + N > length(), "sub end exceeds the number of samples available");
+        
+        fixed_buffer<NumChannels, N> fixbuf;
+        
+        for (int ch=0; ch < NumChannels; ++ch)
+        {
+            fixbuf.ptrs[ch] = &ptrs[ch][Offset];
+        }
+        
+        return fixbuf;
+    }
+    
+    inline buffer trunc (int length)
+    {
+        errorif (length > num_samples, "Requested length longer than current length");
+        return buffer (length, ptrs);
+    }
+
+    inline buffer <1, T> mono (int ch) const
+    {
+        errorif (ch >= num_channels(), "channel out of bounds");
+        
+        buffer<1, T> buf (length());
+        buf.ptrs[0] = ptrs[ch];
+        return buf;
+    }
 
     // ctors
     
-    buffer() {};
+    inline buffer() {};
     
-    buffer(int length) : num_samples(length) {};
+    inline buffer(int length) : num_samples(length) {};
 
-    buffer(int length, T** channel_ptrs) : num_samples(length)
+    inline buffer(int length, T* const * channel_ptrs) : num_samples(length)
     {
-        for (auto ch = 0; ch < num_channels(); ++ch)
+        for (int ch = 0; ch < num_channels(); ++ch)
             ptrs[ch] = channel_ptrs[ch];
     }
 
-    template <typename MemorySource, typename Enable = typename is_memory_source<MemorySource>::type>
-    buffer (int length, MemorySource& as) : num_samples(length)
+    template <typename MemorySource>
+    inline buffer (int length, MemorySource& ms,
+                   typename enable_if_memory_source<MemorySource>::type* dummy = 0)
+                   : num_samples(length)
     {
-        T** data = as.get_allocated(NumChannels, num_samples);
-
-        for (int ch=0; ch<num_channels(); ++ch)
-        {
-            ptrs[ch] = data[ch];
-        }
+        ms.assign_allocated(ptrs, NumChannels, num_samples);
     }
 };
     
     
     
-
-    
-/*
-template <class BufferType, class Allocator = std::allocator<typename BufferType::value_type>>
-struct mem_buffer : public BufferType
+template <int MaxNumChannels, typename T = float>
+struct dynamic_buffer
 {
-    typedef typename BufferType::value_type value_type;
+    typedef T value_type;
 
-    mem_buffer(mem_buffer &&) = delete;
-    mem_buffer(const mem_buffer &) = delete;
+    int num_chs;
+    int num_samples;
+    T* ptrs [MaxNumChannels];
+
+    inline int num_channels() { return num_chs; }
+    inline int length() const { return num_samples; }
+
+    inline void clear() const
+    {
+        for (int ch=0; ch < num_channels(); ++ch)
+        {
+            math::clear(channel(ch), num_samples);
+        }
+    }
+
+    inline T* channel(int ch) const
+    {
+        errorif(ch < 0 || ch >= this->num_channels(), "channel out of range");
+        return ptrs[ch];
+    }
+
+    inline dynamic_buffer sub (int offset, int n) const
+    {
+        errorif(offset < 0, "offset below zero");
+        errorif(offset > length(), "offset greater than number of samples available");
+        errorif(n < 0, "negative length");
+        errorif(offset + n > length(), "sub end exceeds the number of samples available");
+
+        dynamic_buffer retbuf (num_channels(), n);
+
+        for (int ch = 0; ch < num_channels(); ++ch)
+            retbuf.ptrs[ch] = &ptrs[ch][offset];
+
+        return retbuf;
+    }
+
+    inline buffer <1, T> mono (int ch) const
+    {
+        errorif (ch >= num_channels(), "channel out of bounds");
+
+        buffer<1, T> buf (length());
+        buf.ptrs[0] = ptrs[ch];
+        return buf;
+    }
     
-    mem_buffer() : BufferType()
+    template <typename BufferType>
+    inline BufferType as_buffer()
     {
-        for (auto ch=0; ch < this->num_channels(); ++ch)
-        {
-            vectors[ch].resize(BufferType::length());
-            this->ptrs[ch] = vectors[ch].data();
-        }
+        BufferType retbuf (num_samples, ptrs);
+        
+        errorif(retbuf.num_channels() > num_channels(), "Requested more channels than current dynamic_buffer contains");
+        
+        return retbuf;
     }
 
-    mem_buffer(int length) : BufferType(length)
+    // ctors
+
+    inline dynamic_buffer() {};
+
+    inline dynamic_buffer(int num_channels, int length) : num_chs(num_channels), num_samples(length) {};
+
+    inline dynamic_buffer(int num_channels, int length, T* const * channel_ptrs) : num_chs(num_channels), num_samples(length)
     {
-        for (auto ch=0; ch < this->num_channels(); ++ch)
-        {
-            vectors[ch].resize(BufferType::length());
-            this->ptrs[ch] = vectors[ch].data();
-        }
+        for (int ch = 0; ch < num_chs; ++ch)
+            ptrs[ch] = channel_ptrs[ch];
     }
 
-    BufferType operator* () { return *this; }
-    BufferType get() { return *this; }
-
-    void operator= (BufferType new_buffer)
+    template <typename MemorySource>
+    inline dynamic_buffer (int num_channels, int length, MemorySource& ms,
+                   typename enable_if_memory_source<MemorySource>::type* dummy = 0)
+    : num_chs(num_channels), num_samples(length)
     {
-        *reinterpret_cast<BufferType*>(this) = new_buffer;
+        ms.assign_allocated(ptrs, num_chs, num_samples);
     }
-
-    std::array<std::vector<value_type, Allocator>, BufferType::max_channels> vectors;
 };
-*/
-
-
 
 } // namespace puro
+

@@ -23,7 +23,7 @@ PositionType envelope_halfcos_fill(BufferType buffer, PositionType position, con
     math::sin(dst, buffer.length());
 
     // copy to other channels
-    for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
+    for (int ch = 1; ch < buffer.num_channels(); ++ch)
     {
         math::copy(buffer.channel(ch), buffer.channel(0), buffer.length());
     }

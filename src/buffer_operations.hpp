@@ -3,7 +3,7 @@
 namespace puro {
 
 template <typename BufferType>
-BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
+BufferType buffer_trim_begin(BufferType buffer, int offset)
 {
     errorif(offset < 0 || offset > buffer.numSamples, "offset out of bounds");
 
@@ -17,7 +17,7 @@ BufferType buffer_trim_begin(BufferType buffer, int offset) noexcept
 
 
 template <typename BufferType>
-BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
+BufferType buffer_trim_length(BufferType buffer, int newLength)
 {
     errorif(newLength > buffer.numSamples, "new length out of bounds");
 
@@ -27,7 +27,7 @@ BufferType buffer_trim_length(BufferType buffer, int newLength) noexcept
 
 /// Get a sub segment of a buffer with given offset and length
 template <typename BT>
-BT segment(BT buffer, int offset, int length) noexcept
+BT segment(BT buffer, int offset, int length)
 {
     errorif(offset > buffer.numSamples, "segment offset greater than number of samples available");
     errorif(length < 0 || length > (offset + buffer.length()), "segment length out of bounds");
@@ -35,13 +35,13 @@ BT segment(BT buffer, int offset, int length) noexcept
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
         buffer.channelPtrs[ch] = &buffer.channelPtrs[ch][offset];
 
-        buffer.numSamples = length;
-        return buffer;
+    buffer.numSamples = length;
+    return buffer;
 }
 
 /// Get a segment of a buffer from start to end index
 template <typename BT>
-BT slice(BT buffer, int start, int end) noexcept
+BT slice(BT buffer, int start, int end)
 {
     errorif(start < 0, "slice start below zero");
     errorif(start > buffer.length(), "slice start greater than number of samples available");
@@ -55,9 +55,10 @@ BT slice(BT buffer, int start, int end) noexcept
         return buffer;
 }
 
+/*
 /// Split the given buffer into from index. The second buffer starts with index at zeroeth index.
 template <typename BT>
-std::tuple<BT, BT> split(BT buffer, int index) noexcept
+std::tuple<BT, BT> split(BT buffer, int index)
 {
     errorif(index <= 0, "split is 0 or below");
     errorif(index >= buffer.numSamples, "split greater than number of samples available");
@@ -67,65 +68,12 @@ std::tuple<BT, BT> split(BT buffer, int index) noexcept
 
     return std::make_tuple(std::move(pre), std::move(post));
 }
-
-
-/** Create a Buffer with the data laid out into the provided vector.
- The vector may be resized if needed depending on template arg. Number of channels is deducted from the template args. */
-/*
-template <typename BufferType, typename VectorType, bool resizeIfNeeded = PURO_BUFFER_WRAP_VECTOR_RESIZING>
-BufferType buffer_wrap_vector_per_channel(std::array<VectorType&, 2> vectors, int numSamples) noexcept
-{
-    if (resizeIfNeeded)
-    {
-        for (auto ch=0; ch<vectors.size(); ++ch)
-        {
-            if (vectors[ch].size() < numSamples)
-                vectors[ch].resize(numSamples);
-                }
-    }
-
-    BufferType buffer (numSamples);
-
-    for (auto ch=0; ch<vectors.size(); ++ch)
-    {
-        buffer.channelPtr[ch] = vectors[ch].data();
-    }
-
-    return buffer;
-}
-*/
-
-/*
-template <typename ToBufferType, typename FromBufferType>
-ToBufferType buffer_convert_to_type(FromBufferType src) noexcept
-{
-    ToBufferType dst (src.length());
-    for (int ch=0; ch < dst.num_channels(); ++ch)
-    {
-        errorif (ch >= src.num_channels(), "trying to convert from less channels to a larger one");
-        dst.channelPtrs[ch] = src.channelPtrs[ch];
-    }
-    return dst;
-}
-*/
-
-/*
-template <typename BufferType, typename FloatType>
-BufferType fit_vector_into_dynamic_buffer(std::vector<FloatType>& vector, int numChannels, int numSamples) noexcept
-{
-    const int totLength = numChannels * numSamples;
-
-    // resize if needed
-    if ((int)vector.size() < totLength)
-        vector.resize(totLength);
-
-    return BufferType(numChannels, numSamples, vector.data());
-}
- */
+     */
 
 template <typename BT1, typename BT2, typename BT3>
+inline
 typename enable_if_buffer<BT3, void>::type
-multiply_add(const BT1 dst, const BT2 src1, const BT3 src2) noexcept
+multiply_add(const BT1 dst, const BT2 src1, const BT3 src2)
 {
     errorif(!(dst.length() == src1.length()), "dst and src1 buffer lengths don't match");
     errorif(!(dst.length() == src2.length()), "dst and src2 buffer lengths don't match");
@@ -143,7 +91,6 @@ multiply_add(const BT1 dst, const BT2 src1, const BT3 src2) noexcept
     {
         for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
-            //math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.length());
             math::multiply_add(dst.channel(ch), src1.channel(ch), src2.channel(0), dst.length());
         }
     }
@@ -154,8 +101,9 @@ multiply_add(const BT1 dst, const BT2 src1, const BT3 src2) noexcept
 }
 
 template <typename BT1, typename BT2, typename ValueType>
+inline
 typename enable_if_scalar<ValueType, void>::type
-multiply_add(const BT1 dst, const BT2 src, const ValueType multiplier) noexcept
+multiply_add(const BT1 dst, const BT2 src, const ValueType multiplier)
 {
     errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src1 buffer lengths don't match");
@@ -168,17 +116,18 @@ multiply_add(const BT1 dst, const BT2 src, const ValueType multiplier) noexcept
 }
 
 template <typename BT>
-void multiply(BT dst, const typename BT::value_type value) noexcept
+inline void multiply(BT dst, const typename BT::value_type value)
 {
     for (int ch = 0; ch < dst.num_channels(); ++ch)
     {
-        math::multiply(dst[ch], value, dst.length());
+        math::multiply(dst.channel(ch), value, dst.length());
     }
 }
 
 template <typename BT1, typename BT2>
+inline
 typename enable_if_buffer<BT2, void>::type
-multiply(BT1 dst, const BT2 src) noexcept
+multiply(BT1 dst, const BT2 src)
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -201,7 +150,7 @@ multiply(BT1 dst, const BT2 src) noexcept
 }
 
 template <typename BT1, typename BT2>
-void multiply(BT1 dst, BT2 src, typename BT1::value_type value) noexcept
+inline void multiply(BT1 dst, BT2 src, typename BT1::value_type value)
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -213,8 +162,9 @@ void multiply(BT1 dst, BT2 src, typename BT1::value_type value) noexcept
 }
 
 template <typename BT1, typename BT2>
+inline
 typename enable_if_buffer<BT2, void>::type
-add(BT1 dst, const BT2 src) noexcept
+add(BT1 dst, const BT2 src)
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -223,7 +173,7 @@ add(BT1 dst, const BT2 src) noexcept
     {
         for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
-            math::add(dst[ch], src[ch], dst.length());
+            math::add(dst.channel(ch), src.channel(ch), dst.length());
         }
     }
     // mono src, multichannel dst
@@ -231,22 +181,22 @@ add(BT1 dst, const BT2 src) noexcept
     {
         for (int ch = 0; ch < dst.num_channels(); ++ch)
         {
-            math::add(dst[ch], src[0], dst.length());
+            math::add(dst.channel(ch), src.channel(0), dst.length());
         }
     }
 }
 
 template <typename BT>
-void add(BT dst, const typename BT::value_type value) noexcept
+inline void add(BT dst, const typename BT::value_type value)
 {
     for (int ch = 0; ch < dst.num_channels(); ++ch)
     {
-        math::add(dst[ch], value, dst.length());
+        math::add(dst.channel(ch), value, dst.length());
     }
 }
 
 template <typename BT1, typename BT2>
-void buffer_substract(BT1 dst, const BT2 src) noexcept
+inline void buffer_substract(BT1 dst, const BT2 src)
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -269,69 +219,84 @@ void buffer_substract(BT1 dst, const BT2 src) noexcept
 }
 
 template <typename BT1, typename BT2>
-void copy(BT1 dst, BT2 src) noexcept
+inline void copy(BT1 dst, const BT2 src)
 {
     errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src lengths don't match");
 
     for (int ch=0; ch<dst.num_channels(); ++ch)
     {
-        math::copy(dst[ch], src[ch], dst.length());
+        math::copy(dst.channel(ch), src.channel(ch), dst.length());
     }
 }
 
 template <typename BT1, typename BT2>
-void copy_decimating(BT1 dst, BT2 src, int ratio) noexcept
+inline void copy_decimating(BT1 dst, BT2 src, int stride)
 {
-    errorif(dst.length() != src.length() / ratio, "dst.length (" << dst.length() << ") should be src.length/ratio (" << src.length() << "/" << ratio << ")");
-    errorif(src.length() % ratio != 0, "src.length should be divisible by ratio");
+    errorif(dst.length() != (src.length() / stride), "dst.length (" << dst.length() << ") should be src.length() / stride" << src.length() << "/" << stride << ") = " << src.length() / stride);
+    errorif(src.length() % stride != 0, "src.length should be divisible by ratio");
 
     for (int ch=0; ch<dst.num_channels(); ++ch)
     {
-        math::copy_decimating(dst[ch], src[ch], ratio, src.length());
+        math::copy_decimating(dst.channel(ch), src.channel(ch), stride, src.length());
+    }
+}
+    
+template <typename BT1, typename BT2>
+inline void copy_downmixing (BT1 dst, const BT2 src)
+{
+    errorif(dst.num_channels() != 1, "dst it not a mono buffer");
+    errorif(dst.length() != src.length(), "dst and src lengths don't match");
+
+    math::copy(dst.channel(0), src.channel(0), dst.length());
+    
+    for (int ch=1; ch<dst.num_channels(); ++ch)
+    {
+        math::copy(dst.channel(0), src.channel(ch), dst.length());
     }
 }
 
 template <typename BT>
-void clear(BT buffer) noexcept
+inline void clear(BT buffer)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::clear(buffer[ch], buffer.length());
+        math::clear(buffer.channel(ch), buffer.length());
     }
 }
 
 template <typename BT>
-void normalise(BT buffer)
+inline void normalise(BT buffer)
 {
-    using T = typename BT::value_type;
+    typedef typename BT::value_type T;
 
     T max = 0;
-    for (auto ch = 0; ch < buffer.num_channels(); ++ch)
+    for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
         T* ptr = buffer[ch];
 
         for (int i = 0; i < buffer.length(); ++i)
         {
-            max = puro::math::max(abs(ptr[i]), max);
+            max = math::max(abs(ptr[i]), max);
         }
     }
 
     if (max > 0)
     {
-        for (auto ch = 0; ch < buffer.num_channels(); ++ch)
+        for (int ch = 0; ch < buffer.num_channels(); ++ch)
         {
             T* ptr = buffer[ch];
-            for (auto ch=0; ch<buffer.num_channels(); ++ch)
+            const float mult = recipf_ti(max);
+            for (int ch=0; ch<buffer.num_channels(); ++ch)
             {
-                math::multiply(ptr, static_cast<T>(1)/max, buffer.length());
+                math::multiply(ptr, mult, buffer.length());
             }
         }
     }
 }
 
 template <typename BT>
-void max(BT buffer, const typename BT::value_type value)
+inline void max(BT buffer, const typename BT::value_type value)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
@@ -340,7 +305,7 @@ void max(BT buffer, const typename BT::value_type value)
 }
 
 template <typename BT>
-void pow(BT buffer, const typename BT::value_type power)
+inline void pow(BT buffer, const typename BT::value_type power)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
@@ -349,7 +314,7 @@ void pow(BT buffer, const typename BT::value_type power)
 }
 
 template <typename BT>
-void reciprocal(BT buffer)
+inline void reciprocal(BT buffer)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
@@ -358,25 +323,26 @@ void reciprocal(BT buffer)
 }
 
 template <typename BT>
-void log(BT buffer) noexcept
+inline void log(BT buffer)
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::log(buffer[ch], buffer.length());
+        math::log(buffer.channel(ch), buffer.length());
     }
 }
 
 template <typename BT>
-void negate(BT buffer) noexcept
+inline void negate(BT buffer)
 {
+    typedef typename BT::value_type T;
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::multiply(buffer[ch], static_cast<typename BT::value_type> (-1), buffer.length());
+        math::multiply(buffer.channel(ch), static_cast<T>(-1), buffer.length());
     }
 }
 
 template <typename BT>
-typename BT::value_type sum(BT buffer) noexcept
+typename BT::value_type sum(BT buffer) 
 {
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {

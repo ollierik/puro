@@ -45,7 +45,7 @@ PanCoeffs<FloatType, 2> pan_create_stereo(FloatType pan) noexcept
 }
 
 template <typename BufferType, typename PanType>
-void content_pan_apply(BufferType dst, BufferType src, PanType coeffs) noexcept
+void pan_apply(BufferType dst, BufferType src, PanType coeffs) noexcept
 {
     errorif(src.getNumChannels() != coeffs.getNumChannels(), "channel configs between src and coeffs don't match");
     errorif(dst.getNumChannels() != coeffs.getNumChannels(), "channel configs between dst and coeffs don't match");
@@ -68,13 +68,13 @@ void content_pan_apply(BufferType dst, BufferType src, PanType coeffs) noexcept
 }
 
 template <typename BufferType, typename SourceBufferType, typename PanType>
-void content_pan_apply_and_add(BufferType dst, SourceBufferType src, PanType coeffs) noexcept
+void pan_apply_and_add(BufferType dst, SourceBufferType src, PanType coeffs) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
     const int numChannels = coeffs.getNumChannels();
 
-    if (dst.getNumChannels() == src.getNumChannels())
+    if (dst.num_channels() == src.num_channels())
     {
         for (int fromCh = 0; fromCh < numChannels; ++fromCh)
         {
@@ -86,7 +86,7 @@ void content_pan_apply_and_add(BufferType dst, SourceBufferType src, PanType coe
         }
     }
     // mono source to multichannel
-    else if (dst.getNumChannels() != src.getNumChannels() && src.getNumChannels() == 1)
+    else if (dst.num_channels() != src.num_channels() && src.num_channels() == 1)
     {
         for (int toCh = 0; toCh < numChannels; ++toCh)
         {

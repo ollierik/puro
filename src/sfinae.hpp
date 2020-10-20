@@ -20,6 +20,9 @@ struct enable_if_buffer <fixed_buffer<NumChannels, Length, T>, Result> { typedef
     
 template <int NumChannels, typename T, typename Result>
 struct enable_if_buffer <buffer<NumChannels, T>, Result> { typedef Result type; };
+    
+template <int MaxNumChannels, typename T, typename Result>
+struct enable_if_buffer <dynamic_buffer<MaxNumChannels, T>, Result> { typedef Result type; };
 
 
 } // namespace puro

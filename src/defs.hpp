@@ -8,38 +8,33 @@
     #define PURO_GCC 1
 #endif
 
-#ifndef PURO_DEBUG
-    #ifdef _DEBUG
-        #define PURO_DEBUG 1
-    #endif
-#endif
+#define _C99_MATH 1
 
 #if PURO_MSVC
     #define NOMINMAX
-#endif
-
-// TODO errorif works with Windows only for now
-
-#if PURO_MSVC
     #include <Windows.h>
     #include <intrin.h> // MSVS breakpoint
     #define breakpoint __debugbreak()
+    #define PURO_RESTRICT __restrict
+    #define FORCE_INLINE __forceinline
 #elif PURO_XCODE
     #define breakpoint { asm ("int $3"); }
+    #define PURO_RESTRICT __restrict__
+    #define FORCE_INLINE __attribute__((always_inline))
 #elif PURO_GCC
     #define breakpoint raise(SIGABRT)
+    #define PURO_RESTRICT __restrict__
+#endif
+
+
+#ifndef PURO_DEBUG
+    #define PURO_DEBUG 1
 #endif
 
 #if PURO_DEBUG == 1
-    #define errorif(condition, msg) if ((condition)) { std::cout << msg << std::endl; breakpoint; }
+    #define errorif(condition, msg) if ((condition)) { std::cout << msg << "\n"; breakpoint; }
 #else
     #define errorif(condition, msg) ((void)0)
 #endif
 
 
-#ifndef PURO_BUFFER_WRAP_VECTOR_RESIZING
-    #define PURO_BUFFER_WRAP_VECTOR_RESIZING 1
-#endif
-
-
- 

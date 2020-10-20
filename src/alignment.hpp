@@ -3,7 +3,7 @@
 namespace puro 
 {
 
-struct RelativeAlignment
+struct relative_alignment
 {
     int offset;
     int remaining;
@@ -22,14 +22,16 @@ std::tuple<BufferType, AlignmentType> alignment_advance_and_crop_buffer(BufferTy
     // grain should begin this block
     if (alignment.offset > 0)
     {
-        buffer = puro::buffer_trim_begin(buffer, alignment.offset);
+        //buffer = puro::buffer_trim_begin(buffer, alignment.offset);
+        buffer = buffer.sub(alignment.offset, buffer.length() - alignment.offset);
         alignment.offset = 0;
     }
 
     // restrict range if the sound object should terminate this block
     if (alignment.remaining < buffer.length())
     {
-        buffer = puro::buffer_trim_length(buffer, alignment.remaining);
+        //buffer = puro::buffer_trim_length(buffer, alignment.remaining);
+        buffer = buffer.trunc(alignment.remaining);
     }
 
     alignment.remaining -= buffer.length();

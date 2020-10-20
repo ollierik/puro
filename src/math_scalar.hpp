@@ -7,15 +7,15 @@ namespace math {
 constexpr auto pi = 3.14159265358979323846;
 
 template <typename ValueType>
-ValueType min(ValueType f1, ValueType f2) noexcept
+ValueType min(const ValueType& a, const ValueType& b) noexcept
 {
-    return f1 < f2 ? f1 : f2;
+    return a < b ? a : b;
 }
 
 template <typename ValueType>
-ValueType max(ValueType f1, ValueType f2) noexcept
+ValueType max(ValueType a, ValueType b) noexcept
 {
-    return f1 > f2 ? f1 : f2;
+    return a > b ? a : b;
 }
 
 template <typename ValueType>

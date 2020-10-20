@@ -227,6 +227,39 @@ void normalise_energy(FloatType* buf, const int n) noexcept
     for (int i = 0; i < n; ++i)
         buf[i] /= sum;
 }
+    
+// COMPLEX
+    
+/** Multiply src buffer with value and set to dst */
+template <typename T>
+inline void complex_multiply(T* PURO_RESTRICT dst, const T* PURO_RESTRICT src, const int n)
+{
+    for (int i=0; i < n; i += 2)
+    {
+        const T a = dst[i];
+        const T b = dst[i+1];
+        const T c = src[i];
+        const T d = src[i+1];
+
+        dst[i]   = a * c - b * d;
+        dst[i+1] = a * d + b * c;
+    }
+}
+
+template <typename T>
+inline void complex_multiply(T* PURO_RESTRICT dst, const T* PURO_RESTRICT src1, const T* PURO_RESTRICT src2, const int n)
+{
+    for (int i=0; i < n; i += 2)
+    {
+        const T a = src1[i];
+        const T b = src1[i+1];
+        const T c = src2[i];
+        const T d = src2[i+1];
+
+        dst[i]   = a * c - b * d;
+        dst[i+1] = a * d + b * c;
+    }
+}
 
 } // namespace math
 } // namespace puro

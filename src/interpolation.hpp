@@ -20,8 +20,8 @@ BufferType interp1_crop_buffer(BufferType buffer, int samplesAvailable, SeqType 
     return buffer;
 }
 
-template <int interpolationOrder=3, typename PositionType>
-std::tuple<RelativeAlignment, PositionType> interp_avoid_out_of_bounds_reads(RelativeAlignment alignment, PositionType readPos, const PositionType readInc, const int sourceLength) noexcept
+template <int interpolationOrder, typename AlignmentType, typename PositionType>
+std::tuple<AlignmentType, PositionType> interp_avoid_out_of_bounds_reads(AlignmentType alignment, PositionType readPos, const PositionType readInc, int sourceLength) noexcept
 {
     int prepad;
     int postpad;
@@ -96,13 +96,13 @@ PositionType interp3_fill(BufferType buffer, SourceBufferType source, const Posi
 {
     using FloatType = typename BufferType::value_type;
 
-    errorif((buffer.getNumChannels() != source.getNumChannels()) && (source.getNumChannels() != 1),
+    errorif((buffer.num_channels() != source.num_channels()) && (source.num_channels() != 1),
         "channel configuration not implemented");
 
     PositionType position = readPos;
 
     // identical channel config
-    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+    for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
         //SeqType chSeq = seq;
         position = readPos;

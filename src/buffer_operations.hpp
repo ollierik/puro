@@ -286,7 +286,7 @@ inline void normalise(BT buffer)
         for (int ch = 0; ch < buffer.num_channels(); ++ch)
         {
             T* ptr = buffer[ch];
-            const float mult = recipf_ti(max);
+            const float mult = (T)1/max;
             for (int ch=0; ch<buffer.num_channels(); ++ch)
             {
                 math::multiply(ptr, mult, buffer.length());

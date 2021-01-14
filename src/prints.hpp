@@ -26,7 +26,7 @@ void print_buffer_table_row(int i, const N&, const B& buffer)
 {
     if (i < buffer.length())
         for (auto ch=0; ch < buffer.num_channels(); ++ch)
-            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer[ch][i] << " | ";
+            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer.channel(ch)[i] << " | ";
     else
         for (auto ch=0; ch < buffer.num_channels(); ++ch)
             std::cout << std::fixed << std::setw(12) << " " << " | ";
@@ -39,7 +39,7 @@ void print_buffer_table_row(int i, const N&, const B& buffer, const Ts&... rest)
 {
     if (i < buffer.length())
         for (auto ch=0; ch < buffer.num_channels(); ++ch)
-            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer[ch][i] << " | ";
+            std::cout << std::fixed << std::setw(12) << std::setprecision(5) << buffer.channel(ch)[i] << " | ";
     else
         for (auto ch=0; ch < buffer.num_channels(); ++ch)
             std::cout << std::fixed << std::setw(12) << " " << " | ";

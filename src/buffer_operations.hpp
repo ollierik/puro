@@ -344,10 +344,41 @@ inline void negate(BT buffer)
 template <typename BT>
 typename BT::value_type sum(BT buffer) 
 {
+    typedef typename BT::value_type T;
+    
+    T sigma = 0;
+    
     for (int ch=0; ch<buffer.num_channels(); ++ch)
     {
-        math::sum(buffer[ch], buffer.length());
+        sigma = math::sum(buffer.channel(ch), buffer.length());
+    }
+                          
+    return sigma;
+}
+    
+template <typename BT>
+typename BT::value_type abssum(BT buffer)
+{
+    typedef typename BT::value_type T;
+
+    T sigma = 0;
+
+    for (int ch=0; ch<buffer.num_channels(); ++ch)
+    {
+        sigma = math::abssum(buffer.channel(ch), buffer.length());
+    }
+
+    return sigma;
+}
+    
+template <typename BT>
+inline void clip_low(BT dst, const typename BT::value_type low)
+{
+    for (int ch = 0; ch < dst.num_channels(); ++ch)
+    {
+        math::clip_low(dst.channel(ch), low, dst.length());
     }
 }
     
+
 } // namespace puro

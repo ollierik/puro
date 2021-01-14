@@ -43,7 +43,7 @@ void spectrum_magnitudes(BT1 dstReal, BT2 srcComplex)
 
         for (int si=2, di=1; si < srcComplex.length(); si+=2, ++di)
         {
-            dst[di] = sqrtf_ti(src[si]*src[si] + src[si+1] * src[si+1]);
+            dst[di] = std::sqrt(src[si]*src[si] + src[si+1] * src[si+1]);
         }
     }
 }

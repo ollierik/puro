@@ -6,36 +6,6 @@
 namespace puro {
 namespace math {
 
-/** FFT wrapper for pffft. Results are not normalised!
-    irfft(rfft(signal)) = fftSize * signal */
-struct fft
-{
-    fft(int size) : setup(pffft_new_setup(size, PFFFT_REAL)), n(size)
-    {}
-
-    ~fft()
-    {
-        pffft_destroy_setup(setup);
-    }
-
-    void rfft(float* dst, float* src)
-    {
-        pffft_transform_ordered(setup, src, dst, 0, PFFFT_FORWARD);
-    }
-
-    void irfft(float* dst, float* src, bool normalise=true)
-    {
-        pffft_transform_ordered(setup, src, dst, 0, PFFFT_BACKWARD);
-    }
-
-    int length() const
-    {
-        return n;
-    }
-
-    PFFFT_Setup* setup;
-    int n;
-};
 
 /** Memory-aligned allocator for pffft */
 template <typename T=float>
@@ -57,28 +27,28 @@ struct allocator
 };
 
 template <typename FloatType>
-void multiply(FloatType* dst, const FloatType value, const int n) noexcept
+inline void multiply(FloatType* dst, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] *= value;
 };
 
 template <typename FloatType>
-void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const int n) noexcept
+inline void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] *= src[i];
 };
 
 template <typename FloatType>
-void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src1, const FloatType* PURO_RESTRICT src2, const int n) noexcept
+inline void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src1, const FloatType* PURO_RESTRICT src2, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src1[i] * src2[i];
 };
 
 template <typename FloatType>
-void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
+inline void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src[i] * value;
@@ -86,7 +56,7 @@ void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT s
 
 /** Multiply src buffer with value and set to dst */
 template <typename FloatType>
-void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
+inline void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] = src[i] * value;
@@ -94,7 +64,7 @@ void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, 
 
 /** In-place sin */
 template <typename FloatType>
-void sin(FloatType* buf, const int n) noexcept
+inline void sin(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] = std::sin(buf[i]);
@@ -102,14 +72,14 @@ void sin(FloatType* buf, const int n) noexcept
 
 /** In-place cosine */
 template <typename FloatType>
-void cos(FloatType* buf, const int n) noexcept
+inline void cos(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] = std::cos(buf[i]);
 }
     
 template <typename FloatType>
-void osc(FloatType* buf, FloatType norm_freq, const int n)
+inline void osc(FloatType* buf, FloatType norm_freq, const int n)
 {
     const FloatType inc = norm_freq * 2 * pi;
     FloatType phase = 0;
@@ -122,14 +92,14 @@ void osc(FloatType* buf, FloatType norm_freq, const int n)
 }
     
 template <typename FloatType>
-void reciprocal(FloatType* buf, const int n)
+inline void reciprocal(FloatType* buf, const int n)
 {
     for (int i=0; i<n; ++i)
         buf[i] = ((FloatType)1) / buf[i];
 }
     
 template <typename FloatType>
-void max(FloatType* buf, FloatType value, const int n)
+inline void max(FloatType* buf, FloatType value, const int n)
 {
     for (int i=0; i<n; ++i)
         buf[i] = buf[i] > value ? buf[i] : value;
@@ -137,7 +107,7 @@ void max(FloatType* buf, FloatType value, const int n)
 
 /** Copy from source to destination */
 template <typename FloatType>
-void copy(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
+inline void copy(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] = src[i];
@@ -145,7 +115,7 @@ void copy(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int 
     
 /** Copy every ratioth sample from source to destination */
 template <typename FloatType>
-void copy_decimating(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int stride, const int n) noexcept
+inline void copy_decimating(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int stride, const int n) noexcept
 {
     for (int i = 0, j = 0; i < n; ++i, j += stride)
         dst[i] = src[j];
@@ -153,7 +123,7 @@ void copy_decimating(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src,
 
 /** Add from source to destination */
 template <typename FloatType>
-void add(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
+inline void add(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] += src[i];
@@ -161,7 +131,7 @@ void add(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n
 
 /** Add constant */
 template <typename FloatType>
-void add(FloatType* buf, FloatType value, const int n) noexcept
+inline void add(FloatType* buf, FloatType value, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] += value;
@@ -169,7 +139,7 @@ void add(FloatType* buf, FloatType value, const int n) noexcept
 
 /** Substract source from destination */
 template <typename FloatType>
-void substract(FloatType* dst, FloatType* src, const int n) noexcept
+inline void substract(FloatType* dst, FloatType* src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] -= src[i];
@@ -177,7 +147,7 @@ void substract(FloatType* dst, FloatType* src, const int n) noexcept
 
 /** Set to constant */
 template <typename FloatType>
-void set(FloatType* buf, FloatType value, const int n) noexcept
+inline void set(FloatType* buf, FloatType value, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] = value;
@@ -185,21 +155,21 @@ void set(FloatType* buf, FloatType value, const int n) noexcept
 
 /** Set to 0 */
 template <typename FloatType>
-void clear(FloatType* buf, const int n) noexcept
+inline void clear(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] = 0;
 }
     
 template <typename FloatType>
-void pow(FloatType* buf, FloatType power, const int n)
+inline void pow(FloatType* buf, FloatType power, const int n)
 {
     for (int i=0; i<n; ++i)
         buf[i] = std::pow(buf[i], power);
 }
     
 template <typename FloatType>
-void log(FloatType* buf, const int n) noexcept
+inline void log(FloatType* buf, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] = std::log(buf[i]);
@@ -207,7 +177,7 @@ void log(FloatType* buf, const int n) noexcept
 
 
 template <typename FloatType>
-FloatType sum(FloatType* buf, const int n) noexcept
+inline FloatType sum(FloatType* buf, const int n) noexcept
 {
     FloatType sigma = 0;
     
@@ -217,15 +187,37 @@ FloatType sum(FloatType* buf, const int n) noexcept
     return sigma;
 }
     
+template <typename FloatType>
+inline FloatType abssum(FloatType* buf, const int n) noexcept
+{
+    FloatType sigma = 0;
+
+    for (int i=0; i<n; ++i)
+        sigma += std::abs(buf[i]);
+
+    return sigma;
+}
+    
+/** Add constant */
+template <typename FloatType>
+inline void clip_low(FloatType* buf, FloatType value, const int n) noexcept
+{
+    for (int i=0; i<n; ++i)
+        buf[i] = max(buf[i], value);
+}
+    
 /** Divide by sum of abs(buf)  */
 template <typename FloatType>
-void normalise_energy(FloatType* buf, const int n) noexcept
+inline void normalise_energy(FloatType* buf, const int n) noexcept
 {
     float sum = 0;
     for (int i = 0; i < n; ++i)
         sum += abs(buf[i]);
-    for (int i = 0; i < n; ++i)
-        buf[i] /= sum;
+    if (sum != 0)
+    {
+        for (int i = 0; i < n; ++i)
+            buf[i] /= sum;
+    }
 }
     
 // COMPLEX
@@ -260,6 +252,70 @@ inline void complex_multiply(T* PURO_RESTRICT dst, const T* PURO_RESTRICT src1, 
         dst[i+1] = a * d + b * c;
     }
 }
+    
+/** FFT wrapper for pffft. Results are not normalised!
+ irfft(rfft(signal)) = fftSize * signal */
+struct fft
+{
+    fft(int size) : setup(pffft_new_setup(size, PFFFT_REAL)), fft_size(size)
+    {}
+
+    ~fft()
+    {
+        pffft_destroy_setup(setup);
+    }
+
+    template <typename BT>
+    void rfft(BT buffer)
+    {
+        for (int ch=0; ch<buffer.num_channels(); ++ch)
+        {
+            pffft_transform_ordered(setup, buffer.channel(ch), buffer.channel(ch), 0, PFFFT_FORWARD);
+        }
+    }
+
+    template <typename BT1, typename BT2>
+    void rfft(BT1 dst, BT2 src)
+    {
+        errorif(dst.num_channels() != src.num_channels(), "number of channels not same");
+        for (int ch=0; ch < dst.num_channels(); ++ch)
+        {
+            pffft_transform_ordered(setup, src.channel(ch), dst.channel(ch), 0, PFFFT_FORWARD);
+        }
+    }
+
+    template <typename BT, bool Normalise = true>
+    void irfft(BT buffer)
+    {
+        for (int ch=0; ch<buffer.num_channels(); ++ch)
+        {
+            pffft_transform_ordered(setup, buffer.channel(ch), buffer.channel(ch), 0, PFFFT_BACKWARD);
+            if (Normalise)
+                math::multiply(buffer.channel(ch), 1.0f/(float)fft_size, buffer.length());
+        }
+
+    }
+
+    template <typename BT1, typename BT2, bool Normalise = true>
+    void irfft(BT1 dst, BT2 src)
+    {
+        errorif(dst.num_channels() != src.num_channels(), "number of channels not same");
+        for (int ch=0; ch < dst.num_channels(); ++ch)
+        {
+            pffft_transform_ordered(setup, src.channel(ch), dst.channel(ch), 0, PFFFT_BACKWARD);
+            if (Normalise)
+                math::multiply(dst.channel(ch), 1.0f/(float)fft_size, dst.length());
+        }
+    }
+
+    int length() const
+    {
+        return fft_size;
+    }
+
+    PFFFT_Setup* setup;
+    int fft_size;
+};
 
 } // namespace math
 } // namespace puro

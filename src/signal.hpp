@@ -4,43 +4,43 @@ namespace puro {
 
 
 template <typename BufferType>
-void constant(BufferType buffer, typename BufferType::value_type value) noexcept
+inline void constant(BufferType buffer, typename BufferType::value_type value) noexcept
 {
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
-        math::set(buffer[ch], value, buffer.length());
+        math::set(buffer.channel(ch), value, buffer.length());
     }
 }
     
 template <typename BufferType>
-void impulse(BufferType buffer, int index) noexcept
+inline void impulse(BufferType buffer, int index) noexcept
 {
     errorif(index < 0 || index > buffer.length(), "index out of bounds");
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
-        math::clear(buffer[ch], buffer.length());
+        math::clear(buffer.channel(ch), buffer.length());
         buffer[ch][index] = 1;
     }
 }
     
 /// norm_freq between [0, 0.5)
 template <typename BufferType>
-void osc(BufferType buffer, typename BufferType::value_type norm_freq) noexcept
+inline void osc(BufferType buffer, typename BufferType::value_type norm_freq) noexcept
 {
     for (auto ch=0; ch < buffer.num_channels(); ++ch)
     {
-        math::osc(buffer[ch], norm_freq, buffer.length());
+        math::osc(buffer.channel(ch), norm_freq, buffer.length());
     }
 }
 
 template <typename BufferType>
-void noise(BufferType buffer) noexcept
+inline void noise(BufferType buffer) noexcept
 {
     using FloatType = typename BufferType::value_type;
 
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
-        auto dst = buffer[ch];
+        auto dst = buffer.channel(ch);
         for (int i = 0; i < buffer.length(); ++i)
         {
             const FloatType coef = static_cast<FloatType> (1) / static_cast<FloatType> (RAND_MAX / 2);
@@ -52,7 +52,7 @@ void noise(BufferType buffer) noexcept
 }
 
 template <typename BufferType>
-void linspace(BufferType buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
+inline void linspace(BufferType buffer, typename BufferType::value_type start, typename BufferType::value_type end) noexcept
 {
     using ValueType = typename BufferType::value_type;
     
@@ -72,7 +72,7 @@ void linspace(BufferType buffer, typename BufferType::value_type start, typename
 }
     
 template <typename BT1, typename BT2, typename KT>
-void convolve_sparse(BT1 dst, BT2 src, KT kernel, int kernel_offset, int stride) noexcept
+inline void convolve_sparse(BT1 dst, BT2 src, KT kernel, int kernel_offset, int stride) noexcept
 {
     clear(dst);
     

@@ -5,6 +5,14 @@
 #include <string>
 #include <cstdio>
 
+#ifndef PURO_PYTHON_EXE
+    #if PURO_XCODE
+        #define PURO_PYTHON_EXE "/usr/local/bin/python3 -c \"\n";
+    #elif PURO_MSVS
+        #define PURO_PYTHON_EXE "\"C:\\Python37\\python.exe\" -c \"";
+    #endif
+#endif
+
 struct Plot
 {
     template <typename BufferType>
@@ -114,13 +122,12 @@ public:
         const std::string endl = ";\n";
 
         std::string cmd;
-    #if PURO_XCODE
-        cmd = "/usr/local/bin/python3 -c \"\n";
-    #elif PURO_MSVC
-        cmd = "\"C:\\Python37\\python.exe\" -c \"";
-    #endif
-        //cmd << "import numpy as np" << endl;
-        //cmd << "import pylab as plt" << endl;
+        cmd = PURO_PYTHON_EXE;
+    //#if PURO_XCODE
+        //cmd = "/usr/local/bin/python3 -c \"\n";
+    //#elif PURO_MSVC
+        //cmd = "\"C:\\Python37\\python.exe\" -c \"";
+    //#endif
 
         for (std::string& s : imports)
             cmd += s + endl;

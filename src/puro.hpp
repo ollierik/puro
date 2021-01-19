@@ -36,5 +36,6 @@
 #include "panning.hpp"
 #include "prints.hpp"
 
+#include "plot.hpp"
 #include "../include/pffft.h"
 

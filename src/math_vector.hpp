@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../include/pffft.h"
-
 /** Maths routines, mostly for buffers. Used to allow flexibility later on by implementing vector math libs such as IPP */
 namespace puro {
 namespace math {

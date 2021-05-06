@@ -196,7 +196,7 @@ inline void add(BT dst, const typename BT::value_type value)
 }
 
 template <typename BT1, typename BT2>
-inline void buffer_substract(BT1 dst, const BT2 src)
+inline void substract(BT1 dst, const BT2 src)
 {
     errorif(dst.length() != src.length(), "dst and src buffer lengths don't match");
 
@@ -273,7 +273,7 @@ inline void normalise(BT buffer)
     T max = 0;
     for (int ch = 0; ch < buffer.num_channels(); ++ch)
     {
-        T* ptr = buffer[ch];
+        T* ptr = buffer.channel(ch);
 
         for (int i = 0; i < buffer.length(); ++i)
         {
@@ -285,7 +285,7 @@ inline void normalise(BT buffer)
     {
         for (int ch = 0; ch < buffer.num_channels(); ++ch)
         {
-            T* ptr = buffer[ch];
+            T* ptr = buffer.channel(ch);
             const float mult = (T)1/max;
             for (int ch=0; ch<buffer.num_channels(); ++ch)
             {

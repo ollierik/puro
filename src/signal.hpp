@@ -58,7 +58,7 @@ inline void linspace(BufferType buffer, typename BufferType::value_type start, t
     
     const ValueType increment = (end - start) / buffer.length();
     
-    auto* ch0 = buffer[0];
+    auto* ch0 = buffer.channel(0);
     for (int i=0; i<buffer.length(); ++i)
     {
         ch0[i] = start;
@@ -67,7 +67,7 @@ inline void linspace(BufferType buffer, typename BufferType::value_type start, t
 
     for (int ch = 1; ch < buffer.num_channels(); ++ch)
     {
-        math::copy(buffer[ch], ch0, buffer.length());
+        math::copy(buffer.channel(ch), ch0, buffer.length());
     }
 }
     
@@ -151,18 +151,19 @@ int buffer_fill_with_padding(BufferType buffer, SorceBufferType source, int read
     // if position is negative, fill the beginning with zeros and crop buffer
     if (readIndex < 0)
     {
-        BufferType prePad;
-        std::tie(prePad, buffer) = buffer_split(buffer, -readIndex);
-        constant_fill(prePad, 0);
+        buffer.sub(0, -readIndex).clear();
+        buffer = buffer.tail(-readIndex);
+        
         readIndex = 0;
     }
 
     // source buffer will run out, pad the end
     if (source.length() < (readIndex + buffer.length()))
     {
-        BufferType postPad;
-        std::tie(buffer, postPad) = buffer_split(buffer, source.length() - readIndex);
-        constant_fill(postPad, 0);
+        int n = source.length() - readIndex;
+        
+        buffer.tail(n).clear();
+        buffer = buffer.trunc(n);
     }
 
     // identical channel config

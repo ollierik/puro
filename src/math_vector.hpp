@@ -4,7 +4,6 @@
 namespace puro {
 namespace math {
 
-
 /** Memory-aligned allocator for pffft */
 template <typename T=float>
 struct allocator

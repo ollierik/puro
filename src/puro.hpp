@@ -18,6 +18,8 @@
 #include <utility>
 #include <vector>
 
+#include "../include/pffft.h"
+
 #include "math_scalar.hpp"
 #include "math_vector.hpp"
 #include "memory_source.hpp"
@@ -37,5 +39,4 @@
 #include "prints.hpp"
 
 #include "plot.hpp"
-#include "../include/pffft.h"
 

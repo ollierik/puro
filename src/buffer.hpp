@@ -233,6 +233,21 @@ struct buffer
         errorif (length > num_samples, "Requested length longer than current length");
         return buffer (length, ptrs);
     }
+    
+    inline buffer tail (int offset)
+    {
+        errorif (offset > num_samples, "Requested offset longer than current length");
+        return sub(offset, num_samples - offset);
+    }
+    
+    inline buffer slice (int start, int end)
+    {
+        errorif (start < end, "start is not smaller than end");
+        errorif (start < 0, "start is negative");
+        errorif (end > length(), "end exceeds length");
+        
+        return sub (start, end - start);
+    }
 
     inline buffer <1, T> mono (int ch) const
     {
@@ -254,6 +269,12 @@ struct buffer
         for (int ch = 0; ch < num_channels(); ++ch)
             ptrs[ch] = channel_ptrs[ch];
     }
+    
+    inline buffer(int length, T* const (&channel_ptrs) [NumChannels]) : num_samples(length)
+    {
+        for (int ch = 0; ch < num_channels(); ++ch)
+            ptrs[ch] = channel_ptrs[ch];
+    }
 
     template <typename MemorySource>
     inline buffer (int length, MemorySource& ms,
@@ -262,7 +283,22 @@ struct buffer
     {
         ms.assign_allocated(ptrs, NumChannels, num_samples);
     }
+
+    inline buffer (int length, std::vector<value_type>& vec)
+    : num_samples(length)
+    {
+        const int length_required = length * num_channels();
+        if (vec.size() < length_required)
+        {
+            vec.resize(length_required);
+        }
+        
+        for (int ch = 0; ch < num_channels(); ++ch)
+            ptrs[ch] = &vec[ch * length];
+    }
 };
+    
+
     
     
     

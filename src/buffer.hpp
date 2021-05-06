@@ -242,7 +242,7 @@ struct buffer
     
     inline buffer slice (int start, int end)
     {
-        errorif (start < end, "start is not smaller than end");
+        errorif (start > end, "start is not smaller than end");
         errorif (start < 0, "start is negative");
         errorif (end > length(), "end exceeds length");
         

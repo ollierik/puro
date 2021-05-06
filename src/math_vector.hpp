@@ -281,26 +281,28 @@ struct fft
         }
     }
 
-    template <typename BT, bool Normalise = true>
-    void irfft(BT buffer)
+    template <typename BT>
+    void irfft(BT buffer, bool normalise = true)
     {
         for (int ch=0; ch<buffer.num_channels(); ++ch)
         {
             pffft_transform_ordered(setup, buffer.channel(ch), buffer.channel(ch), 0, PFFFT_BACKWARD);
-            if (Normalise)
+            
+            if (normalise)
                 math::multiply(buffer.channel(ch), 1.0f/(float)fft_size, buffer.length());
         }
 
     }
 
-    template <typename BT1, typename BT2, bool Normalise = true>
-    void irfft(BT1 dst, BT2 src)
+    template <typename BT1, typename BT2>
+    void irfft(BT1 dst, BT2 src, bool normalise = true)
     {
         errorif(dst.num_channels() != src.num_channels(), "number of channels not same");
         for (int ch=0; ch < dst.num_channels(); ++ch)
         {
             pffft_transform_ordered(setup, src.channel(ch), dst.channel(ch), 0, PFFFT_BACKWARD);
-            if (Normalise)
+            
+            if (normalise)
                 math::multiply(dst.channel(ch), 1.0f/(float)fft_size, dst.length());
         }
     }

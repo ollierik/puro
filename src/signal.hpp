@@ -11,7 +11,7 @@ inline void constant(BufferType buffer, typename BufferType::value_type value) n
         math::set(buffer.channel(ch), value, buffer.length());
     }
 }
-    
+
 template <typename BufferType>
 inline void impulse(BufferType buffer, int index) noexcept
 {

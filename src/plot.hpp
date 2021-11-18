@@ -1,17 +1,18 @@
 #pragma once
 
-#include <JuceHeader.h>
 #include "npy.hpp"
 #include <string>
 #include <cstdio>
 
 #ifndef PURO_PYTHON_EXE
-    #if PURO_XCODE
+    #if IS_XCODE
         #define PURO_PYTHON_EXE "/usr/local/bin/python3 -c \"\n";
-    #elif PURO_MSVS
+    #elif IS_MSVS
         #define PURO_PYTHON_EXE "\"C:\\Python37\\python.exe\" -c \"";
     #endif
 #endif
+
+#if 0
 
 struct Plot
 {
@@ -192,3 +193,5 @@ public:
     }
 };
 
+
+#endif

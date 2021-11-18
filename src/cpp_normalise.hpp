@@ -9,6 +9,10 @@
  *******************************************/
 #if defined (_MSC_VER)
 
+#ifndef IS_MSVC
+    #define IS_MSVC 1
+#endif IS_MSVC
+
 #define NOMINMAX // get rid of min and max macros on MSVC
 
 #ifndef RESTRICT
@@ -17,7 +21,7 @@
 
 #ifndef FORCE_INLINE
     #define FORCE_INLINE __forceinline
-#define FORCE_INLINE
+#endif // FORCE_INLINE
 
 /********************************************
  **** Windows MSVC - Debug
@@ -64,6 +68,10 @@
 ** Apple Xcode
 ********************************************/
 #if defined(__APPLE_CPP__)
+
+#ifndef IS_XCODE
+    #define IS_XCODE 1
+#endif
 
 #ifndef RESTRICT
     #define RESTRICT __restrict__

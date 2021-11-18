@@ -159,7 +159,7 @@ struct heap_block
 A pool of heap blocks to own memory used by buffers.
 Should be used on initialisation to allocate memory to buffers that are stored in the audio engine.
 */
-template <typename T, typename Allocator>
+template <typename T, typename Allocator = std::allocator<T>>
 class heap_block_pool
 {
 public:

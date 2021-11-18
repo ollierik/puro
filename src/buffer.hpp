@@ -15,7 +15,7 @@ struct fixed_buffer
 {
     typedef T value_type;
     
-    T* ptrs [NumChannels];
+    T* ptrs [NumChannels] = { 0 };
     
     constexpr static int num_channels() { return NumChannels; }
     constexpr static int length() { return Length; }
@@ -155,8 +155,8 @@ struct buffer
 {
     typedef T value_type;
     
-    int num_samples;
-    T* ptrs [NumChannels];
+    int num_samples = 0;
+    T* ptrs [NumChannels] = { 0 };
 
     constexpr static inline int num_channels() { return NumChannels; }
     inline int length() const { return num_samples; }
@@ -307,11 +307,11 @@ struct dynamic_buffer
 {
     typedef T value_type;
 
-    int num_chs;
-    int num_samples;
-    T* ptrs [MaxNumChannels];
+    int num_chs = 0;
+    int num_samples = 0;
+    T* ptrs [MaxNumChannels] = { 0 };
 
-    inline int num_channels() { return num_chs; }
+    inline int num_channels() const { return num_chs; }
     inline int length() const { return num_samples; }
 
     inline void clear() const

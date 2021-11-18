@@ -30,22 +30,22 @@ inline void multiply(FloatType* dst, const FloatType value, const int n) noexcep
         dst[i] *= value;
 };
 
-template <typename FloatType>
-inline void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const int n) noexcept
+template <typename TDst, typename TSrc>
+inline void multiply(TDst* RESTRICT dst, const TSrc* RESTRICT src, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] *= src[i];
 };
 
 template <typename FloatType>
-inline void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src1, const FloatType* PURO_RESTRICT src2, const int n) noexcept
+inline void multiply_add(FloatType* RESTRICT dst, const FloatType* RESTRICT src1, const FloatType* RESTRICT src2, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src1[i] * src2[i];
 };
 
 template <typename FloatType>
-inline void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
+inline void multiply_add(FloatType* RESTRICT dst, const FloatType* RESTRICT src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] += src[i] * value;
@@ -53,7 +53,7 @@ inline void multiply_add(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RES
 
 /** Multiply src buffer with value and set to dst */
 template <typename FloatType>
-inline void multiply(FloatType* PURO_RESTRICT dst, const FloatType* PURO_RESTRICT src, const FloatType value, const int n) noexcept
+inline void multiply(FloatType* RESTRICT dst, const FloatType* RESTRICT src, const FloatType value, const int n) noexcept
 {
     for (int i = 0; i < n; ++i)
         dst[i] = src[i] * value;
@@ -103,8 +103,8 @@ inline void max(FloatType* buf, FloatType value, const int n)
 }
 
 /** Copy from source to destination */
-template <typename FloatType>
-inline void copy(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
+template <typename TDst, typename TSrc>
+inline void copy(TDst* RESTRICT dst, TSrc* RESTRICT src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] = src[i];
@@ -112,23 +112,23 @@ inline void copy(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, con
     
 /** Copy every ratioth sample from source to destination */
 template <typename FloatType>
-inline void copy_decimating(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int stride, const int n) noexcept
+inline void copy_decimating(FloatType* RESTRICT dst, FloatType* RESTRICT src, const int stride, const int n) noexcept
 {
     for (int i = 0, j = 0; i < n; ++i, j += stride)
         dst[i] = src[j];
 }
 
 /** Add from source to destination */
-template <typename FloatType>
-inline void add(FloatType* PURO_RESTRICT dst, FloatType* PURO_RESTRICT src, const int n) noexcept
+template <typename TDst, typename TSrc>
+inline void add(TDst* RESTRICT dst, TSrc* RESTRICT src, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         dst[i] += src[i];
 }
 
 /** Add constant */
-template <typename FloatType>
-inline void add(FloatType* buf, FloatType value, const int n) noexcept
+template <typename TDst, typename TVal>
+inline void add(TDst* buf, TVal value, const int n) noexcept
 {
     for (int i=0; i<n; ++i)
         buf[i] += value;
@@ -221,7 +221,7 @@ inline void normalise_energy(FloatType* buf, const int n) noexcept
     
 /** Multiply src buffer with value and set to dst */
 template <typename T>
-inline void complex_multiply(T* PURO_RESTRICT dst, const T* PURO_RESTRICT src, const int n)
+inline void complex_multiply(T* RESTRICT dst, const T* RESTRICT src, const int n)
 {
     for (int i=0; i < n; i += 2)
     {
@@ -236,7 +236,7 @@ inline void complex_multiply(T* PURO_RESTRICT dst, const T* PURO_RESTRICT src, c
 }
 
 template <typename T>
-inline void complex_multiply(T* PURO_RESTRICT dst, const T* PURO_RESTRICT src1, const T* PURO_RESTRICT src2, const int n)
+inline void complex_multiply(T* RESTRICT dst, const T* RESTRICT src1, const T* RESTRICT src2, const int n)
 {
     for (int i=0; i < n; i += 2)
     {

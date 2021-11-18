@@ -18,9 +18,9 @@ struct ring_buffer
     typedef buffer<NumChannels, T> buffer_type;
     typedef ring_buffer_parts <buffer<NumChannels, T> > parts_type;
 
-    int num_samples;
-    int index;
-    T* ptrs [NumChannels];
+    int num_samples = 0;
+    int index = 0;
+    T* ptrs [NumChannels] = { 0 };
 
     inline int length() const { return num_samples; }
     static inline int num_channels() { return NumChannels; } // some more advanced class may want to redefine this
@@ -62,6 +62,58 @@ struct ring_buffer
     
 };
 
+template <int MaxNumChannels, typename T = float>
+struct dynamic_ring_buffer
+{
+    typedef T value_type;
+    typedef dynamic_buffer<MaxNumChannels, T> buffer_type;
+    typedef ring_buffer_parts <dynamic_buffer<MaxNumChannels, T>> parts_type;
+
+    int num_chs = 0;
+    int num_samples = 0;
+    int index = 0;
+    T* ptrs [MaxNumChannels] = { 0 };
+
+    inline int length() const { return num_samples; }
+    inline int num_channels() { return num_chs; }
+
+    T* channel(int ch) const
+    {
+        errorif(ch < 0 || ch >= num_channels(), "channel out of range");
+        return ptrs[ch];
+    }
+    
+    /**
+     Return ring_buffer as buffer.
+     No wrapping or index offsetting here, caller is in charge of ensuring that we won't end up out-of-bounds.
+     */
+    buffer_type raw_buffer (int offset, int length)
+    {
+        buffer_type buf (num_channels(), length);
+        for (int ch=0; ch<MaxNumChannels; ++ch)
+        {
+            buf.ptrs[ch] = &ptrs[ch][offset];
+        }
+        return buf;
+    }
+
+    // ctors
+    inline dynamic_ring_buffer() {};
+    inline dynamic_ring_buffer(int num_chs, int length) : num_chs(num_chs), num_samples(length), index(0) {};
+    inline dynamic_ring_buffer(int num_chs, int length, T** channelPtrs) : num_chs(num_chs), num_samples(length)
+    {
+        for (int ch = 0; ch < num_channels(); ++ch)
+            ptrs[ch] = channelPtrs[ch];
+    }
+    
+    template <typename MemorySource>
+    inline dynamic_ring_buffer (int num_channels, int length, MemorySource& ms) : num_chs(num_channels), num_samples(length), index(0)
+    {
+        ms.assign_allocated(ptrs, num_chs, num_samples);
+    }
+    
+};
+
     
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +151,7 @@ ring_buffer_get_parts(RBT ringbuf, int offset, int length)
     else
     {
         BT b0 = ringbuf.raw_buffer (i0, length);
-        BT b1 = BT (0);
+        BT b1 = {};
         return PT (b0, b1);
     }
 }

@@ -219,7 +219,7 @@ inline void substract(BT1 dst, const BT2 src)
 }
 
 template <typename BT1, typename BT2>
-inline void copy(BT1 dst, const BT2 src)
+inline void copy (BT1 dst, const BT2 src)
 {
     errorif(dst.num_channels() != src.num_channels(), "dst and src channel number doesn't match");
     errorif(dst.length() != src.length(), "dst and src lengths don't match");
